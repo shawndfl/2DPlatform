@@ -1,0 +1,117 @@
+[
+  {
+    "id": "block",
+    "loc": [0, 0, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "slop.left",
+    "loc": [32, 0, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "slop.right",
+    "loc": [64, 0, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.half",
+    "loc": [96, 0, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.half.highlight",
+    "loc": [128, 0, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "empty",
+    "loc": [64, 32, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "tree",
+    "loc": [0, 32, 64, 64],
+    "offset": [-64, -48]
+  },
+  {
+    "id": "slop.back.right",
+    "loc": [96, 32, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "slop.back.left",
+    "loc": [128, 32, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.highlight",
+    "loc": [160, 0, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.brick",
+    "loc": [160, 32, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.grass",
+    "loc": [64, 64, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.grass.patch",
+    "loc": [96, 64, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.grass.dirt",
+    "loc": [128, 64, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.grass.edge.left",
+    "loc": [32, 96, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.grass.edge.right",
+    "loc": [64, 96, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "block.grass.edge.both",
+    "loc": [160, 64, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "coin.0",
+    "loc": [96, 96, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "coin.1",
+    "loc": [128, 96, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "coin.2",
+    "loc": [160, 96, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "coin.collect.1",
+    "loc": [192, 96, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "coin.collect.2",
+    "loc": [224, 96, 32, 32],
+    "offset": [-32, -48]
+  },
+  {
+    "id": "coin.collect.3",
+    "loc": [256, 96, 32, 32],
+    "offset": [-32, -48]
+  }
+]

@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"editor.formatOnSave": true,
+		"prettier.singleQuote": true,
+		"js/ts.implicitProjectConfig.checkJs": true
+	}
+}

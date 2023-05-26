@@ -1,0 +1,179 @@
+[
+  {
+    "id": "error",
+    "loc": [1, 0, 16, 23],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.down.step.left",
+    "loc": [1, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.down.step.right",
+    "loc": [18, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.up.step",
+    "loc": [35, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.left.stand",
+    "loc": [52, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.left.step",
+    "loc": [69, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.climb.1",
+    "loc": [80, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.climb.2",
+    "loc": [102, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.scared",
+    "loc": [119, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.climb.3",
+    "loc": [136, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.sit",
+    "loc": [156, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.down.left.stand",
+    "loc": [170, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.down.left.step",
+    "loc": [187, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.up.left.stand",
+    "loc": [204, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.up.left.step",
+    "loc": [221, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+  {
+    "id": "ness.success",
+    "loc": [238, 24, 16, 24],
+    "offset": [-16, -15]
+  },
+
+  {
+    "id": "poo.down.step",
+    "loc": [1, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "poo.up.step",
+    "loc": [19, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "poo.left.stand",
+    "loc": [34, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "poo.left.step",
+    "loc": [50, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "poo.site.1",
+    "loc": [84, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "poo.site.2",
+    "loc": [1, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "poo.down.left.stand",
+    "loc": [1, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "poo.down.left.step",
+    "loc": [1, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "poo.up.left.stand",
+    "loc": [1, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "poo.down.left.step",
+    "loc": [1, 56, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "mario.down.step",
+    "loc": [2, 816, 16, 24],
+    "offset": [-16, -16]
+  },
+
+  {
+    "id": "mario.up.step",
+    "loc": [35, 816, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "mario.left.stand",
+    "loc": [53, 816, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "mario.left.step",
+    "loc": [70, 816, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "mario.down.left.stand",
+    "loc": [2, 841, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "mario.down.left.step",
+    "loc": [19, 841, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "mario.up.left.stand",
+    "loc": [36, 841, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "mario.up.left.step",
+    "loc": [53, 841, 16, 24],
+    "offset": [-16, -16]
+  },
+  {
+    "id": "mario.success",
+    "loc": [70, 841, 16, 24],
+    "offset": [-16, -16]
+  }
+]

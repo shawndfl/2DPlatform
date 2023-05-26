@@ -1,0 +1,11 @@
+.editor-toolbar {
+  width: calc(100% - 22px);
+  height: 32px;
+  box-shadow: 1px 1px 3px #666666;
+  background-color: #efefefef;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px;
+  margin: 10px;
+}

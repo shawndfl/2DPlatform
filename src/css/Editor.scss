@@ -1,0 +1,45 @@
+.editor-main {
+  display: inline-flex;
+  .editor-entity-container{
+    width: 200px;
+    min-width: 200px;
+    max-width: 700px;
+  }
+  .editor-h-resize {
+    width: 5px;
+    height: auto;
+    border-left: double 1px #c4c4c4;
+    border-right: double 1px #c4c4c4;
+
+    margin: 5px;
+    cursor: col-resize;
+  }
+}
+
+.btn {
+  width: 120px;
+  text-align: center;
+  justify-items: center;
+  height: 32px;
+  background-color: rgb(104, 178, 201);
+  border-radius: 4px;
+  box-shadow: 1px 1px 3px #c4c4c4;
+  cursor: pointer;
+  span {
+    display: inline-flex;
+  }
+  div {
+    display: inline-flex;
+    align-items: center;
+    padding: 0px 5px 0px;
+    justify-content: center;
+  }
+  img {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.btn:hover {
+  background-color: rgb(255, 255, 255)
+}
