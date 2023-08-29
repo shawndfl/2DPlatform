@@ -1,4 +1,5 @@
 import { Engine } from "../core/Engine";
+import { InputHandler } from "../core/InputHandler";
 import { ISceneManager } from "../interfaces/ISceneManager";
 import { SceneManager } from "./system/SceneManager";
 
@@ -7,20 +8,18 @@ import { SceneManager } from "./system/SceneManager";
  * or the game.
  */
 export class PlatformEngine extends Engine {
-  readonly sceneManager: SceneManager;
+  readonly _sceneManager: SceneManager;
 
-  get SceneManager(): ISceneManager {
-    return this.sceneManager;
+  get sceneManager(): ISceneManager {
+    return this._sceneManager;
   }
 
   constructor() {
     super();
-    this.sceneManager = new SceneManager(this);
+    this._sceneManager = new SceneManager(this);
   }
 
   async initialize(root?: HTMLElement): Promise<void> {
     await super.initialize(root);
-
-    this.sceneManager.initialize();
   }
 }

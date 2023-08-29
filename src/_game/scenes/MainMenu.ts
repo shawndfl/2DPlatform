@@ -5,6 +5,7 @@ import { Engine } from "../../core/Engine";
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
 import { SpritController } from "../../graphics/SpriteController";
 import { Texture } from "../../graphics/Texture";
+import vec2 from "../../math/vec2";
 
 export class MainMenu extends SceneComponent {
 
@@ -19,10 +20,13 @@ export class MainMenu extends SceneComponent {
         // set up the background image
         this.background = new SpritController(this.eng);
         const texture = new Texture(this.gl);
-        texture.loadImage(BackgroundImage);
+        await texture.loadImage(BackgroundImage);
 
         this.background.initialize(texture, {tiles: [{id:'main', index:[0,0]}], tileHeight: texture.height, tileWidth: texture.width });
-        this.background.commitToBuffer();
+        this.background.setSpritePosition(0, this.eng.height -400,0);
+        this.background.setSprite(0);
+        this.background.scale(0.3);
+        this.background.viewOffset(new vec2(0, 0));
 
         // show the dialog
         this.eng.dialogManager.showDialog(
@@ -31,7 +35,7 @@ export class MainMenu extends SceneComponent {
             (d) => {
               console.debug("selected " + d.selectedOption);
               if(d.selectedOption == 'New Game') {
-                this.eng.SceneManager.changeScene('level1');
+                this.eng.sceneManager.changeScene('level1');
               }
               return true;
             },

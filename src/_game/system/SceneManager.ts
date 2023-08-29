@@ -1,5 +1,4 @@
 import { Component } from "../../core/Component";
-import Level1 from "../assets/levels/level1.json";
 import { SceneComponent } from "../../components/SceneComponent";
 import { SceneFactory } from "../scenes/SceneFactory";
 import { ISceneManager } from "../../interfaces/ISceneManager";
@@ -20,8 +19,7 @@ export class SceneManager extends Component implements ISceneManager {
   }
 
   async initialize() {
-    this.changeScene("main.menu");
-    await this.scene.initialize({ level: Level1 });
+    await this.changeScene("main.menu");
   }
 
   /**

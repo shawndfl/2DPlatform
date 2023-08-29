@@ -31,7 +31,7 @@ export abstract class Engine {
   readonly rootElement: HTMLElement;
   readonly dialogManager: DialogManager;
 
-  abstract get SceneManager(): ISceneManager;
+  abstract get sceneManager(): ISceneManager;
 
   get width(): number {
     return this.gl.canvas.width;
@@ -81,7 +81,7 @@ export abstract class Engine {
     await this.assetManager.initialize();
     await this.textManager.initialize();
     await this.dialogManager.initialize();
-    // await this.sceneManager.initialize();
+    await this.sceneManager.initialize();
 
     // some gl setup
     this.gl.enable(this.gl.CULL_FACE);
@@ -115,10 +115,12 @@ export abstract class Engine {
     }
 
     // clear the buffers
-    this.gl.clearColor(0.3, 0.3, 0.3, 1.0); // Clear to black, fully opaque
+    this.gl.clearColor(0.9, 0.3, 0.3, 1.0); // Clear to black, fully opaque
     this.gl.clearDepth(1.0); // Clear everything
 
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+
+    this.sceneManager.update(dt);
 
     this.dialogManager.update(dt);
     this.textManager.update(dt);
