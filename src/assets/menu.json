@@ -1,0 +1,63 @@
+{
+  "tiles": [
+    {
+      "id": "menu.left.top",
+      "loc": [80, 672, 64, 64],
+      "offset": [0, 0]
+    },
+    {
+      "id": "menu.left.middle",
+      "loc": [80, 721, 64, 64],
+      "offset": [0, 0]
+    },
+    {
+      "id": "menu.left.bottom",
+      "loc": [80, 784, 64, 64],
+      "offset": [0, 0]
+    },
+
+    {
+      "id": "menu.center.top",
+      "loc": [141, 672, 64, 64],
+      "offset": [0, 0]
+    },
+    {
+      "id": "menu.center.middle",
+      "loc": [141, 718, 64, 64],
+      "offset": [0, 0]
+    },
+    {
+      "id": "menu.center.bottom",
+      "loc": [141, 784, 64, 64],
+      "offset": [0, 0]
+    },
+
+    {
+      "id": "menu.right.top",
+      "loc": [208, 672, 64, 64],
+      "offset": [0, 0]
+    },
+    {
+      "id": "menu.right.middle",
+      "loc": [208, 720, 64, 64],
+      "offset": [0, 0]
+    },
+    {
+      "id": "menu.right.bottom",
+      "loc": [208, 784, 64, 64],
+      "offset": [0, 0]
+    },
+
+    {
+      "id": "cursor",
+      "loc": [97, 609, 64, 47],
+      "offset": [-4, 0]
+    },
+
+    {
+      "id": "gameMenu",
+      "loc": [0, 0, 800, 600],
+      "offset": [0, 0]
+    }
+  ]
+}
