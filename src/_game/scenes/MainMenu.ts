@@ -23,9 +23,11 @@ export class MainMenu extends SceneComponent {
         await texture.loadImage(BackgroundImage);
 
         this.background.initialize(texture, {tiles: [{id:'main', index:[0,0]}], tileHeight: texture.height, tileWidth: texture.width });
-        this.background.setSpritePosition(0, this.eng.height -400,0);
+        const scaleX = this.eng.width / texture.width;
+        const scaleY = this.eng.height / texture.height;
+        this.background.setSpritePosition(0, 0,0);
         this.background.setSprite(0);
-        this.background.scale(0.3);
+        this.background.scale(new vec2(scaleX, scaleY));
         this.background.viewOffset(new vec2(0, 0));
 
         // show the dialog
