@@ -17,7 +17,7 @@ module.exports = {
     }),
     new CopyPlugin({
       patterns: [
-        { from: path.resolve(__dirname, 'static'), to: path.resolve(__dirname, 'docs') }
+        { from: path.resolve(__dirname, 'public'), to: path.resolve(__dirname, 'docs') }
       ],
     }),
   ],

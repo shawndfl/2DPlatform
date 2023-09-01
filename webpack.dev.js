@@ -13,7 +13,7 @@ module.exports = {
     publicPath: 'auto'
   },
   devServer: {
-    static: path.join(__dirname, './docs'),
+    static: path.join(__dirname, './public'),
     compress: true,
     port: 8080,
     client: {

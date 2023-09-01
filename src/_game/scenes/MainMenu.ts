@@ -1,5 +1,4 @@
 import { InputState } from "../../core/InputHandler";
-import BackgroundImage from '../assets/menu/menu.png'
 import { SceneComponent } from "../../components/SceneComponent";
 import { Engine } from "../../core/Engine";
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
@@ -9,48 +8,48 @@ import vec2 from "../../math/vec2";
 
 export class MainMenu extends SceneComponent {
 
-    background: SpritController;
+  background: SpritController;
 
-    constructor(eng: Engine) {
-        super(eng);
-    }
+  constructor(eng: Engine) {
+    super(eng);
+  }
 
-    async ShowScene(): Promise<void> {
-        
-        // set up the background image
-        this.background = new SpritController(this.eng);
-        const texture = new Texture(this.gl);
-        await texture.loadImage(BackgroundImage);
+  async ShowScene(): Promise<void> {
 
-        this.background.initialize(texture, {tiles: [{id:'main', index:[0,0]}], tileHeight: texture.height, tileWidth: texture.width });
-        const scaleX = this.eng.width / texture.width;
-        const scaleY = this.eng.height / texture.height;
-        this.background.setSpritePosition(0, 0,0);
-        this.background.setSprite(0);
-        this.background.scale(new vec2(scaleX, scaleY));
-        this.background.viewOffset(new vec2(0, 0));
+    // set up the background image
+    this.background = new SpritController(this.eng);
+    const texture = new Texture(this.gl);
+    await texture.loadImage('./menu/menu.png');
 
-        // show the dialog
-        this.eng.dialogManager.showDialog(
-            "Start Game",
-            { x: 200, y: 20, width: 300, height: 200 },
-            (d) => {
-              console.debug("selected " + d.selectedOption);
-              if(d.selectedOption == 'New Game') {
-                this.eng.sceneManager.changeScene('level1');
-              }
-              return true;
-            },
-            ["New Game", "Load", "Edit Level"]
-          );
-    }
+    this.background.initialize(texture, { tiles: [{ id: 'main', index: [0, 0] }], tileHeight: texture.height, tileWidth: texture.width });
+    const scaleX = this.eng.width / texture.width;
+    const scaleY = this.eng.height / texture.height;
+    this.background.setSpritePosition(0, 0, 0);
+    this.background.setSprite(0);
+    this.background.scale(new vec2(scaleX, scaleY));
+    this.background.viewOffset(new vec2(0, 0));
 
-    HideScene(): void {
-        
-    }
-    
-    update(dt: number): void {
-        this.background.update(dt);
-    }
-    
+    // show the dialog
+    this.eng.dialogManager.showDialog(
+      "Start Game",
+      { x: 200, y: 20, width: 300, height: 200 },
+      (d) => {
+        console.debug("selected " + d.selectedOption);
+        if (d.selectedOption == 'New Game') {
+          this.eng.sceneManager.changeScene('level1');
+        }
+        return true;
+      },
+      ["New Game", "Load", "Edit Level"]
+    );
+  }
+
+  HideScene(): void {
+
+  }
+
+  update(dt: number): void {
+    this.background.update(dt);
+  }
+
 }
