@@ -1,18 +1,16 @@
-import frame1 from '../assets/frames/001-000.png'
-import frame2 from '../assets/frames/001-001.png'
 /**
  * The main entry point for the animation editor
  */
 export class AnimationEditor {
     image: HTMLImageElement;
-    frames = [frame1, frame2]
+    frames = ['./data/001-000.png', './data/001-001.png'];
 
     /** time tracking variables */
     private previousTimeStamp: number;
 
     initialize(root: HTMLElement): void {
         this.image = new Image();
-        this.image.src = frame1;
+        this.image.src = this.frames[0];
         root.append(this.image);
         window.requestAnimationFrame(this.frame.bind(this));
     }

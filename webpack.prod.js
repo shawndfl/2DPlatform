@@ -1,9 +1,10 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
-    main: { import: './src/index.ts'},
+    main: { import: './src/index.ts' },
   },
   mode: 'development',
   resolve: { extensions: ['.ts', '.js'] },
@@ -11,7 +12,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: '2D Platform',
       template: path.resolve(__dirname, 'src/index.html'),
+      publicPath: '.',
       chunks: ['main'],
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: path.resolve(__dirname, 'static'), to: path.resolve(__dirname, 'docs') }
+      ],
     }),
   ],
   output: {

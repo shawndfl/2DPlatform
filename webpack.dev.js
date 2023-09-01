@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+
 module.exports = {
   entry: {
     main: { import: './src/index.ts' },
@@ -8,7 +9,9 @@ module.exports = {
   mode: 'development',
   resolve: { extensions: ['.ts', '.js'] },
   devtool: 'inline-source-map',
-
+  output: {
+    publicPath: 'auto'
+  },
   devServer: {
     static: path.join(__dirname, './docs'),
     compress: true,
