@@ -1,6 +1,6 @@
 import { Component } from '../core/Component';
 import { Engine } from '../core/Engine';
-import { GlBuffer, IQuadModel } from './GlBuffer';
+import { GlBuffer, IQuadModel } from '../geometry/GlBuffer';
 import { ISpriteData } from './ISpriteData';
 import { Sprite, SpriteFlip } from './Sprite';
 import { Texture } from './Texture';

@@ -9,7 +9,7 @@ import { Engine } from "../core/Engine";
  * This is a base class for a scene
  */
 export abstract class SceneComponent extends Component {
-  
+
   /**
    * constructor
    * @param eng
@@ -17,12 +17,6 @@ export abstract class SceneComponent extends Component {
   constructor(eng: Engine) {
     super(eng);
   }
-
-  /**
-   * Initialize the scene
-   * @param options
-   */
-  async initialize(options: { level: ILevelData }) { }
 
   /**
    * Handles user input. The logic goes through a chain of commands
@@ -42,12 +36,12 @@ export abstract class SceneComponent extends Component {
    * Called every frame
    * @param dt
    */
-  update(dt: number): void { }
+  abstract update(dt: number): void;
 
   /**
    * Show scene is called when a SceneManager changes to a new scene.
    */
-  async ShowScene(): Promise<void> { }
+  abstract ShowScene(): Promise<void>;
 
   /**
    * Hide scene is called when a SceneManager changes to a new scene.

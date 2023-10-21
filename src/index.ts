@@ -1,55 +1,45 @@
 
-import './css/canvas.css';
+import './css/canvas.scss';
 import { PlatformEngine } from './_game/PlatformEngine';
-import { AnimationEditor } from './editor/AnimationEditor';
 
-const queryString = window.location.search
-const urlParams = new URLSearchParams(queryString);
+/**
+ * Create the only instance of a canvas controller
+ */
+const engine = new PlatformEngine();
 
-if (urlParams.get('animation')) {
-  const animation = new AnimationEditor();
-  animation.initialize(document.getElementById('rootContainer'));
+/**
+ * Start the engine then request and animation frame
+ */
+engine
+  .initialize(document.getElementById('rootContainer'))
+  .then(() => {
+    /** time tracking variables */
+    let previousTimeStamp: number;
 
-} else {
+    // request the first frame
+    window.requestAnimationFrame((t) => {
 
-  /**
-   * Create the only instance of a canvas controller
-   */
-  const engine = new PlatformEngine();
+      function step(timestamp: number) {
 
-  /**
-   * Start the engine then request and animation frame
-   */
-  engine
-    .initialize(document.getElementById('rootContainer'))
-    .then(() => {
-      /** time tracking variables */
-      let previousTimeStamp: number;
+        window.requestAnimationFrame(step);
 
-      // request the first frame
-      window.requestAnimationFrame((t) => {
-
-        function step(timestamp: number) {
-          // save the start time
-          if (previousTimeStamp === undefined) {
-            previousTimeStamp = timestamp;
-          }
-
-          // calculate the elapsed
-          const elapsed = timestamp - previousTimeStamp;
-
-          // update the scene
-          engine.update(elapsed);
-
-          // request a new frame
+        // save the start time
+        if (previousTimeStamp === undefined) {
           previousTimeStamp = timestamp;
-          window.requestAnimationFrame(step);
         }
-        step(t);
-      });
-    })
-    .catch((e) => {
-      console.error('Error initializing ', e);
-    });
 
-}
+        // calculate the elapsed
+        const elapsed = timestamp - previousTimeStamp;
+
+        // update the scene
+        engine.update(elapsed);
+
+        // request a new frame
+        previousTimeStamp = timestamp;
+      }
+      step(t);
+    });
+  })
+  .catch((e) => {
+    console.error('Error initializing ', e);
+  });

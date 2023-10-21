@@ -7,7 +7,7 @@ module.exports = {
     main: { import: './src/index.ts' },
   },
   mode: 'development',
-  resolve: { extensions: ['.ts', '.js'] },
+  resolve: { extensions: ['.ts', '.js', '.tsx'] },
   devtool: 'inline-source-map',
   output: {
     publicPath: 'auto'

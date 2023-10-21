@@ -1,5 +1,5 @@
 import { Engine } from '../core/Engine';
-import { IQuadModel } from '../graphics/GlBuffer';
+import { IQuadModel } from '../geometry/GlBuffer';
 import { ISpriteData } from '../graphics/ISpriteData';
 import { Sprite } from '../graphics/Sprite';
 import { Texture } from './Texture';

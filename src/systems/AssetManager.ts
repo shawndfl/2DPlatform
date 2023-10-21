@@ -12,9 +12,9 @@ import { ISpriteData } from '../graphics/ISpriteData';
  * Manages texture assets
  */
 export class AssetManager extends Component {
-  private _font: Texture;
-  private _menu: Texture;
-  
+  protected _font: Texture;
+  protected _menu: Texture;
+
   get font(): { texture: Texture; data: IFontData[] } {
     return { texture: this._font, data: FontData };
   }
@@ -23,7 +23,15 @@ export class AssetManager extends Component {
     return { texture: this._menu, data: MenuData };
   }
 
-  
+  /**
+   * For implementation
+   * @param id 
+   * @returns 
+   */
+  getTexture(id: string): { texture: Texture; data: ISpriteData } {
+    return { texture: null, data: null };
+  }
+
   constructor(eng: Engine) {
     super(eng);
   }

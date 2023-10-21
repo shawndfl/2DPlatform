@@ -1,6 +1,6 @@
 import { Component } from '../core/Component';
 import { Engine } from '../core/Engine';
-import { GlBuffer } from './GlBuffer';
+import { GlBuffer } from '../geometry/GlBuffer';
 
 /**
  * Plane primitive located at -1,-1,0 and 1,1,0 on the xy plane. Also has texture coordinate.

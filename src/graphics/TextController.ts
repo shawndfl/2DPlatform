@@ -1,7 +1,7 @@
 import { Component } from '../core/Component';
 import vec4 from '../math/vec4';
 import { Engine } from '../core/Engine';
-import { GlBuffer, IQuadModel } from './GlBuffer';
+import { GlBuffer, IQuadModel } from '../geometry/GlBuffer';
 import { IFontData } from './IFontData';
 import { ITextModel } from './ITextModel';
 

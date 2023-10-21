@@ -19,7 +19,8 @@ export class SceneManager extends Component implements ISceneManager {
   }
 
   async initialize() {
-    await this.changeScene("main.menu");
+    //await this.changeScene("main.menu");
+    await this.changeScene("level.1.0");
   }
 
   /**
@@ -74,10 +75,10 @@ export class SceneManager extends Component implements ISceneManager {
   /**
    * When the window is resized
    */
-  resize(width: number, height: number) {}
+  resize(width: number, height: number) { }
 
   /**
    * Dispose the scene
    */
-  dispose() {}
+  dispose() { }
 }

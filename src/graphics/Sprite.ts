@@ -1,6 +1,6 @@
 import mat2 from '../math/mat2';
 import vec2 from '../math/vec2';
-import { IQuadModel } from './GlBuffer';
+import { IQuadModel } from '../geometry/GlBuffer';
 import { Texture } from './Texture';
 import * as MathConst from '../math/constants';
 

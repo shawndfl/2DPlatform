@@ -1,17 +1,25 @@
+import { FrameController } from "./FrameController";
+
 /**
  * The main entry point for the animation editor
  */
 export class AnimationEditor {
     image: HTMLImageElement;
-    frames = ['./data/001-000.png', './data/001-001.png'];
+    root: HTMLElement;
+
+    readonly frameController: FrameController;
 
     /** time tracking variables */
     private previousTimeStamp: number;
 
-    initialize(root: HTMLElement): void {
-        this.image = new Image();
-        this.image.src = this.frames[0];
-        root.append(this.image);
+    constructor() {
+        this.frameController = new FrameController(this);
+    }
+
+    async initialize(root: HTMLElement): Promise<void> {
+        this.root = root;
+        await this.frameController.initialize()
+
         window.requestAnimationFrame(this.frame.bind(this));
     }
 
@@ -32,15 +40,8 @@ export class AnimationEditor {
         window.requestAnimationFrame(this.frame.bind(this));
     }
 
-    counter = 0;
-    frameIndex = 0;
     update(dt: number) {
-        this.counter += dt;
 
-        if (this.counter > 1000) {
-            this.frameIndex++;
-            this.image.src = this.frames[this.frameIndex % 2];
-            this.counter = 0;
-        }
+        this.frameController.update(dt);
     }
 }

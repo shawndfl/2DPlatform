@@ -57,8 +57,12 @@ export abstract class Engine {
     this.viewManager = new ViewManager(this);
     this.textManager = new TextManager(this);
     this.fps = new FpsController(this);
-    this.assetManager = new AssetManager(this);
+    this.assetManager = this.createAssetManager();
     this.spritePerspectiveShader = new SpritePerspectiveShader(this.gl, "spritePerspectiveShader");
+  }
+
+  createAssetManager(): AssetManager {
+    return new AssetManager(this);
   }
 
   async initialize(root?: HTMLElement): Promise<void> {
@@ -115,7 +119,7 @@ export abstract class Engine {
     }
 
     // clear the buffers
-    this.gl.clearColor(0.9, 0.3, 0.3, 1.0); // Clear to black, fully opaque
+    this.gl.clearColor(0.3, 0.3, 0.3, 1.0); // Clear to black, fully opaque
     this.gl.clearDepth(1.0); // Clear everything
 
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
@@ -128,7 +132,7 @@ export abstract class Engine {
     this.input.postUpdate(dt);
   }
 
-  resize(width: number, height: number): void {}
+  resize(width: number, height: number): void { }
 
-  dispose() {}
+  dispose() { }
 }

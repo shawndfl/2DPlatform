@@ -5,21 +5,14 @@
  * look for *.ora file changes.
  */
 
-require('fs');
+const fs = require('fs');
 
-/*
-fs.watch("./files/", function(event, targetfile){
+
+fs.watch("../assets/", function (event, targetfile) {
         console.log(targetfile, 'is', event)
-        fs.readFile("./files/"+targetfile, 'utf8', function (err,data) {
-                if (err) {
-                        return console.log(err);
-                }
-                if (data=="") return; //This should keep it from happening
-                //Updates the client here
-                fs.truncate("./files/"+targetfile, 0);
-        });
+
 });
-*/
+
 
 /*
 const decompress = require("decompress");
