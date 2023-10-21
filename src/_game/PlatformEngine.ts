@@ -1,5 +1,4 @@
 import { Engine } from "../core/Engine";
-import { InputHandler } from "../core/InputHandler";
 import { ISceneManager } from "../interfaces/ISceneManager";
 import { AssetManager } from "../systems/AssetManager";
 import { GameEditor } from "./editor/GameEditor";
