@@ -1,15 +1,13 @@
 import { SceneComponent } from "../../components/SceneComponent";
-
 import { Engine } from "../../core/Engine";
 import { SpritBatchController } from "../../graphics/SpriteBatchController";
-import { Curve } from "../../math/Curve";
+import { TeleportAnimation } from "../components/TeleportAnimation";
 import { TextureAssest } from "../system/GameAssetManager";
-
 
 export class Level1 extends SceneComponent {
 
   private sprite: SpritBatchController;
-  private curve: Curve;
+  private teleport: TeleportAnimation;
 
   constructor(eng: Engine) {
     super(eng);
@@ -23,31 +21,19 @@ export class Level1 extends SceneComponent {
     this.sprite.scale(2.0)
     this.sprite.setSpritePosition(10, this.eng.height - this.sprite.spriteHeight() - 200);
 
-
-    this.curve = new Curve();
-    const points: { p: number, t: number }[] = []
-
-    points.push({ p: 1, t: 0 });
-    points.push({ p: 2, t: 100 });
-    points.push({ p: 3, t: 250 });
-    points.push({ p: 4, t: 300 });
-    points.push({ p: 5, t: 350 });
-    points.push({ p: 6, t: 400 });
-    points.push({ p: 7, t: 450 });
-    points.push({ p: 7, t: 2000 });
-
-    this.curve.points(points);
-    this.curve.repeat(-1);
-    this.curve.pingPong(true);
-    this.curve.start(true, (curve) => {
-
-    }, (value) => {
-      this.sprite.setSprite('teleport.' + value);
-    })
+    this.teleport = new TeleportAnimation(eng);
+    this.initialize();
   }
 
   initialize() {
+    this.teleport.initialize(this.sprite);
+    // setup the teleport animation
+    let goingup = false;
 
+    this.teleport.start(goingup).onDone(() => {
+      goingup = !goingup;
+      this.teleport.start(goingup)
+    })
   }
 
   async ShowScene(): Promise<void> {
@@ -57,6 +43,6 @@ export class Level1 extends SceneComponent {
 
   update(dt: number): void {
     this.sprite.update(dt);
-    this.curve.update(dt);
+    this.teleport.update(dt);
   }
 }

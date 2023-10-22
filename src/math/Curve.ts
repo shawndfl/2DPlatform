@@ -19,11 +19,21 @@ export class Curve {
   private _repeat: number;
   private _isDone: boolean;
 
-  onDone: (curve: Curve) => void;
-  onUpdate: (value: number, curve: Curve) => void;
+  private _onDone: (curve: Curve) => void;
+  private _onUpdate: (value: number, curve: Curve) => void;
 
   isRunning() {
     return this._running;
+  }
+
+  onDone(onDone: (curve: Curve) => void): Curve {
+    this._onDone = onDone;
+    return this;
+  }
+
+  onUpdate(onUpdate: (value: number, curve: Curve) => void): Curve {
+    this._onUpdate = onUpdate;
+    return this;
   }
 
   getValue(): number {
@@ -53,10 +63,10 @@ export class Curve {
       this._position = 0;
       this._isDone = false;
       if (onDone) {
-        this.onDone = onDone;
+        this._onDone = onDone;
       }
       if (onUpdate) {
-        this.onUpdate = onUpdate;
+        this._onUpdate = onUpdate;
       }
 
       // if there are points use them
@@ -111,8 +121,17 @@ export class Curve {
     return this;
   }
 
-  reverse(reverse: boolean) {
+  reverse(reverse: boolean): Curve {
     this._reverse = reverse;
+    return this;
+  }
+
+  isReverse(): boolean {
+    return this._reverse;
+  }
+
+  reverseToggle(): Curve {
+    this._reverse = !this._reverse;
     return this;
   }
 
@@ -145,8 +164,8 @@ export class Curve {
         this._position = this._points[indices[0]].p;
 
         // handle update
-        if (this.onUpdate) {
-          this.onUpdate(this._position, this);
+        if (this._onUpdate) {
+          this._onUpdate(this._position, this);
         }
 
         // handle the repeat and ping pong
@@ -167,8 +186,8 @@ export class Curve {
           this._isDone = true;
 
           // raise event as needed
-          if (this.onDone) {
-            this.onDone(this);
+          if (this._onDone) {
+            this._onDone(this);
           }
         }
 
@@ -177,7 +196,7 @@ export class Curve {
       }
 
       if (indices[0] < 0 || indices[0] > this._points.length - 1) {
-        console.debug('noooo');
+        console.error('noooo');
       }
       let p0 = this._points[indices[0]].p;
       let p1 = this._points[indices[1]].p;
@@ -193,8 +212,8 @@ export class Curve {
         this._position = p0;
       }
 
-      if (this.onUpdate) {
-        this.onUpdate(this._position, this);
+      if (this._onUpdate) {
+        this._onUpdate(this._position, this);
       }
     }
   }
