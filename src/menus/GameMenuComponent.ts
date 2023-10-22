@@ -2,7 +2,7 @@ import { Engine } from '../core/Engine';
 import { SpritBatchController } from '../graphics/SpriteBatchController';
 import vec2 from '../math/vec2';
 import vec4 from '../math/vec4';
-import { Component } from '../core/Component';
+import { Component } from '../components/Component';
 import { GameMenuBuilder } from './GameMenuBuilder';
 import { InputState } from '../core/InputHandler';
 import { UserAction } from '../core/UserAction';
@@ -19,7 +19,6 @@ export class GameMenuComponent extends Component {
   protected _size: vec2;
   protected _text: string;
   protected _textOffset: vec2;
-  protected _dirty: boolean;
   protected _cursor: DialogCursor;
 
   private _formattedTime: string;
@@ -41,7 +40,6 @@ export class GameMenuComponent extends Component {
     this._pos = new vec2();
     this._size = new vec2(300, 200);
     this._textOffset = new vec2(50, 60);
-    this._dirty = false;
     this._cursor = new DialogCursor(eng);
   }
 
@@ -50,30 +48,17 @@ export class GameMenuComponent extends Component {
     this._dialogBuild.initialize(this._spriteController);
 
     // menu options positions
-    const items = new vec2(30, 540);
-    const status = new vec2(30, 480);
-    const equip = new vec2(30, 430);
-    const map = new vec2(30, 370);
-    const save = new vec2(30, 320);
+    const items = new vec2(30, 70);
+    const status = new vec2(30, 120);
+    const map = new vec2(30, 180);
+    const config = new vec2(30, 240);
+    const save = new vec2(30, 290);
 
-    this._cursor.initialize('cursor.1', this._spriteController, [items, status, equip, map, save], (index) => {
-      switch (index) {
-        case 0:
-          break;
-        case 1:
-          break;
-        case 2:
-          break;
-        case 3:
-          break;
-        case 4:
-          this.save();
-          console.debug('saved!');
-          break;
-      }
+    this._cursor.initialize('cursor.1', this._spriteController, [items, status, map, config, save]);
+  }
 
-      console.debug('selecting index ' + index);
-    });
+  showEditor() {
+    //this.eng.showEditor();
   }
 
   save() {
@@ -83,13 +68,29 @@ export class GameMenuComponent extends Component {
   setPosition(x: number, y: number) {
     this._pos.x = x;
     this._pos.y = y;
-    this._dirty = true;
   }
 
   show() {
     this._visible = true;
-    this._dirty = true;
-    this._cursor.show(0);
+    this._cursor.show(0, (index) => {
+      switch (index) {
+        case 0:
+          break;
+        case 1:
+          break;
+        case 2:
+          break;
+        case 3:
+          this.showEditor();
+          break;
+        case 4:
+          this.save();
+          console.debug('saved!');
+          break;
+      }
+
+      console.debug('selecting index ' + index);
+    });
   }
 
   getFormattedTime(): string {
@@ -102,7 +103,10 @@ export class GameMenuComponent extends Component {
 
   hide() {
     this._visible = false;
-    this._dirty = true;
+    this._dialogBuild.hide();
+    this._cursor.hide();
+    this.eng.textManager.hideText('menu.gold');
+    this.eng.textManager.hideText('menu.time');
   }
 
   /**
@@ -113,7 +117,7 @@ export class GameMenuComponent extends Component {
   handleUserAction(state: InputState): boolean {
     const active = this.visible;
     if (active) {
-      if ((state.action & UserAction.MenuPressed) > 0) {
+      if (state.isReleased(UserAction.Start)) {
         let canHide = true;
 
         // if there is an onHide event fire that
@@ -127,7 +131,7 @@ export class GameMenuComponent extends Component {
       }
 
       // select next option
-      if ((state.action & UserAction.DownPressed) > 0) {
+      if (state.isReleased(UserAction.Down)) {
         if (this._cursor.index < this._cursor.indexCount - 1) {
           this._cursor.index++;
         } else {
@@ -135,7 +139,7 @@ export class GameMenuComponent extends Component {
         }
       }
       // select previous option
-      if ((state.action & UserAction.UpPressed) > 0) {
+      if (state.isReleased(UserAction.Up)) {
         if (this._cursor.index > 0) {
           this._cursor.index--;
         } else {
@@ -144,7 +148,7 @@ export class GameMenuComponent extends Component {
       }
 
       // accept the option
-      if ((state.action & UserAction.ActionPressed) > 0) {
+      if (state.isReleased(UserAction.A)) {
         this._cursor.select();
       }
     }
@@ -153,49 +157,39 @@ export class GameMenuComponent extends Component {
   }
 
   redraw() {
-    if (this.visible) {
-      this._dialogBuild.show();
 
-      this._spriteController.commitToBuffer();
+    this._dialogBuild.show();
 
-      const gold = this.eng.gameManager.data.player.gold.toString();
+    const gold = this.eng.gameManager.data.player.gold.toString();
+    this.eng.textManager.setTextBlock({
+      id: 'menu.gold',
+      text: gold.padStart(7, '0'),
+      position: new vec2([90, 370]),
+      color: new vec4([0.0, 0.0, 0.0, 1.0]),
+      depth: -1,
+      scale: 1.0,
+    });
+
+    if (this._formattedTime != this.getFormattedTime()) {
+      this._formattedTime = this.getFormattedTime();
       this.eng.textManager.setTextBlock({
-        id: 'menu.gold',
-        text: gold.padStart(7, '0'),
-        position: new vec2([90, 370]),
+        id: 'menu.time',
+        text: this._formattedTime,
+        position: new vec2([90, 430]),
         color: new vec4([0.0, 0.0, 0.0, 1.0]),
         depth: -1,
         scale: 1.0,
       });
-    } else {
-      this._dialogBuild.hide();
-      this._cursor.hide();
-      this.eng.textManager.hideText('menu.gold');
-      this.eng.textManager.hideText('menu.time');
+
     }
   }
 
   update(dt: number) {
-    if (this._dirty) {
-      this.redraw();
-      this._dirty = false;
-    }
 
     // show the time updates
     if (this.visible) {
-      if (this._formattedTime != this.getFormattedTime()) {
-        this._formattedTime = this.getFormattedTime();
-        this.eng.textManager.setTextBlock({
-          id: 'menu.time',
-          text: this._formattedTime,
-          position: new vec2([90, 430]),
-          color: new vec4([0.0, 0.0, 0.0, 1.0]),
-          depth: -1,
-          scale: 1.0,
-        });
-      }
+      this.redraw();
     }
-
     this._cursor.update(dt);
   }
 }

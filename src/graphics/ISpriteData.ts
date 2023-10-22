@@ -44,16 +44,16 @@ export interface ISpriteData {
    * The pixel width of a tile. Mostly 16 or 32
    */
   tileWidth?: number;
+  /**
+  * Space inbetween tiles
+  */
+  tileSpacing?: number;
+
+  /** Offset in pixels */
+  tileOffset?: number;
 
   /**
    * Tile data
    */
   tiles: TileData[];
-}
-
-
-export const FullScreenSprite: ISpriteData =  {
-  tileHeight: null,
-  tileWidth: null,
-  tiles: []
 }

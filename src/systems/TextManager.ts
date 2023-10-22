@@ -4,7 +4,7 @@ import { ITextModel } from '../graphics/ITextModel';
 import { ShaderController } from '../graphics/ShaderController';
 import { Texture } from '../graphics/Texture';
 import { Engine } from '../core/Engine';
-import { Component } from '../core/Component';
+import { Component } from '../components/Component';
 
 /**
  * Vertex shader for Font
@@ -176,5 +176,5 @@ export class TextManager extends Component {
   /**
    * clean up everything
    */
-  dispose() {}
+  dispose() { }
 }

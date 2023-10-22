@@ -1,4 +1,4 @@
-import { Component } from './Component';
+import { Component } from '../components/Component';
 import { Engine } from './Engine';
 
 /**

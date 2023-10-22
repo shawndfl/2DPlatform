@@ -1,4 +1,4 @@
-import { Component } from "../core/Component";
+import { Component } from "../components/Component";
 import { Engine } from "../core/Engine";
 import { Curve } from "../math/Curve";
 

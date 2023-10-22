@@ -3,6 +3,7 @@ import vec2 from '../math/vec2';
 import { IQuadModel } from '../geometry/GlBuffer';
 import { Texture } from './Texture';
 import * as MathConst from '../math/constants';
+import vec3 from '../math/vec3';
 
 export enum SpriteFlip {
   None,
@@ -98,10 +99,10 @@ export class Sprite {
     screenHeight: number
   ) {
     this._quad = {
-      min: [-1, -1, -1],
-      max: [1, 1, 1],
-      minTex: [0, 0],
-      maxTex: [1, 1],
+      min: new vec3([-1, -1, -1]),
+      max: new vec3([1, 1, 1]),
+      minTex: new vec2([0, 0]),
+      maxTex: new vec2([1, 1]),
     };
     this._position = { x: 0, y: 0 };
     this._spriteLoc = { x: 0, y: 0, width: 0, height: 0 };
@@ -205,40 +206,45 @@ export class Sprite {
     let maxY = 1.0 - (this._spriteLoc.y + this._spriteLoc.height) / sheetH;
 
     if (this._spriteFlip == SpriteFlip.XFlip) {
-      this._quad.minTex = [maxX, minY];
-      this._quad.maxTex = [minX, maxY];
+      this._quad.minTex.x = maxX;
+      this._quad.minTex.y = minY;
+      this._quad.maxTex.x = minX;
+      this._quad.maxTex.y = maxY;
     } else if (this._spriteFlip == SpriteFlip.YFlip) {
-      this._quad.minTex = [minX, maxY];
-      this._quad.maxTex = [maxX, minY];
+      this._quad.minTex.x = minX;
+      this._quad.minTex.y = maxY;
+      this._quad.maxTex.x = maxX;
+      this._quad.maxTex.y = minY;
     } else if (this._spriteFlip == SpriteFlip.Both) {
-      this._quad.minTex = [maxX, maxY];
-      this._quad.maxTex = [minX, minY];
+      this._quad.minTex.x = maxX;
+      this._quad.minTex.y = maxY;
+      this._quad.maxTex.x = minX;
+      this._quad.maxTex.y = minY;
     } else {
-      this._quad.minTex = [minX, minY];
-      this._quad.maxTex = [maxX, maxY];
+      this._quad.minTex.x = minX;
+      this._quad.minTex.y = minY;
+      this._quad.maxTex.x = maxX;
+      this._quad.maxTex.y = maxY;
     }
 
     // convert to screen space, min is the top left corner
 
-    this._quad.min = [
-      this._position.x + this._positionOffset.x,
-      this._position.y + this._positionOffset.y,
-      this._depth,
-    ];
+    this._quad.min.x = this._position.x + this._positionOffset.x;
+    this._quad.min.y = this._position.y + this._positionOffset.y;
+    this._quad.min.z = this._depth;
+
     const spriteWidth = this._spriteLoc.width * this._scale.x;
     const spriteHeight = this._spriteLoc.height * this._scale.y;
 
     // max is the bottom right
-    this._quad.max = [
-      this._quad.min[0] + spriteWidth,
-      this._quad.min[1] + spriteHeight,
-      this._depth,
-    ];
+    this._quad.max.x = this._quad.min.x + spriteWidth;
+    this._quad.max.y = this._quad.min.y + spriteHeight;
+    this._quad.max.z = this._depth;
 
     // if we have some rotation then apply it
     if (!MathConst.equals(this._spriteRotate, 0.0)) {
-      let minTmp = new vec2([-this._quad.min[0], -this._quad.min[1]]);
-      let maxTmp = new vec2([-this._quad.max[0], -this._quad.max[1]]);
+      let minTmp = new vec2([-this._quad.min.x, -this._quad.min.y]);
+      let maxTmp = new vec2([-this._quad.max.x, -this._quad.max.y]);
       const rotation = new mat2();
       rotation.setIdentity();
 
@@ -247,10 +253,10 @@ export class Sprite {
       minTmp.multiplyMat2(rotation);
       maxTmp.multiplyMat2(rotation);
 
-      this._quad.min[0] = minTmp.x + this._quad.min[0];
-      this._quad.min[1] = minTmp.y + this._quad.min[1];
-      this._quad.max[0] = maxTmp.x + this._quad.max[0];
-      this._quad.max[1] = maxTmp.y + this._quad.max[1];
+      this._quad.min.x = minTmp.x + this._quad.min.x;
+      this._quad.min.y = minTmp.y + this._quad.min.y;
+      this._quad.max.x = maxTmp.x + this._quad.max.x;
+      this._quad.max.y = maxTmp.y + this._quad.max.y;
     }
   }
 }

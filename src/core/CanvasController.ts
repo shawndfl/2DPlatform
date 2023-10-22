@@ -1,4 +1,4 @@
-import { Component } from './Component';
+import { Component } from '../components/Component';
 import { Engine } from './Engine';
 /**
  * This controller manages the canvas
@@ -27,7 +27,7 @@ export class CanvasController extends Component {
       this.eng.resize(canvas.width, canvas.height);
     });
 
-    if (true) {
+    if (false) {
       /** @type {WebGL2RenderingContext} render context from this canvas*/
       // @ts-ignore
       this._glContext = (WebGLDebugUtils as any).makeDebugContext(

@@ -1,12 +1,11 @@
-import { Component } from "../../core/Component";
+import { Component } from "../../components/Component";
 import { SceneComponent } from "../../components/SceneComponent";
 import { SceneFactory } from "../scenes/SceneFactory";
 import { ISceneManager } from "../../interfaces/ISceneManager";
 import { Engine } from "../../core/Engine";
 
-export class SceneManager extends Component implements ISceneManager {
+export class GameSceneManager extends Component implements ISceneManager {
   private _activeScene: SceneComponent;
-  private _lastScene: SceneComponent;
   private _sceneFactory: SceneFactory;
 
   get scene(): SceneComponent {
@@ -19,49 +18,28 @@ export class SceneManager extends Component implements ISceneManager {
   }
 
   async initialize() {
-    //await this.changeScene("main.menu");
-    await this.changeScene("level.1.0");
+    this.changeScene("level.1.0");
   }
+
 
   /**
    * Switch to a different scene.
    * @param newScene
    */
   async changeScene(type: string): Promise<boolean> {
-    const newScene = this._sceneFactory.createScene(type);
-    if (!newScene) {
+    const scene = this._sceneFactory.createScene(type);
+    if (!scene) {
       console.error("failed to change scene to " + type);
       return false;
     }
 
     if (this._activeScene) {
-      this._activeScene.HideScene();
+      this._activeScene.dispose();
     }
 
-    this._lastScene = this._activeScene;
-    this._activeScene = newScene;
+    this._activeScene = scene;
 
-    await this._activeScene.ShowScene();
-  }
-
-  /**
-   * Restore last scene
-   * @returns
-   */
-  restoreLastScene() {
-    if (!this._lastScene) {
-      return;
-    }
-    const newScene = this._lastScene;
-
-    if (this._activeScene) {
-      this._activeScene.HideScene();
-    }
-
-    this._lastScene = null;
-    this._activeScene = newScene;
-
-    this._activeScene.ShowScene();
+    this._activeScene.initialize();
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Component } from '../core/Component';
+import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import * as MathConst from '../math/constants';
 import mat4 from '../math/mat4';
@@ -135,5 +135,5 @@ export class ViewManager extends Component {
     this._projection = mat4.orthographic(this._left, this._right, this._bottom, this._top, 1, -1);
   }
 
-  update(dt: number) {}
+  update(dt: number) { }
 }

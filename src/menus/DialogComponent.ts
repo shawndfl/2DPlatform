@@ -62,7 +62,7 @@ export class DialogComponent extends PanelComponent {
    */
   handleUserAction(state: InputState): boolean {
     const active = this.visible;
-    if (active && (state.action & UserAction.ActionPressed) > 0) {
+    if (active && state.isReleased(UserAction.A)) {
       let canHide = true;
 
       if (this.onClosing) {
@@ -82,7 +82,7 @@ export class DialogComponent extends PanelComponent {
 
     if (this._options?.length > 0) {
       // select next option
-      if ((state.action & UserAction.DownPressed) > 0) {
+      if (state.isReleased(UserAction.Down)) {
         if (this._cursor.index < this._cursor.indexCount - 1) {
           this._cursor.index++;
         } else {
@@ -91,7 +91,7 @@ export class DialogComponent extends PanelComponent {
         this._cursor.select();
       }
       // select previous option
-      if ((state.action & UserAction.UpPressed) > 0) {
+      if (state.isReleased(UserAction.Up)) {
         if (this._cursor.index > 0) {
           this._cursor.index--;
         } else {
@@ -159,7 +159,7 @@ export class DialogComponent extends PanelComponent {
           optionPositions,
           (index) => {
             this._selectedIndex = index;
-            this._selectedOption = this._options[this._selectedIndex];
+            this._selectedOption = this._options ? this._options[this._selectedIndex] : null;
           },
           this._depth - 0.01 // set the depth just in front of this dialog box
         );

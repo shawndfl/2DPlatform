@@ -14,7 +14,7 @@ import { SpritBaseController } from './SpriteBaseController';
 export class SpritBatchController extends SpritBaseController implements ISpriteController {
   private _sprites: Map<string, Sprite>;
   private _activeSprite: string;
-
+  private _quads: IQuadModel[];
   /** The sprite */
   get sprite(): Sprite {
     return this.getSprite(this._activeSprite);
@@ -30,6 +30,7 @@ export class SpritBatchController extends SpritBaseController implements ISprite
   constructor(eng: Engine) {
     super(eng);
     this._sprites = new Map<string, Sprite>();
+    this._quads = [];
   }
 
   /**
@@ -104,14 +105,17 @@ export class SpritBatchController extends SpritBaseController implements ISprite
    * Commit all sprites to the buffer
    */
   commitToBuffer() {
-    const quads: IQuadModel[] = [];
-    //console.debug('Committing ' + this._sprites.size);
+    if (this._quads.length < this._sprites.size) {
+      this._quads = new Array(this._sprites.size);
+    }
+
+    let i = 0;
     this._sprites.forEach((sprite) => {
-      quads.push(sprite.quad);
+      this._quads[i++] = sprite.quad;
     });
 
     // update the buffer
-    this._buffer.setBuffers(quads, false);
+    this._buffer.setBuffers(this._quads, false, undefined, this._sprites.size);
   }
 
   render() {

@@ -6,6 +6,30 @@ import { PlatformEngine } from './_game/PlatformEngine';
  * Create the only instance of a canvas controller
  */
 const engine = new PlatformEngine();
+/** time tracking variables */
+let previousTimeStamp: number;
+
+function step(timestamp: number) {
+  window.requestAnimationFrame(step);
+
+  // save the start time
+  if (previousTimeStamp === undefined) {
+    previousTimeStamp = timestamp;
+  }
+
+  // calculate the elapsed
+  const elapsed = timestamp - previousTimeStamp;
+
+  // if the frame tool longer than 100ms through it out
+  if (elapsed < 100) {
+    // update the scene
+    engine.update(elapsed);
+
+  }
+  // request a new frame
+  previousTimeStamp = timestamp;
+
+}
 
 /**
  * Start the engine then request and animation frame
@@ -13,33 +37,10 @@ const engine = new PlatformEngine();
 engine
   .initialize(document.getElementById('rootContainer'))
   .then(() => {
-    /** time tracking variables */
-    let previousTimeStamp: number;
-
     // request the first frame
-    window.requestAnimationFrame((t) => {
-
-      function step(timestamp: number) {
-
-        window.requestAnimationFrame(step);
-
-        // save the start time
-        if (previousTimeStamp === undefined) {
-          previousTimeStamp = timestamp;
-        }
-
-        // calculate the elapsed
-        const elapsed = timestamp - previousTimeStamp;
-
-        // update the scene
-        engine.update(elapsed);
-
-        // request a new frame
-        previousTimeStamp = timestamp;
-      }
-      step(t);
-    });
+    window.requestAnimationFrame(step);
   })
   .catch((e) => {
     console.error('Error initializing ', e);
   });
+

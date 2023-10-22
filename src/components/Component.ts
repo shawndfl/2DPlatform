@@ -1,4 +1,4 @@
-import { Engine } from './Engine';
+import { Engine } from '../core/Engine';
 
 /**
  * A component is something that is part of the game engine and has a reference
@@ -12,5 +12,5 @@ export class Component {
     return this.eng.gl;
   }
 
-  constructor(readonly eng: Engine) {}
+  constructor(readonly eng: Engine) { }
 }

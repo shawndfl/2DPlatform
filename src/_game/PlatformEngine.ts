@@ -3,14 +3,14 @@ import { ISceneManager } from "../interfaces/ISceneManager";
 import { AssetManager } from "../systems/AssetManager";
 import { GameEditor } from "./editor/GameEditor";
 import { GameAssetManager } from "./system/GameAssetManager";
-import { SceneManager } from "./system/SceneManager";
+import { GameSceneManager } from "./system/GameSceneManager";
 
 /**
  * This is the engine override that will kick off our editor
  * or the game.
  */
 export class PlatformEngine extends Engine {
-  readonly _sceneManager: SceneManager;
+  readonly _sceneManager: GameSceneManager;
   private editor: GameEditor;
 
   get sceneManager(): ISceneManager {
@@ -19,7 +19,7 @@ export class PlatformEngine extends Engine {
 
   constructor() {
     super();
-    this._sceneManager = new SceneManager(this);
+    this._sceneManager = new GameSceneManager(this);
   }
 
   createAssetManager(): AssetManager {

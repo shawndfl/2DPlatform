@@ -1,4 +1,4 @@
-import { Component } from '../core/Component';
+import { Component } from '../components/Component';
 import { SpritBatchController } from '../graphics/SpriteBatchController';
 import { Engine } from '../core/Engine';
 import { DialogComponent } from '../menus/DialogComponent';

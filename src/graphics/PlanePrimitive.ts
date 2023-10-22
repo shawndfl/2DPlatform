@@ -1,5 +1,7 @@
-import { Component } from '../core/Component';
+import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
+import vec2 from '../math/vec2';
+import vec3 from '../math/vec3';
 import { GlBuffer } from '../geometry/GlBuffer';
 
 /**
@@ -14,7 +16,7 @@ export class PlanePrimitive extends Component {
   }
 
   initialize() {
-    this.buffer.setBuffers([{ min: [-1, -1, 0], max: [1, 1, 0], minTex: [0, 1], maxTex: [1, 0] }]);
+    this.buffer.setBuffers([{ min: new vec3([-1, -1, 0]), max: new vec3([1, 1, 0]), minTex: new vec2([0, 1]), maxTex: new vec2([1, 0]) }]);
   }
 
   draw() {

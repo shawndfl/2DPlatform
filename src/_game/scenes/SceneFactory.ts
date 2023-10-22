@@ -1,4 +1,4 @@
-import { Component } from "../../core/Component";
+import { Component } from "../../components/Component";
 import { SceneComponent } from "../../components/SceneComponent";
 import { MainMenu } from "./MainMenu";
 import { Engine } from "../../core/Engine";

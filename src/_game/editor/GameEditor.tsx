@@ -1,5 +1,5 @@
 
-import { Component } from "../../core/Component";
+import { Component } from "../../components/Component";
 import { PlatformEngine } from "../PlatformEngine";
 import { EditorTabs } from './EditorTabs';
 

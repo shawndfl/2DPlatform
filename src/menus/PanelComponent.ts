@@ -5,7 +5,7 @@ import vec2 from '../math/vec2';
 import vec4 from '../math/vec4';
 import { DialogBuilder } from './DialogBuilder';
 import { IDialogParams } from './IDialogParams';
-import { Component } from '../core/Component';
+import { Component } from '../components/Component';
 
 export class PanelComponent extends Component {
   protected _id: string;

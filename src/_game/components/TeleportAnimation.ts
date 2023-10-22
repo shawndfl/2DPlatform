@@ -1,4 +1,4 @@
-import { Component } from "../../core/Component";
+import { Component } from "../../components/Component";
 import { SpritBatchController } from "../../graphics/SpriteBatchController";
 import { Curve, CurveType } from "../../math/Curve";
 
@@ -12,25 +12,10 @@ export class TeleportAnimation extends Component {
 
     initialize(sprite: SpritBatchController): void {
         this.sprite = sprite;
-    }
-
-    onDone(done: () => void): TeleportAnimation {
-        this._onDone = done;
-        return this;
-    }
-
-    start(goingUp: boolean): TeleportAnimation {
-
-        if (!this.sprite) {
-            console.error('Need to call initialize() first.')
-            return null;
-        }
-
-        this.goingUp = goingUp;
-
         this.curveMove = new Curve();
+        this.curve = new Curve();
         this.curveMove.curve(CurveType.linear);
-        this.curveMove.points([{ p: 0, t: 0 }, { p: 400, t: 200 }]);
+        this.curveMove.points([{ p: -100, t: 0 }, { p: 400, t: 200 }]);
         this.curveMove.onUpdate((value) => {
             // move
             this.sprite.setSpritePosition(10, this.eng.height - this.sprite.spriteHeight() - value);
@@ -38,8 +23,6 @@ export class TeleportAnimation extends Component {
         this.curveMove.onDone((curve) => {
 
             if (this.goingUp) {
-                this.curveMove.reverse(false).start(true);
-
                 // if we were going up then we are done here
                 if (this._onDone) {
                     this._onDone();
@@ -51,7 +34,6 @@ export class TeleportAnimation extends Component {
             }
         })
 
-        this.curve = new Curve();
         const points: { p: number, t: number }[] = []
 
         points.push({ p: 1, t: 0 });
@@ -83,11 +65,31 @@ export class TeleportAnimation extends Component {
             }
         });
 
+    }
+
+    onDone(done: () => void): TeleportAnimation {
+        this._onDone = done;
+        return this;
+    }
+
+    start(goingUp: boolean): TeleportAnimation {
+
+        if (!this.sprite) {
+            console.error('Need to call initialize() first.')
+            return null;
+        }
+
+        this.goingUp = goingUp;
+
         if (this.goingUp) {
+            this.sprite.setSprite('default');
+            this.curveMove.pause();
             this.curve.reverse(true).start(true);
         } else {
             // start moving
-            this.curveMove.start(true);
+            this.sprite.setSprite('teleport.1');
+            this.curve.pause();
+            this.curveMove.reverse(false).start(true);
         }
 
         return this;

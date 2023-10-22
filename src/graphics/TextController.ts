@@ -1,9 +1,11 @@
-import { Component } from '../core/Component';
+import { Component } from '../components/Component';
 import vec4 from '../math/vec4';
 import { Engine } from '../core/Engine';
 import { GlBuffer, IQuadModel } from '../geometry/GlBuffer';
 import { IFontData } from './IFontData';
 import { ITextModel } from './ITextModel';
+import vec3 from '../math/vec3';
+import vec2 from '../math/vec2';
 
 export class TextController extends Component {
   buffer: GlBuffer;
@@ -81,10 +83,10 @@ export class TextController extends Component {
       const tv2 = 1 - font.v1;
 
       const quad: IQuadModel = {
-        min: [(xpos1 / screenWidth) * 2 - 1.0, (ypos1 / screenHeight) * 2 - 1.0, zpos],
-        max: [(xpos2 / screenWidth) * 2 - 1.0, (ypos2 / screenHeight) * 2 - 1.0, zpos],
-        minTex: [tu1, tv2],
-        maxTex: [tu2, tv1],
+        min: new vec3([(xpos1 / screenWidth) * 2 - 1.0, (ypos1 / screenHeight) * 2 - 1.0, zpos]),
+        max: new vec3([(xpos2 / screenWidth) * 2 - 1.0, (ypos2 / screenHeight) * 2 - 1.0, zpos]),
+        minTex: new vec2([tu1, tv2]),
+        maxTex: new vec2([tu2, tv1]),
       };
 
       charCount++;
@@ -112,4 +114,11 @@ export class TextController extends Component {
       }
     }
   }
+
+  dispose(): void {
+    if (this.buffer) {
+      this.buffer.dispose();
+    }
+  }
+
 }

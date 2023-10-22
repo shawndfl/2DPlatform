@@ -1,4 +1,4 @@
-import { Component } from '../core/Component';
+import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import { GlBuffer, IQuadModel } from '../geometry/GlBuffer';
 import { ISpriteData } from './ISpriteData';
@@ -68,6 +68,10 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
       this._indexLookup.set(val.id, i);
     });
 
+    if (this._buffer) {
+      this._buffer.dispose();
+    }
+
     // create the gl buffers for this sprite
     this._buffer = new GlBuffer(this.gl);
 
@@ -76,6 +80,8 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
 
     // needs to be committed to buffer when update is called
     this._dirty = true;
+
+    //console.debug('Sprite: initialize!!');
   }
 
   /**
@@ -98,6 +104,7 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
   setSpritePosition(x: number, y: number, depth?: number) {
     this.sprite.setPosition(x, y, depth);
     this._dirty = true;
+    //console.debug('Sprite: setSpritePosition');
   }
 
   spriteWidth() {
@@ -115,6 +122,7 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
   scale(scale: number | { x: number; y: number }) {
     this.sprite.setSpriteScale(scale);
     this._dirty = true;
+    //console.debug('Sprite: Scale');
   }
 
   /**
@@ -124,6 +132,7 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
   flip(flipDirection: SpriteFlip): void {
     this.sprite.setSpriteFlip(flipDirection);
     this._dirty = true;
+    //console.debug('Sprite: flip');
   }
 
   /**
@@ -133,6 +142,7 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
   rotate(angle: number): void {
     this.sprite.setSpriteRotate(angle);
     this._dirty = true;
+    //console.debug('Sprite: rotate');
   }
 
   /**
@@ -143,6 +153,7 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
   viewOffset(offset?: vec2) {
     this._viewOffset = offset;
     this._dirty = true;
+    //console.debug('Sprite: view offset');
   }
 
   /**
@@ -153,6 +164,7 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
   viewScale(scale?: number) {
     this._viewScale = scale;
     this._dirty = true;
+    //console.debug('Sprite: view scale');
   }
 
   /**
@@ -192,9 +204,13 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
           spriteHeight: sprite.loc[3],
         });
       } else {
+
         // use index
-        const pixelX = this._spriteData.tileWidth * sprite.index[0];
-        const pixelY = this._spriteData.tileHeight * sprite.index[1];
+        const s = this._spriteData;
+        s.tileOffset = s.tileOffset ?? 0;
+        s.tileSpacing = s.tileSpacing ?? 0;
+        const pixelX = s.tileOffset + (s.tileWidth + s.tileSpacing) * sprite.index[0];
+        const pixelY = s.tileOffset + (s.tileHeight + s.tileSpacing) * sprite.index[1];
 
         this.sprite.setSprite({
           pixelXOffset: pixelX,
@@ -204,6 +220,7 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
         });
       }
       this._dirty = true;
+      //console.debug('Sprite: set sprite');
     } else {
       console.error('cannot find sprite ' + id);
     }
@@ -219,6 +236,11 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
    * @param dt
    */
   update(dt: number) {
+    if (!this._buffer) {
+      console.error('Call Initialize()')
+      return;
+    }
+
     // only commit to buffer if something changed
     if (this._dirty) {
       this.commitToBuffer();
@@ -250,4 +272,11 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
    * render by calling gl draw functions
    */
   abstract render(): void;
+
+  dispose(): void {
+    if (this._buffer) {
+      this._buffer.dispose();
+      this._buffer = null;
+    }
+  }
 }

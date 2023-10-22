@@ -100,7 +100,7 @@ export abstract class Engine {
   }
 
   handleUserAction(state: InputState): boolean {
-    return this.dialogManager.handleUserAction(state);
+    return this.dialogManager.handleUserAction(state) || this.sceneManager.scene.handleUserAction(state);
   }
 
   update(dt: number): void {
@@ -111,12 +111,12 @@ export abstract class Engine {
     this.fps.update(dt);
 
     // handle input
-    if (this.input.action != UserAction.None) {
-      this.soundManager.UserReady();
-      const inputState = { action: this.input.action, touchPoint: this.input.touchPoint };
-      // handle dialog input first
-      this.handleUserAction(inputState);
-    }
+
+    this.soundManager.UserReady();
+    const inputState = this.input.getInputState();
+    // handle dialog input first
+    this.handleUserAction(inputState);
+
 
     // clear the buffers
     this.gl.clearColor(0.3, 0.3, 0.3, 1.0); // Clear to black, fully opaque

@@ -1,6 +1,6 @@
 
 import { InputState } from "../core/InputHandler";
-import { Component } from "../core/Component";
+import { Component } from "../components/Component";
 import { PlayerController } from "../_game/components/PlayerController";
 import { ILevelData } from "../_game/data/ILevelData";
 import { Engine } from "../core/Engine";
@@ -20,11 +20,6 @@ export abstract class SceneComponent extends Component {
 
   /**
    * Handles user input. The logic goes through a chain of commands
-   *    1) Main menu
-   *    2) pause menu
-   *    3) battle menu
-   *    4) dialog menu
-   *    5) player in the environment
    * @param action the action from keyboard or gamepad
    * @returns True if the action was handled else false
    */
@@ -41,12 +36,7 @@ export abstract class SceneComponent extends Component {
   /**
    * Show scene is called when a SceneManager changes to a new scene.
    */
-  abstract ShowScene(): Promise<void>;
-
-  /**
-   * Hide scene is called when a SceneManager changes to a new scene.
-   */
-  HideScene(): void { }
+  abstract initialize(): void;
 
   /**
    * When the window is resized

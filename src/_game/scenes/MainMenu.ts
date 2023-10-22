@@ -5,6 +5,7 @@ import { SpritBaseController } from "../../graphics/SpriteBaseController";
 import { SpritController } from "../../graphics/SpriteController";
 import { Texture } from "../../graphics/Texture";
 import vec2 from "../../math/vec2";
+import { AssetManager } from "../../systems/AssetManager";
 
 export class MainMenu extends SceneComponent {
 
@@ -14,12 +15,11 @@ export class MainMenu extends SceneComponent {
     super(eng);
   }
 
-  async ShowScene(): Promise<void> {
+  initialize(): void {
 
     // set up the background image
     this.background = new SpritController(this.eng);
-    const texture = new Texture(this.gl);
-    await texture.loadImage('./menu/menu.png');
+    const texture = this.eng.assetManager.menu.texture;
 
     this.background.initialize(texture, { tiles: [{ id: 'main', index: [0, 0] }], tileHeight: texture.height, tileWidth: texture.width });
     const scaleX = this.eng.width / texture.width;

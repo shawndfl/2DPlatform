@@ -1,6 +1,8 @@
-import { Component } from './Component';
+
 import vec2 from '../math/vec2';
 import vec4 from '../math/vec4';
+import { TextManager } from '../systems/TextManager';
+import { Component } from '../components/Component';
 import { Engine } from './Engine';
 
 /**
@@ -8,6 +10,8 @@ import { Engine } from './Engine';
  */
 export class FpsController extends Component {
   fps: number;
+  frames: number;
+  seconds: number;
   delayCounter: number;
   displayInterval: number;
 
@@ -16,6 +20,8 @@ export class FpsController extends Component {
 
     /** The frames per second (float) */
     this.fps = 0;
+    this.frames = 0;
+    this.seconds = 0;
     /** Just a counter for displaying FPS to the console */
     this.delayCounter = 0;
     /** Show the FPS every second */
@@ -27,18 +33,24 @@ export class FpsController extends Component {
    * @param {float} dt delta time in ms
    */
   update(dt: number) {
-    this.fps = 1000.0 / dt;
     this.delayCounter += dt;
+    this.seconds += dt / 1000;
+    this.frames++;
+
     if (this.delayCounter >= this.displayInterval) {
+      this.fps = this.frames / this.seconds;
+      this.frames = 0;
+      this.seconds = 0;
       //console.debug('ms ' + dt.toFixed(2) + ' FPS: ' + this.fps.toFixed(2));
       this.eng.textManager.setTextBlock({
         id: 'FPS',
-        text: 'FPS: ' + this.fps.toFixed(2),
-        position: new vec2([700, 580]),
-        color: new vec4([0.1, 0.5, 0.8, 1.0]),
+        text: 'FPS: ' + this.fps.toFixed(2) + ' dt ' + dt.toFixed(2),
+        position: new vec2([450, 580]),
+        color: new vec4([0.9, 0.5, 0.8, 1.0]),
         depth: -1,
-        scale: 0.5,
+        scale: 0.8,
       });
+
       this.delayCounter = 0;
     }
   }
