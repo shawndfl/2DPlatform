@@ -20,9 +20,9 @@ export interface TileData {
   flip?: boolean;
 
   /**
-   * Offset the the image
+   * Offset the the image. X, Y, Flipped X, flipped Y
    */
-  offset?: [number, number];
+  offset?: [number, number, number, number];
 
   /**
    * the location of the sprite data in the sprite sheet. This will

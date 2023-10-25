@@ -1,6 +1,7 @@
 import { Component } from "../../components/Component";
 import { SpritBatchController } from "../../graphics/SpriteBatchController";
 import { Curve, CurveType } from "../../math/Curve";
+import vec2 from "../../math/vec2";
 
 export class TeleportAnimation extends Component {
 
@@ -10,15 +11,19 @@ export class TeleportAnimation extends Component {
     private curveMove: Curve;
     private sprite: SpritBatchController;
 
+
+    groundLevel: number = 300;
+    xOffset: number = 10;
+
     initialize(sprite: SpritBatchController): void {
+
         this.sprite = sprite;
         this.curveMove = new Curve();
         this.curve = new Curve();
         this.curveMove.curve(CurveType.linear);
-        this.curveMove.points([{ p: -100, t: 0 }, { p: 400, t: 200 }]);
         this.curveMove.onUpdate((value) => {
             // move
-            this.sprite.setSpritePosition(10, this.eng.height - this.sprite.spriteHeight() - value);
+            this.sprite.setSpritePosition(this.xOffset, value);
         })
         this.curveMove.onDone((curve) => {
 
@@ -73,6 +78,11 @@ export class TeleportAnimation extends Component {
     }
 
     start(goingUp: boolean): TeleportAnimation {
+
+        const speed = 20 / 10;
+        const distance = -100 + this.groundLevel;
+        const t = distance * speed;
+        this.curveMove.points([{ p: 900, t: 0 }, { p: this.groundLevel, t }]);
 
         if (!this.sprite) {
             console.error('Need to call initialize() first.')

@@ -129,20 +129,20 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
    * Flip the image.
    * @param flipDirection
    */
-  flip(flipDirection: SpriteFlip): void {
+  flip(flipDirection: SpriteFlip): SpritBaseController {
     this.sprite.setSpriteFlip(flipDirection);
     this._dirty = true;
-    //console.debug('Sprite: flip');
+    return this;
   }
 
   /**
    * Rotate the angle in degrees
    * @param angle In Degrees
    */
-  rotate(angle: number): void {
+  rotate(angle: number): SpritBaseController {
     this.sprite.setSpriteRotate(angle);
     this._dirty = true;
-    //console.debug('Sprite: rotate');
+    return this;
   }
 
   /**
@@ -171,8 +171,12 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
    * Select a sprite
    * @param id the id in the sprite sheet
    */
-  setSprite(id?: string | number) {
+  setSprite(id?: string | number): void {
     // find the sprite of a given id
+
+    if (!this._spriteData) {
+      return;
+    }
 
     let index = 0;
 
@@ -190,8 +194,18 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
       this._selectedSpriteIndex = index;
       this._selectedSpriteId = sprite.id;
 
-      const xOffset = sprite.offset ? sprite.offset[0] : 0;
-      const yOffset = sprite.offset ? sprite.offset[1] : 0;
+      let xOffset = sprite.offset[0] ?? 0;
+      let yOffset = sprite.offset[1] ?? 0;
+
+      if (this.sprite.getSpriteFlip() == SpriteFlip.XFlip) {
+        xOffset = sprite.offset[2] ?? 0;
+      } else if (this.sprite.getSpriteFlip() == SpriteFlip.YFlip) {
+        yOffset = sprite.offset[3] ?? 0;
+      } else if (this.sprite.getSpriteFlip() == SpriteFlip.Both) {
+        xOffset = sprite.offset[2] ?? 0;
+        yOffset = sprite.offset[3] ?? 0;
+      }
+      console.debug('new offset: ' + xOffset);
 
       this.sprite.setSpritePositionOffset(xOffset, yOffset);
 

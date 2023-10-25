@@ -136,6 +136,10 @@ export class Sprite {
     this.calculateQuad();
   }
 
+  getSpriteFlip(): SpriteFlip {
+    return this._spriteFlip;
+  }
+
   setSpriteFlip(spriteFlip: SpriteFlip) {
     this._spriteFlip = spriteFlip ?? SpriteFlip.None;
 
