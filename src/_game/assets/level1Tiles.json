@@ -1,0 +1,13 @@
+{
+  "tileHeight": 24,
+  "tileWidth": 16,
+  "tileSpacing": 1,
+  "tileOffset": 0,
+  "tiles": [
+    {
+      "id": "block.1",
+      "loc": [0, 0, 64 , 24],
+      "offset": [0, -0]
+    }
+       ]
+}

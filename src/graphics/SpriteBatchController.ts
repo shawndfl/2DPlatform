@@ -86,8 +86,9 @@ export class SpritBatchController extends SpritBaseController implements ISprite
    * Sets an active sprite
    * @param spriteId
    */
-  activeSprite(spriteId: string) {
+  activeSprite(spriteId: string): SpritBatchController {
     this._activeSprite = spriteId;
+    return this;
   }
 
   /**

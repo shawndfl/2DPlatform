@@ -2,15 +2,18 @@ import { SceneComponent } from "../../components/SceneComponent";
 import { Engine } from "../../core/Engine";
 import { InputState } from "../../core/InputHandler";
 import { PlayerController } from "../components/PlayerController";
+import { GroundManager } from "../system/GroundManager";
+import Level1Data from '../assets/levels/level1.json'
 
 export class Level1 extends SceneComponent {
 
 
   private _player: PlayerController;
+  private _groundManager: GroundManager;
 
   constructor(eng: Engine) {
     super(eng);
-
+    this._groundManager = new GroundManager(eng);
     this._player = new PlayerController(eng);
 
   }
@@ -27,10 +30,12 @@ export class Level1 extends SceneComponent {
 
   initialize(): void {
     this._player.initialize();
+    this._groundManager.initialize(Level1Data);
   }
 
   update(dt: number): void {
 
     this._player.update(dt);
+    this._groundManager.update(dt);
   }
 }

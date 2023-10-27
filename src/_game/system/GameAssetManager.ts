@@ -8,17 +8,19 @@ import Player2Data from '../assets/zero.json'
 import Player1b from '../assets/man2.png'
 import { ISpriteData } from "../../graphics/ISpriteData";
 
+import level1Tile from '../assets/Level1Tiles.png'
+import level1TileData from '../assets/Level1Tiles.json'
+
 export enum TextureAssest {
     player1 = 'Player1',
     player2 = 'Player2',
+    level1 = 'level1',
 }
 
 /**
  * Manages game asses for this platform game
  */
 export class GameAssetManager extends AssetManager {
-    protected _player1: Texture;
-    protected _player2: Texture;
     private textures: Map<string, { texture: Texture, data: ISpriteData }>;
 
     constructor(eng: PlatformEngine) {
@@ -32,16 +34,17 @@ export class GameAssetManager extends AssetManager {
 
     async initialize() {
         super.initialize();
-        this._player1 = new Texture(this.gl);
-        await this._player1.loadImage(Player1);
+
         this.textures.set(TextureAssest.player1, {
-            texture: this._player1, data: Player1Data
+            texture: await (new Texture(this.gl)).loadImage(Player1), data: Player1Data
         });
 
-        this._player2 = new Texture(this.gl);
-        await this._player2.loadImage(Player2);
         this.textures.set(TextureAssest.player2, {
-            texture: this._player2, data: Player2Data
+            texture: await (new Texture(this.gl)).loadImage(Player2), data: Player2Data
+        });
+
+        this.textures.set(TextureAssest.level1, {
+            texture: await (new Texture(this.gl)).loadImage(level1Tile), data: level1TileData
         });
 
     }

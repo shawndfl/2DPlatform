@@ -29,7 +29,7 @@ export class Texture {
     this.gl.uniform1i(uniformIndex, slot);
   }
 
-  async loadImage(imagePath: string): Promise<void> {
+  async loadImage(imagePath: string): Promise<Texture> {
     return new Promise((resolve, reject) => {
       this.texturePath = imagePath;
       this.glTexture = this.gl.createTexture();
@@ -96,7 +96,7 @@ export class Texture {
         );
 
         this.gl.generateMipmap(this.gl.TEXTURE_2D);
-        return resolve();
+        return resolve(this);
       };
       image.onerror = (event: string) => {
         console.error(event);
