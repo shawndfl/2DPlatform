@@ -16,6 +16,11 @@ export class StepAnimation {
         this.sprite.setSprite(this.currentSprite);
     }
 
+    toggleFlipped(): boolean {
+        this.isFlipped = !this.isFlipped;
+        return this.isFlipped;
+    }
+
     stepForward(): void {
         this.index++;
         if (this.index >= this.frames.length) {

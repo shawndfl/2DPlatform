@@ -1,7 +1,9 @@
 import { Engine } from "../core/Engine";
+import { InputState } from "../core/InputHandler";
 import { ISceneManager } from "../interfaces/ISceneManager";
 import { AssetManager } from "../systems/AssetManager";
 import { PlayerController } from "./components/PlayerController";
+import { TestAnimationController } from "./components/TestAnimationController";
 import { GameEditor } from "./editor/GameEditor";
 import { GameAssetManager } from "./system/GameAssetManager";
 import { GameSceneManager } from "./system/GameSceneManager";
@@ -15,13 +17,22 @@ export class PlatformEngine extends Engine {
   readonly sceneManager: GameSceneManager;
   readonly editor: GameEditor;
   readonly player: PlayerController;
+  readonly testAnimation: TestAnimationController;
   readonly groundManager: GroundManager;
+  readonly urlParams: URLSearchParams;
+
+  private editorMode: boolean;
+  private animationMode: boolean;
 
   constructor() {
     super();
+    const queryString = window.location.search
+    this.urlParams = new URLSearchParams(queryString);
     this.sceneManager = new GameSceneManager(this);
     this.groundManager = new GroundManager(this);
     this.player = new PlayerController(this);
+    this.testAnimation = new TestAnimationController(this);
+    this.editor = new GameEditor(this);
   }
 
   createAssetManager(): AssetManager {
@@ -32,6 +43,7 @@ export class PlatformEngine extends Engine {
 
     if (!root) {
       console.error("cannot find root element");
+      return;
     }
     this.canvasController.initialize(root);
 
@@ -47,7 +59,12 @@ export class PlatformEngine extends Engine {
 
     await this.assetManager.initialize();
     this.groundManager.initialize();
-    this.player.initialize();
+    if (this.urlParams.get('animation')) {
+      this.testAnimation.initialize();
+      this.animationMode = true;
+    } else {
+      this.player.initialize();
+    }
     //await this.gameManager.initialize();
     await this.textManager.initialize();
     await this.dialogManager.initialize();
@@ -64,22 +81,33 @@ export class PlatformEngine extends Engine {
     this.gl.enable(this.gl.DEPTH_TEST); // Enable depth testing
     this.gl.depthFunc(this.gl.LEQUAL); // Near things obscure far things
 
-    const queryString = window.location.search
-    const urlParams = new URLSearchParams(queryString);
-    if (urlParams.get('editor')) {
-      const editor = new GameEditor(this);
-      await editor.initialize(document.getElementById('rootContainer'));
 
+    if (this.urlParams.get('editor')) {
+      await this.editor.initialize(document.getElementById('rootContainer'));
+      this.editorMode = true;
+    }
+  }
+
+  handleUserAction(state: InputState): boolean {
+    if (this.animationMode) {
+      return this.testAnimation.handleUserAction(state);
+    } else {
+      return this.dialogManager.handleUserAction(state) || this.player.handleUserAction(state) || this.sceneManager.scene.handleUserAction(state);
     }
   }
 
   update(dt: number): void {
     super.update(dt);
 
-    if (this.editor) {
+    if (this.editorMode) {
       this.editor.update(dt);
     }
-    this.player.update(dt);
+    if (this.animationMode) {
+      this.testAnimation.update(dt);
+    } else {
+      this.player.update(dt);
+    }
+    this.testAnimation.update(dt);
     this.groundManager.update(dt);
   }
 }

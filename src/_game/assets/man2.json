@@ -5,230 +5,115 @@
   "tileOffset": 0,
   "tiles": [
     {
-      "id": "error",
-      "loc": [0, 0, 16, 23],
-      "offset": [-16, -15]
+      "id": "teleport.1",
+      "loc": [111, 3, 16, 48],
+      "offset": [0, -0]
     },
     {
-      "id": "ness.down.step.right",
-      "index": [0, 1],
-      "offset": [-16, -15]
+      "id": "teleport.2",
+      "loc": [127, 3, 24, 48],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.down.step.left",
-      "index": [1, 1],
-      "offset": [-16, -15]
+      "id": "teleport.3",
+      "loc": [154, 3, 32, 48],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.up.step",
-      "index": [2, 1],
-      "offset": [-16, -15]
+      "id": "teleport.4",
+      "loc": [188, 3, 32, 48],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.left.stand",
-      "index": [3, 1],
-      "offset": [-16, -15]
+      "id": "teleport.5",
+      "loc": [222, 3, 32, 48],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.left.step",
-      "index": [4, 1],
-      "offset": [-16, -15]
+      "id": "teleport.6",
+      "loc": [256, 3, 32, 48],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.climb.1",
-      "index": [5, 1],
-      "offset": [-16, -15]
+      "id": "teleport.7",
+      "loc": [290, 3, 32, 48],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.climb.2",
-      "index": [6, 1],
-      "offset": [-16, -15]
+      "id": "default",
+      "loc": [324, 3, 32, 48],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.scared",
-      "index": [7, 1],
-      "offset": [-16, -15]
+      "id": "idle.1",
+      "loc": [358, 3, 32, 48],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.climb.3",
-      "index": [8, 1],
-      "offset": [-16, -15]
+      "id": "idle.2",
+      "loc": [392, 3, 32, 48],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.sit",
-      "index": [8, 1],
-      "offset": [-16, -15]
+      "id": "run.1",
+      "loc": [106, 106, 30, 35],
+      "offset": [0, 0]
     },
     {
-      "id": "ness.down.left.stand",
-      "index": [10, 1],
-      "offset": [-16, -15]
+      "id": "run.2",
+      "loc": [136, 106, 21, 35],
+      "offset": [5, 0, 4]
     },
     {
-      "id": "ness.down.left.step",
-      "index": [11, 1],
-      "offset": [-16, -15]
+      "id": "run.3",
+      "loc": [158, 106, 23, 35],
+      "offset": [0, 0, 5]
     },
     {
-      "id": "ness.up.left.stand",
-      "index": [12, 1],
-      "offset": [-16, -15]
+      "id": "run.4",
+      "loc": [181, 106, 32, 35],
+      "offset": [-10, 0, -2]
     },
     {
-      "id": "ness.up.left.step",
-      "index": [13, 1],
-      "offset": [-16, -15]
+      "id": "run.5",
+      "loc": [213, 106, 34, 35],
+      "offset": [-12, 0]
     },
     {
-      "id": "ness.success",
-      "index": [14, 1],
-      "offset": [-16, -15]
+      "id": "run.6",
+      "loc": [247, 106, 27, 35],
+      "offset": [0, 0, 2]
     },
     {
-      "id": "ness.down.swing.0",
-      "loc": [493, 25, 16, 24],
-      "offset": [-16 , -15]
+      "id": "run.7",
+      "loc": [274, 106, 24, 35],
+      "offset": [0, 0, 2]
     },
     {
-      "id": "ness.down.swing.1",
-      "loc": [510, 25, 16, 24],
-      "offset": [-16 , -15]
+      "id": "run.8",
+      "loc": [298, 106, 25, 35],
+      "offset": [0, 0, 2]
     },
     {
-      "id": "ness.down.swing.2",
-      "loc": [527, 25, 16, 24],
-      "offset": [-16 , -15]
+      "id": "run.9",
+      "loc": [325, 106, 31, 35],
+      "offset": [-1, 0, -10]
     },
     {
-      "id": "poo.down.step",
-      "index": [0, 2],
-      "offset": [-16, -16]
+      "id": "run.10",
+      "loc": [391, 106, 34, 35],
+      "offset": [-1, 0, -10]
     },
     {
-      "id": "poo.up.step",
-      "loc": [19, 48, 16, 24],
-      "offset": [-16, -16]
+      "id": "ground.shot.1",
+      "loc": [133, 64, 32, 35],
+      "offset": [-1, 0, 0]
     },
     {
-      "id": "poo.left.stand",
-      "loc": [34, 48, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "poo.left.step",
-      "loc": [50, 56, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "poo.site.1",
-      "loc": [84, 56, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "poo.site.2",
-      "loc": [1, 56, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "poo.down.left.stand",
-      "loc": [1, 56, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "poo.down.left.step",
-      "loc": [1, 56, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "poo.up.left.stand",
-      "loc": [1, 56, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "poo.down.left.step",
-      "loc": [1, 56, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "mario.down.step",
-      "loc": [2, 816, 16, 24],
-      "offset": [-16, -16]
-    },
-
-    {
-      "id": "mario.up.step",
-      "loc": [35, 816, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "mario.left.stand",
-      "loc": [53, 816, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "mario.left.step",
-      "loc": [70, 816, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "mario.down.left.stand",
-      "loc": [2, 841, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "mario.down.left.step",
-      "loc": [19, 841, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "mario.up.left.stand",
-      "loc": [36, 841, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "mario.up.left.step",
-      "loc": [53, 841, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "mario.success",
-      "loc": [70, 841, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "swamp.enemy.down",
-      "index": [0, 9],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "swamp.enemy.up",
-      "index": [9, 1],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "swamp.enemy.right",
-      "index": [9, 2],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "swamp.enemy.right.step",
-      "loc": [48, 212, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "swamp.enemy.angry.down",
-      "loc": [64, 212, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "swamp.enemy.angry.right",
-      "loc": [80, 212, 16, 24],
-      "offset": [-16, -16]
-    },
-    {
-      "id": "swamp.enemy.angry.right.step",
-      "loc": [96, 212, 16, 24],
-      "offset": [-16, -16]
+      "id": "ground.shot.2",
+      "loc": [168, 64, 34, 35],
+      "offset": [-1, 0, -5]
     }
-  ]
+
+    ]
 }

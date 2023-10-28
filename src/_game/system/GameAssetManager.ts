@@ -1,8 +1,8 @@
 import { Texture } from "../../graphics/Texture";
 import { AssetManager } from "../../systems/AssetManager";
 import { PlatformEngine } from "../PlatformEngine";
-import Player1 from '../assets/man.png'
-import Player1Data from '../assets/man.json'
+import Player1 from '../assets/man2.png'
+import Player1Data from '../assets/man2.json'
 import Player2 from '../assets/zero.png'
 import Player2Data from '../assets/zero.json'
 import Player1b from '../assets/man2.png'
