@@ -3,13 +3,15 @@ import { SceneComponent } from "../../components/SceneComponent";
 import { MainMenu } from "./MainMenu";
 import { Engine } from "../../core/Engine";
 import { Level1 } from "./Level1";
+import { GameComponent } from "../components/GameComponent";
+import { PlatformEngine } from "../PlatformEngine";
 
 /**
  * Used to create scenes
  */
-export class SceneFactory extends Component {
+export class SceneFactory extends GameComponent {
 
-    constructor(eng: Engine) {
+    constructor(eng: PlatformEngine) {
         super(eng);
     }
 

@@ -4,17 +4,15 @@ import { InputState } from "../../core/InputHandler";
 import { PlayerController } from "../components/PlayerController";
 import { GroundManager } from "../system/GroundManager";
 import Level1Data from '../assets/levels/level1.json'
+import { PlatformEngine } from "../PlatformEngine";
 
 export class Level1 extends SceneComponent {
+  get eng(): PlatformEngine {
+    return super.eng as PlatformEngine;
+  }
 
-
-  private _player: PlayerController;
-  private _groundManager: GroundManager;
-
-  constructor(eng: Engine) {
+  constructor(eng: PlatformEngine) {
     super(eng);
-    this._groundManager = new GroundManager(eng);
-    this._player = new PlayerController(eng);
 
   }
 
@@ -24,18 +22,15 @@ export class Level1 extends SceneComponent {
    * @returns 
    */
   handleUserAction(action: InputState): boolean {
-    this._player.handleUserAction(action);
+    this.eng.player.handleUserAction(action);
     return true;
   }
 
   initialize(): void {
-    this._player.initialize();
-    this._groundManager.initialize(Level1Data);
+    this.eng.groundManager.loadLevel(Level1Data);
   }
 
   update(dt: number): void {
 
-    this._player.update(dt);
-    this._groundManager.update(dt);
   }
 }

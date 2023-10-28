@@ -3,8 +3,10 @@ import { SceneComponent } from "../../components/SceneComponent";
 import { SceneFactory } from "../scenes/SceneFactory";
 import { ISceneManager } from "../../interfaces/ISceneManager";
 import { Engine } from "../../core/Engine";
+import { GameComponent } from "../components/GameComponent";
+import { PlatformEngine } from "../PlatformEngine";
 
-export class GameSceneManager extends Component implements ISceneManager {
+export class GameSceneManager extends GameComponent implements ISceneManager {
   private _activeScene: SceneComponent;
   private _sceneFactory: SceneFactory;
 
@@ -12,7 +14,7 @@ export class GameSceneManager extends Component implements ISceneManager {
     return this._activeScene;
   }
 
-  constructor(eng: Engine) {
+  constructor(eng: PlatformEngine) {
     super(eng);
     this._sceneFactory = new SceneFactory(eng);
   }

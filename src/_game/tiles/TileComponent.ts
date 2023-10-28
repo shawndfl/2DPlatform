@@ -1,7 +1,10 @@
-import { Component } from "../../components/Component";
+
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
+import rect from "../../math/rect";
 import vec3 from "../../math/vec3";
+import { GameComponent } from "../components/GameComponent";
 import { GroundManager } from "../system/GroundManager";
+import { EmptyTileId } from "./EmptyTileId";
 
 export interface ITileCreationArgs {
     i: number,
@@ -15,12 +18,12 @@ export interface ITileCreationArgs {
 /**
  * A tile component
  */
-export abstract class TileComponent extends Component {
+export abstract class TileComponent extends GameComponent {
 
-    protected _tileIndex: vec3 = new vec3();
     private _id: string;
-
-    protected screenPosition: vec3 = new vec3();
+    protected _screenBounds: rect;
+    protected _tileBounds: rect;
+    protected _screenPosition: vec3 = new vec3();
     protected _tilePosition: vec3 = new vec3();
 
     public get id(): string {
@@ -31,6 +34,9 @@ export abstract class TileComponent extends Component {
         return this._groundManager;
     }
 
+    readonly tileWidth: number = 64;
+    readonly tileHeight: number = 24;
+
     public get spriteName(): string {
         return this._tileData.spriteName;
     }
@@ -39,24 +45,82 @@ export abstract class TileComponent extends Component {
         return this._tileData.tileClass;
     }
 
-    public get options(): string[] {
-        return this._tileData.options;
+    public get screenPosition(): Readonly<vec3> {
+        return this._screenPosition;
     }
 
-    public get tileIndex(): vec3 {
-        return this._tileIndex;
+    public get empty(): boolean {
+        return this.id === EmptyTileId;
+    }
+
+    public get screenBounds(): Readonly<rect> {
+        this._screenBounds.left = this._screenPosition.x;
+        this._screenBounds.width = this.spriteController.spriteWidth();
+        this._screenBounds.height = this.spriteController.spriteHeight();
+        this._screenBounds.top = this._screenPosition.y;
+        return this._screenBounds;
+    }
+
+    public get tileBounds(): Readonly<rect> {
+        this._tileBounds.left = this._tilePosition.x;
+        this._tileBounds.top = this._tilePosition.y;
+        return this._tileBounds;
+    }
+
+    /**
+     * Floating point value of the tile location
+     */
+    public get tilePosition(): Readonly<vec3> {
+        return this.tilePosition;
+    }
+
+    public get options(): string[] {
+        return this._tileData.options;
     }
 
     public abstract get spriteController(): SpritBaseController;
 
     constructor(private _groundManager: GroundManager, private _tileData: ITileCreationArgs) {
         super(_groundManager.eng);
-        this._tileIndex = new vec3([this._tileData.i, this._tileData.j, this._tileData.k]);
+        this._tilePosition = new vec3([this._tileData.i, this._tileData.j, this._tileData.k]);
         this._id = this.createTileId(this._tileData?.i, this._tileData?.j, this._tileData?.k);
+        this._screenBounds = new rect([0, 0, 0, 0]);
+        this._tileBounds = new rect([0, 1, 0, 1]);
     }
 
     createTileId(i: number, j: number, k: number): string {
         return 'tile.' + (i ?? '_') + '.' + (j ?? '_') + '.' + (k ?? '_');
+    }
+
+    /**
+     * Get the screen position
+     * @param index 
+     * @param screen 
+     * @returns 
+     */
+    TileToScreen(index: vec3, screen?: vec3): vec3 {
+        if (!screen) {
+            screen = new vec3();
+        }
+        screen.x = index.x * this.tileWidth;
+        screen.y = index.y * this.tileHeight;
+        return screen;
+    }
+
+    /**
+     * Take the screen position and convert it to a tile index (int)
+     * @param screen 
+     * @param index 
+     * @returns 
+     */
+    screenToTile(screen: vec3, index?: vec3): vec3 {
+        if (!index) {
+            index = new vec3();
+        }
+
+        index.x = screen.x / this.tileWidth;
+        index.y = screen.y / this.tileHeight;
+        return index;
     }
 
     /**
@@ -72,16 +136,7 @@ export abstract class TileComponent extends Component {
         this._tilePosition.y = j;
         this._tilePosition.z = k;
 
-        const indexI = Math.floor(this._tilePosition.x);
-        const indexJ = Math.floor(this._tilePosition.y);
-        const indexK = Math.floor(this._tilePosition.z);
-
-        this._tileIndex.x = indexI;
-        this._tileIndex.y = indexJ;
-        this._tileIndex.z = indexK;
-
-        this.screenPosition.x = this._tilePosition.x * 64;
-        this.screenPosition.y = this.eng.height - 24 - this._tilePosition.y * 24;
+        this.TileToScreen(this._tilePosition, this.screenPosition);
 
         // move the sprite if there is one. some tiles like empty
         // don't need sprite controllers
@@ -89,8 +144,6 @@ export abstract class TileComponent extends Component {
             this.spriteController.setSpritePosition(this.screenPosition.x, this.screenPosition.y, this.screenPosition.z);
         }
     }
-
-
 
     initialize(): void {
 

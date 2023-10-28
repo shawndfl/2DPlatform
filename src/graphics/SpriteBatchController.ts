@@ -40,6 +40,11 @@ export class SpritBatchController extends SpritBaseController implements ISprite
    */
   initialize(texture: Texture, spriteData: ISpriteData, defaultSprite?: string | number) {
     super.initialize(texture, spriteData, defaultSprite);
+    // set active sprite to the first  key
+    for (let key of this._sprites.keys()) {
+      this._activeSprite = key;
+      break;
+    }
   }
 
   /**
@@ -48,6 +53,10 @@ export class SpritBatchController extends SpritBaseController implements ISprite
    * @returns
    */
   private getSprite(id: string): Sprite {
+    if (!this._spriteTexture) {
+      console.error('call initialize first.')
+      return null;
+    }
     let sprite = this._sprites.get(id);
     if (!this._sprites.has(id)) {
       // create new sprite and initialize it

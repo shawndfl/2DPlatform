@@ -79,10 +79,12 @@ export class TeleportAnimation extends Component {
 
     start(goingUp: boolean): TeleportAnimation {
 
-        const speed = 20 / 10;
-        const distance = -100 + this.groundLevel;
+        const speed = 10 / 20;
+        const padding = 10;
+        const maxHeight = this.eng.height + padding;
+        const distance = maxHeight + this.groundLevel;
         const t = distance * speed;
-        this.curveMove.points([{ p: 900, t: 0 }, { p: this.groundLevel, t }]);
+        this.curveMove.points([{ p: maxHeight, t: 0 }, { p: this.groundLevel, t }]);
 
         if (!this.sprite) {
             console.error('Need to call initialize() first.')

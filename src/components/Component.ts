@@ -12,5 +12,9 @@ export class Component {
     return this.eng.gl;
   }
 
-  constructor(readonly eng: Engine) { }
+  get eng(): Engine {
+    return this._eng;
+  }
+
+  constructor(private readonly _eng: Engine) { }
 }

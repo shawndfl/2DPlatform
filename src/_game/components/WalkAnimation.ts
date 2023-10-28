@@ -47,7 +47,6 @@ export class WalkAnimation extends Component {
             value = value > 10 ? 2 : value;
             this.sprite.flip(this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip)
             this.sprite.setSprite('run.' + value);
-            console.debug('sprite:  ' + value)
 
             if (value >= 10) {
                 this.firstOne = false;
@@ -75,6 +74,10 @@ export class WalkAnimation extends Component {
             // start moving
             this.firstOne = true;
             this.curve.repeat(-1).start(true);
+
+            // set the first frame
+            this.sprite.flip(this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip)
+            this.sprite.setSprite('run.1');
         }
         return this;
     }

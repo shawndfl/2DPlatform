@@ -1,9 +1,9 @@
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
+import rect from "../../math/rect";
 import { GroundManager } from "../system/GroundManager";
+import { EmptyTileId } from "./EmptyTileId";
 import { TileComponent } from "./TileComponent";
 
-
-export const EmptyTileId = '---';
 
 /**
  * An empty tile is one that doesn't render anything
@@ -13,12 +13,20 @@ export class EmptyTile extends TileComponent {
         return null;
     }
 
+    public get screenBounds(): Readonly<rect> {
+        this._screenBounds.left = this._screenPosition.x;
+        this._screenBounds.width = this.tileWidth;
+        this._screenBounds.height = this.tileHeight;
+        this._screenBounds.top = this._screenPosition.y;
+        return this._screenBounds;
+    }
+
     get id(): string {
         return EmptyTileId;
     }
 
     constructor(gm: GroundManager, i?: number, j?: number, k?: number) {
-        super(gm, { tileClass: EmptyTileId, spriteName: null, i, j, k, options: [] });
+        super(gm, { tileClass: 'EmptyTile', spriteName: null, i, j, k, options: [] });
 
         if (i && j && k) {
             this.setTilePosition(i, j, k);

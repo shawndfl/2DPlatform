@@ -1,6 +1,3 @@
-import { stat } from "fs";
-import { Component } from "../../components/Component";
-import { Engine } from "../../core/Engine";
 import { InputState } from "../../core/InputHandler";
 import { UserAction } from "../../core/UserAction";
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
@@ -8,33 +5,37 @@ import { SpritBatchController } from "../../graphics/SpriteBatchController";
 import { TextureAssest } from "../system/GameAssetManager";
 import { TeleportAnimation } from "./TeleportAnimation";
 import { WalkAnimation } from "./WalkAnimation";
-import { SpriteFlip } from "../../graphics/Sprite";
-import vec2 from "../../math/vec2";
 import { StepAnimation } from "./StepAnimation";
+import { PlatformEngine } from "../PlatformEngine";
+import { TileComponent } from "../tiles/TileComponent";
+import vec3 from "../../math/vec3";
 
 export enum Direction {
     Right,
     Left
 }
 
-export class PlayerController extends Component {
+export class PlayerController extends TileComponent {
 
     private active: boolean;
     private sprite: SpritBatchController;
     private stepAnimation: StepAnimation;
-    private position: vec2;
+    private tempPosition: vec3;
     private running: boolean;
     private direction: Direction;
     teleport: TeleportAnimation;
     walk: WalkAnimation;
 
-    constructor(eng: Engine) {
-        super(eng);
+    public get spriteController(): SpritBaseController {
+        return this.sprite;
+    }
+
+    constructor(eng: PlatformEngine) {
+        super(eng.groundManager, { i: 0, j: 0, k: 0, options: [], spriteName: 'default', tileClass: 'PlayerController' });
         this.sprite = new SpritBatchController(eng);
         this.teleport = new TeleportAnimation(this.eng);
         this.walk = new WalkAnimation(this.eng);
 
-        this.position = new vec2(250, 200);
         this.direction = Direction.Right;
         this.running = false;
 
@@ -48,7 +49,7 @@ export class PlayerController extends Component {
             'run.8',
             'run.9',
             'run.10',
-        ])
+        ]);
     }
 
     initialize(): void {
@@ -56,22 +57,23 @@ export class PlayerController extends Component {
         const spriteData = this.eng.assetManager.getTexture(TextureAssest.player1);
 
         this.sprite.initialize(spriteData.texture, spriteData.data);
+        this.setTilePosition(2, 9, 0);
 
         this.sprite.activeSprite('player');
         this.sprite.setSprite('teleport.1');
         this.sprite.scale(2.0);
-        this.sprite.setSpritePosition(this.position.x, this.position.y);
+        this.setPosition(this.screenPosition);
 
         this.teleport.initialize(this.sprite);
         this.walk.initialize(this.sprite);
         // setup the teleport animation
-        let goingup = false;
+        let goingUp = false;
 
-        this.teleport.groundLevel = this.position.y;
-        this.teleport.xOffset = this.position.x;
-        this.teleport.start(goingup).onDone(() => {
+        this.teleport.start(goingUp).onDone(() => {
             this.active = true;
-        })
+        });
+
+        this.tempPosition = this.screenPosition.copy();
     }
 
     handleUserAction(state: InputState): boolean {
@@ -134,15 +136,40 @@ export class PlayerController extends Component {
 
     run(dt: number): void {
         if (this.running) {
+            this.screenPosition.copy(this.tempPosition);
+
             if (this.direction == Direction.Right) {
-                this.position.x += 5;
+                this.tempPosition.x += 5;
             } else {
-                this.position.x -= 5;
+                this.tempPosition.x -= 5;
             }
-            this.teleport.groundLevel = this.position.y;
-            this.teleport.xOffset = this.position.x;
-            this.sprite.setSpritePosition(this.position.x, this.position.y);
+
+            //TODO collision and adjustments
+
+            this.setPosition(this.tempPosition);
         }
+    }
+
+    fall(): void {
+
+    }
+
+    private lastTilesBelow: TileComponent[] = [];
+
+    setPosition(position: vec3): void {
+        const tilePosition = this.screenToTile(position);
+        super.setTilePosition(tilePosition.x, tilePosition.y, tilePosition.z);
+
+        // clear the old tiles
+        this.lastTilesBelow.forEach((tile) => tile.spriteController.setSprite(tile.spriteName))
+
+        this.lastTilesBelow = this.eng.groundManager.getTileBelow(this);
+
+        // highlight the ones below
+        this.lastTilesBelow.forEach(tile => tile.spriteController.setSprite('block.1.glow'));
+
+        this.teleport.groundLevel = position.y;
+        this.teleport.xOffset = position.x;
     }
 
     update(dt: number): void {

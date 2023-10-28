@@ -1,4 +1,5 @@
 import { SpriteFlip } from "../../graphics/Sprite";
+import { SpritBaseController } from "../../graphics/SpriteBaseController";
 import { SpritBatchController } from "../../graphics/SpriteBatchController";
 
 /**
@@ -9,7 +10,7 @@ export class StepAnimation {
     private currentSprite: string;
     public isFlipped: boolean;
 
-    constructor(public sprite: SpritBatchController, public frames: string[]) {
+    constructor(public sprite: SpritBaseController, public frames: string[]) {
         this.index = 0;
         this.currentSprite = this.frames[this.index];
         this.sprite.setSprite(this.currentSprite);

@@ -1,4 +1,5 @@
 import { epsilon } from './constants';
+import vec2 from './vec2';
 
 export default class rect {
   get left(): number {
@@ -22,7 +23,7 @@ export default class rect {
   }
 
   get bottom(): number {
-    return this.top + this.height;
+    return this.top - this.height;
   }
 
   set left(value: number) {
@@ -41,6 +42,10 @@ export default class rect {
     this.values[3] = value;
   }
 
+  /**
+   * Left, width, top, height
+   * @param values 
+   */
   constructor(values?: [number, number, number, number]) {
     if (values !== undefined) {
       this.values[0] = values[0];
@@ -74,6 +79,29 @@ export default class rect {
     dest.height = this.height;
 
     return dest;
+  }
+
+  pointInside(x: number, y: number): boolean {
+    if (x > this.left && x < this.right) {
+      if (y < this.top && y > this.bottom) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  intersects(other: rect): boolean {
+    if ((this.left > other.left && this.left < other.right) ||
+      (this.right > other.left && this.right < other.right) ||
+      (this.left < other.left && this.right > other.right)) {
+
+      if ((this.top < other.top && this.top > other.bottom) ||
+        (this.bottom < other.top && this.bottom > other.bottom) ||
+        this.top > other.top && this.bottom < other.bottom) {
+        return true;
+      }
+
+    }
   }
 
   equals(vector: rect, threshold = epsilon): boolean {
