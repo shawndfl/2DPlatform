@@ -185,6 +185,9 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
       index = id;
     } else {
       index = this._indexLookup.get(id);
+      if (index === undefined) {
+        console.error('Cannot find image: ' + id);
+      }
     }
 
     const sprite = this._spriteData.tiles[index ?? 0];
@@ -205,7 +208,6 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
         xOffset = sprite.offset[2] ?? 0;
         yOffset = sprite.offset[3] ?? 0;
       }
-      console.debug('new offset: ' + xOffset);
 
       this.sprite.setSpritePositionOffset(xOffset, yOffset);
 

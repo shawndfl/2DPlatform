@@ -127,7 +127,7 @@ export class InputHandler extends Component {
   constructor(eng: Engine) {
     super(eng);
 
-    this.mappingIndex = { Start: 0, Select: 1, A: 2, B: 3, Up: 4, Down: 5, Right: 6, Left: 7 };
+    this.mappingIndex = { Start: 0, Select: 1, A: 2, B: 3, X: 4, Y: 5, Up: 6, Down: 7, Right: 8, Left: 9, TriggerR: 10, TriggerL: 11 };
 
 
     this.buttonsDown = UserAction.None;
@@ -142,6 +142,7 @@ export class InputHandler extends Component {
       this.keydown(e);
     });
     window.addEventListener('keyup', (e) => {
+      console.debug('key up ' + e.key);
       this.keyup(e);
     });
 
@@ -240,6 +241,22 @@ export class InputHandler extends Component {
         this.buttonsDown = this.buttonsDown | UserAction.B;
       }
 
+      if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.X]) {
+        this.buttonsDown = this.buttonsDown | UserAction.X;
+      }
+
+      if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.Y]) {
+        this.buttonsDown = this.buttonsDown | UserAction.Y;
+      }
+
+      if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.TriggerR]) {
+        this.buttonsDown = this.buttonsDown | UserAction.TriggerR;
+      }
+
+      if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.TriggerL]) {
+        this.buttonsDown = this.buttonsDown | UserAction.TriggerL;
+      }
+
       if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.Start]) {
         this.buttonsDown = this.buttonsDown | UserAction.Start;
       }
@@ -292,6 +309,26 @@ export class InputHandler extends Component {
       if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.B]) {
         this.buttonsDown = this.buttonsDown & ~UserAction.B;
         this.buttonsReleased = this.buttonsReleased | UserAction.B;
+      }
+
+      if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.X]) {
+        this.buttonsDown = this.buttonsDown & ~UserAction.X;
+        this.buttonsReleased = this.buttonsReleased | UserAction.X;
+      }
+
+      if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.Y]) {
+        this.buttonsDown = this.buttonsDown & ~UserAction.Y;
+        this.buttonsReleased = this.buttonsReleased | UserAction.Y;
+      }
+
+      if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.TriggerR]) {
+        this.buttonsDown = this.buttonsDown & ~UserAction.TriggerR;
+        this.buttonsReleased = this.buttonsReleased | UserAction.TriggerR;
+      }
+
+      if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.TriggerL]) {
+        this.buttonsDown = this.buttonsDown & ~UserAction.TriggerL;
+        this.buttonsReleased = this.buttonsReleased | UserAction.TriggerL;
       }
 
       if (e.key == this.inputMappings.keyboardMapping[this.mappingIndex.Start]) {
@@ -350,6 +387,19 @@ export class InputHandler extends Component {
     const inputMappingString = window.localStorage.getItem('inputMapping');
     if (inputMappingString) {
       this.inputMappings = JSON.parse(inputMappingString);
+      console.debug('loading input map...');
+      console.debug('  up       = ' + this.inputMappings.keyboardMapping[this.mappingIndex.Up]);
+      console.debug('  down     = ' + this.inputMappings.keyboardMapping[this.mappingIndex.Down]);
+      console.debug('  right    = ' + this.inputMappings.keyboardMapping[this.mappingIndex.Right]);
+      console.debug('  left     = ' + this.inputMappings.keyboardMapping[this.mappingIndex.Left]);
+      console.debug('  start    = ' + this.inputMappings.keyboardMapping[this.mappingIndex.Start]);
+      console.debug('  select   = ' + this.inputMappings.keyboardMapping[this.mappingIndex.Select]);
+      console.debug('  triggerR = ' + this.inputMappings.keyboardMapping[this.mappingIndex.TriggerR]);
+      console.debug('  triggerL = ' + this.inputMappings.keyboardMapping[this.mappingIndex.TriggerL]);
+      console.debug('  A        = ' + this.inputMappings.keyboardMapping[this.mappingIndex.A]);
+      console.debug('  B        = ' + this.inputMappings.keyboardMapping[this.mappingIndex.B]);
+      console.debug('  X        = ' + this.inputMappings.keyboardMapping[this.mappingIndex.X]);
+      console.debug('  Y        = ' + this.inputMappings.keyboardMapping[this.mappingIndex.Y]);
     } else {
       this.inputMappings = { keyboardMapping: [], gamePadMapping: new Map<string, number[]>() }
       this.beginCalibration();

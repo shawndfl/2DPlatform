@@ -2,53 +2,51 @@ import { InputState } from "../../core/InputHandler";
 import { UserAction } from "../../core/UserAction";
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
 import { TextureAssest } from "../system/GameAssetManager";
-import { StepAnimation } from "./StepAnimation";
 import { PlatformEngine } from "../PlatformEngine";
 import { TileComponent } from "../tiles/TileComponent";
-import { SpritController } from "../../graphics/SpriteController";
-
-export enum Direction {
-    Right,
-    Left
-}
+import { WalkAnimation } from "./WalkAnimation";
+import { AnimationComponent } from "./AnimationComponent";
+import { TeleportAnimation } from "./TeleportAnimation";
+import { SpritBatchController } from "../../graphics/SpriteBatchController";
+import { ShootAnimation } from "./ShootAnimation";
 
 export class TestAnimationController extends TileComponent {
 
-    private sprite: SpritController;
-    private stepAnimation: StepAnimation;
-    private frames = [
-        'ground.shot.1',
-        'ground.shot.2'
-    ]
-    /*
-    private frames = [
-        'run.2',
-        'run.3',
-        'run.4',
-        'run.5',
-        'run.6',
-        'run.7',
-        'run.8',
-        'run.9',
-        'run.10',
-    ]
-*/
+    private sprite: SpritBatchController;
+    private speedScale: number;
+    private backwards: boolean;
+    private animation: AnimationComponent;
+
     public get spriteController(): SpritBaseController {
         return this.sprite;
     }
 
     constructor(eng: PlatformEngine) {
         super(eng.groundManager, { i: 0, j: 0, k: 0, options: [], spriteName: 'default', tileClass: 'PlayerController' });
-        this.sprite = new SpritController(eng);
+        this.sprite = new SpritBatchController(eng);
+        this.backwards = false;
+        this.speedScale = 1.0;
     }
 
     initialize(): void {
 
-        this.stepAnimation = new StepAnimation(this.sprite, this.frames);
         const spriteData = this.eng.assetManager.getTexture(TextureAssest.player1);
-
         this.sprite.initialize(spriteData.texture, spriteData.data);
         this.setTilePosition(3, 9, 0);
+
+        // set up all animations
+        const teleport = new TeleportAnimation(this.eng);
+        teleport.groundLevel = this.screenPosition.y;
+        teleport.xOffset = this.screenPosition.x;
+
+        const walk = new WalkAnimation(this.eng);
+
+        const shoot = new ShootAnimation(this.eng);
+
+        this.animation = shoot;
+
+        // initialize
+        this.animation.initialize(this.sprite);
 
         this.sprite.setSprite('default');
         this.sprite.scale(2.0);
@@ -63,33 +61,46 @@ export class TestAnimationController extends TileComponent {
         }
         if (state.isReleased(UserAction.Right)) {
 
-            this.stepAnimation.stepForward();
+            this.animation.start(this.backwards);
+            console.debug('playing ' + (this.backwards ? ' - backwards ' : '') + ' speed: ' + this.getSpeedString());
 
             return true;
         }
         if (state.isReleased(UserAction.Left)) {
-            this.stepAnimation.stepBackwards();
+            this.animation.start(!this.backwards);
+            console.debug('playing ' + (this.backwards ? ' - backwards ' : '') + ' speed: ' + this.getSpeedString());
+
             return true;
         }
 
         if (state.isReleased(UserAction.Up)) {
-            this.stepAnimation.toggleFlipped();
+
+            this.speedScale += .05;
+            if (this.speedScale > 1.0) {
+                this.speedScale = 1.0;
+            }
+            console.debug('Speed Scale ' + ' speed: ' + this.getSpeedString());
         }
         if (state.isReleased(UserAction.Down)) {
-
+            this.speedScale -= .05;
+            if (this.speedScale < .05) {
+                this.speedScale = .05;
+            }
+            console.debug('Speed Scale ' + ' speed: ' + this.getSpeedString());
         }
         return false;
     }
 
-    run(dt: number): void {
-
+    private getSpeedString(): string {
+        const speed = this.speedScale * 100;
+        return speed.toFixed(2) + '%';
     }
 
     update(dt: number): void {
-        if (this.stepAnimation) {
-            this.sprite.update(dt);
-            this.run(dt);
-        }
+
+        this.animation.update(dt * this.speedScale);
+
+        this.sprite.update(dt);
     }
 
 }

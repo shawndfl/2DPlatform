@@ -1,16 +1,16 @@
-import { Component } from "../../components/Component";
+import { SpritBaseController } from "../../graphics/SpriteBaseController";
 import { SpritBatchController } from "../../graphics/SpriteBatchController";
 import { Curve, CurveType } from "../../math/Curve";
-import vec2 from "../../math/vec2";
 
-export class TeleportAnimation extends Component {
+import { AnimationComponent } from "./AnimationComponent";
+
+export class TeleportAnimation extends AnimationComponent {
 
     private _onDone: () => void;
     private goingUp: boolean;
     private curve: Curve;
     private curveMove: Curve;
     private sprite: SpritBatchController;
-
 
     groundLevel: number = 300;
     xOffset: number = 10;
@@ -42,14 +42,14 @@ export class TeleportAnimation extends Component {
         const points: { p: number, t: number }[] = []
 
         points.push({ p: 1, t: 0 });
-        points.push({ p: 2, t: 100 });
-        points.push({ p: 3, t: 250 });
-        points.push({ p: 4, t: 300 });
-        points.push({ p: 5, t: 350 });
-        points.push({ p: 6, t: 400 });
-        points.push({ p: 7, t: 450 });
-        points.push({ p: 8, t: 500 });
-        points.push({ p: 8, t: 1000 });
+        points.push({ p: 2, t: 50 });
+        points.push({ p: 3, t: 100 });
+        points.push({ p: 4, t: 150 });
+        points.push({ p: 5, t: 200 });
+        points.push({ p: 6, t: 250 });
+        points.push({ p: 7, t: 300 });
+        points.push({ p: 8, t: 350 });
+        points.push({ p: 8, t: 400 });
 
         this.curve.points(points);
         this.curve.onUpdate((value) => {
@@ -79,7 +79,7 @@ export class TeleportAnimation extends Component {
 
     start(goingUp: boolean): TeleportAnimation {
 
-        const speed = 10 / 20;
+        const speed = .2;
         const padding = 10;
         const maxHeight = this.eng.height + padding;
         const distance = maxHeight + this.groundLevel;
@@ -106,6 +106,12 @@ export class TeleportAnimation extends Component {
 
         return this;
     }
+
+    stop(): void {
+        this.curve.pause();
+        this.curveMove.pause()
+    }
+
 
     update(dt: number): void {
         if (this.curve) {

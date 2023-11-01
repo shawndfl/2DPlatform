@@ -22,8 +22,7 @@ export class Level1 extends SceneComponent {
    * @returns 
    */
   handleUserAction(action: InputState): boolean {
-    this.eng.player.handleUserAction(action);
-    return true;
+    return false;
   }
 
   initialize(): void {

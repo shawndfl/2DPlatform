@@ -5,6 +5,7 @@ import { AssetManager } from "../systems/AssetManager";
 import { PlayerController } from "./components/PlayerController";
 import { TestAnimationController } from "./components/TestAnimationController";
 import { GameEditor } from "./editor/GameEditor";
+import { BulletManager } from "./system/BulletManager";
 import { GameAssetManager } from "./system/GameAssetManager";
 import { GameSceneManager } from "./system/GameSceneManager";
 import { GroundManager } from "./system/GroundManager";
@@ -19,6 +20,7 @@ export class PlatformEngine extends Engine {
   readonly player: PlayerController;
   readonly testAnimation: TestAnimationController;
   readonly groundManager: GroundManager;
+  readonly bullets: BulletManager;
   readonly urlParams: URLSearchParams;
 
   private editorMode: boolean;
@@ -33,6 +35,7 @@ export class PlatformEngine extends Engine {
     this.player = new PlayerController(this);
     this.testAnimation = new TestAnimationController(this);
     this.editor = new GameEditor(this);
+    this.bullets = new BulletManager(this);
   }
 
   createAssetManager(): AssetManager {
@@ -67,6 +70,7 @@ export class PlatformEngine extends Engine {
     }
     //await this.gameManager.initialize();
     await this.textManager.initialize();
+    await this.bullets.initialize();
     await this.dialogManager.initialize();
     await this.sceneManager.initialize();
 
@@ -96,8 +100,8 @@ export class PlatformEngine extends Engine {
     }
   }
 
-  update(dt: number): void {
-    super.update(dt);
+  gameUpdate(dt: number): void {
+    super.gameUpdate(dt);
 
     if (this.editorMode) {
       this.editor.update(dt);
@@ -107,7 +111,8 @@ export class PlatformEngine extends Engine {
     } else {
       this.player.update(dt);
     }
-    this.testAnimation.update(dt);
+
     this.groundManager.update(dt);
+    this.bullets.update(dt);
   }
 }

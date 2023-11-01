@@ -17,4 +17,9 @@ export enum UserAction {
   Select = 0x0020,
   A = 0x0040,
   B = 0x0080,
+  X = 0x0100,
+  Y = 0x0200,
+
+  TriggerR = 0x0400,
+  TriggerL = 0x0800,
 }

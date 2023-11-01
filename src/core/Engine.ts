@@ -103,6 +103,12 @@ export abstract class Engine {
     return this.dialogManager.handleUserAction(state) || this.sceneManager.scene.handleUserAction(state);
   }
 
+  gameUpdate(dt: number) {
+    this.sceneManager.update(dt);
+    this.dialogManager.update(dt);
+    this.textManager.update(dt);
+  }
+
   update(dt: number): void {
     // handle gamepad polling
     this.input.preUpdate(dt);
@@ -124,10 +130,7 @@ export abstract class Engine {
 
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-    this.sceneManager.update(dt);
-
-    this.dialogManager.update(dt);
-    this.textManager.update(dt);
+    this.gameUpdate(dt);
 
     this.input.postUpdate(dt);
   }

@@ -28,8 +28,8 @@ export class GameAssetManager extends AssetManager {
         this.textures = new Map<string, { texture: Texture, data: ISpriteData }>
     }
 
-    getTexture(id: string): { texture: Texture; data: ISpriteData } {
-        return this.textures.get(id);
+    getTexture(name: TextureAssest): { texture: Texture; data: ISpriteData } {
+        return this.textures.get(name);
     }
 
     async initialize() {
