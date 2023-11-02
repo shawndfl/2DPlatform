@@ -143,7 +143,9 @@ export class PlayerController extends TileComponent {
         const startPos = this._screenPosition.copy();
         startPos.y += 30;
         startPos.x += facingRight ? 50 : -5;
-        this.eng.bullets.addBullet({ bulletType: BulletType.Normal, position: startPos });
+        const speed = 500;
+        const velocity = new vec3(facingRight ? speed : -speed, 0, 0);
+        this.eng.bullets.addBullet({ bulletType: BulletType.Normal, position: startPos, velocity });
     }
 
     run(dt: number): void {

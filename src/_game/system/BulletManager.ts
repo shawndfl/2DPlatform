@@ -13,6 +13,7 @@ export enum BulletType {
 export class BulletOptions {
     id?: string;
     position: vec3;
+    velocity: vec3;
     bulletType: BulletType;
 }
 
@@ -56,6 +57,17 @@ export class BulletManager extends GameComponent {
 
     update(dt: number): void {
         this.sprite.update(dt);
+
+        this.bullets.forEach(b => {
+            b.update(dt)
+            if (!b.active) {
+                this.inactiveBullets.push(b);
+            }
+        });
+
+        this.bullets = this.bullets.filter((b => b.active));
+
+        console.debug(' active: ' + this.bullets.length + ' inactive: ' + this.inactiveBullets.length);
     }
 
 }
