@@ -124,6 +124,9 @@ export class InputHandler extends Component {
    */
   touchCount: number;
 
+  private boundConnectGamepad: (e: GamepadEvent) => void;
+  private boundDisconnectGamepad: (e: GamepadEvent) => void;
+
   constructor(eng: Engine) {
     super(eng);
 
@@ -137,6 +140,8 @@ export class InputHandler extends Component {
 
     this.touchPoint = [vec2.zero, vec2.zero];
     this.touchCount = 0;
+    this.boundConnectGamepad = this.connectGamepad.bind(this);
+    this.boundDisconnectGamepad = this.disconnectGamepad.bind(this);
 
     window.addEventListener('keydown', (e) => {
       this.keydown(e);
@@ -190,7 +195,7 @@ export class InputHandler extends Component {
         }
       });
     }
-
+    this.resetInput();
     this.loadMapping();
   }
 
@@ -344,6 +349,9 @@ export class InputHandler extends Component {
   }
 
   preUpdate(dt: number) {
+
+    this.pollGamePad(dt);
+
     if (this.isCalibrating) {
       if (this.calibrationNextPrompt) {
         console.info('Hit the ' + Array.from(Object.keys(this.mappingIndex)).find((key, index) =>
@@ -375,11 +383,11 @@ export class InputHandler extends Component {
     this.inputReleased = false;
   }
 
-  connectGamepad(e: GamepadEvent) {
+  connectGamepad(e: GamepadEvent): void {
     console.log('✅ 🎮 A gamepad was connected:', e.gamepad);
   }
 
-  disconnectGamepad(e: GamepadEvent) {
+  disconnectGamepad(e: GamepadEvent): void {
     console.debug('Gamepad disconnected', e.gamepad);
   }
 
@@ -413,18 +421,31 @@ export class InputHandler extends Component {
     console.debug('done calibrating!!')
   }
 
+  private gamepadPolling: number = 0;
+  private pollGamePad(dt: number): void {
+    this.gamepadPolling += dt;
+
+    if (this.gamepadPolling > 500) {
+      this.hasGamePad = !!navigator.getGamepads();
+      console.debug(' gamepad supported ', navigator.getGamepads());
+
+      this.gamepadPolling = 0;
+    }
+  }
+
   resetInput() {
     this.buttonsDown = UserAction.None;
     this.buttonsReleased = UserAction.None;
 
     this.hasGamePad = 'getGamepads' in navigator;
     if (this.hasGamePad) {
-      console.debug(' gamepad supported');
-      window.removeEventListener('gamepadconnected', this.connectGamepad.bind(this));
-      window.removeEventListener('gamepaddisconnected', this.disconnectGamepad.bind(this));
+      console.debug(' gamepad supported ', navigator.getGamepads());
 
-      window.addEventListener('gamepadconnected', this.connectGamepad.bind(this));
-      window.addEventListener('gamepaddisconnected', this.disconnectGamepad.bind(this));
+      window.removeEventListener('gamepadconnected', this.boundConnectGamepad);
+      window.removeEventListener('gamepaddisconnected', this.boundDisconnectGamepad);
+
+      window.addEventListener('gamepadconnected', this.boundConnectGamepad);
+      window.addEventListener('gamepaddisconnected', this.boundDisconnectGamepad);
     } else {
       console.warn('gamepad not supported!');
     }

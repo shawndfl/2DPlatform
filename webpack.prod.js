@@ -7,7 +7,7 @@ module.exports = {
     main: { import: './src/index.ts' },
   },
   mode: 'development',
-  resolve: { extensions: ['.ts', '.js'] },
+  resolve: { extensions: ['.ts', '.js', '.tsx'] },
   plugins: [
     new HtmlWebpackPlugin({
       title: '2D Platform',
@@ -46,6 +46,17 @@ module.exports = {
         test: /\.(jpe?g|png|gif|svg)$/i,
         loader: 'file-loader',
       },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Creates `style` nodes from JS strings
+          "style-loader",
+          // Translates CSS into CommonJS
+          "css-loader",
+          // Compiles Sass to CSS
+          "sass-loader",
+        ],
+      }
     ],
   },
 };
