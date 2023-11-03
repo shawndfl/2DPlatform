@@ -34,8 +34,8 @@ export abstract class TileComponent extends GameComponent {
         return this._groundManager;
     }
 
-    readonly tileWidth: number = 64;
-    readonly tileHeight: number = 24;
+    static readonly tileWidth: number = 64;
+    static readonly tileHeight: number = 24;
 
     public get spriteName(): string {
         return this._tileData.spriteName;
@@ -102,8 +102,8 @@ export abstract class TileComponent extends GameComponent {
         if (!screen) {
             screen = new vec3();
         }
-        screen.x = index.x * this.tileWidth;
-        screen.y = index.y * this.tileHeight;
+        screen.x = index.x * TileComponent.tileWidth;
+        screen.y = index.y * TileComponent.tileHeight;
         return screen;
     }
 
@@ -118,8 +118,8 @@ export abstract class TileComponent extends GameComponent {
             index = new vec3();
         }
 
-        index.x = screen.x / this.tileWidth;
-        index.y = screen.y / this.tileHeight;
+        index.x = screen.x / TileComponent.tileWidth;
+        index.y = screen.y / TileComponent.tileHeight;
         return index;
     }
 

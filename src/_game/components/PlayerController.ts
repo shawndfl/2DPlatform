@@ -11,10 +11,13 @@ import vec3 from "../../math/vec3";
 import { SpriteId } from "../data/SpriteId";
 import { BulletType } from "../system/BulletManager";
 import { ShootAnimation } from "./ShootAnimation";
+import rect from "../../math/rect";
 
 export enum Direction {
     Right,
-    Left
+    Left,
+    Up,
+    Down
 }
 
 export class PlayerController extends TileComponent {
@@ -22,6 +25,7 @@ export class PlayerController extends TileComponent {
     private active: boolean;
     private sprite: SpritBatchController;
     private tempPosition: vec3;
+    private tempBounds: rect;
     private running: boolean;
     private direction: Direction;
     private teleport: TeleportAnimation;
@@ -30,6 +34,14 @@ export class PlayerController extends TileComponent {
 
     get id(): string {
         return SpriteId.Player;
+    }
+
+    get lookingRight(): boolean {
+        return this.direction == Direction.Right;
+    }
+
+    get lookingLeft(): boolean {
+        return this.direction == Direction.Left;
     }
 
     public get spriteController(): SpritBaseController {
@@ -157,11 +169,61 @@ export class PlayerController extends TileComponent {
             } else {
                 this.tempPosition.x -= 5;
             }
-
-            //TODO collision and adjustments
-
-            this.setPosition(this.tempPosition);
+            const stop = this.checkForCollision(this.tempPosition);
+            if (!stop) {
+                this.setPosition(this.tempPosition);
+            }
         }
+    }
+
+    /**
+     * Are the bounds facing away from a given tile
+     * @param mybounds 
+     * @param tile 
+     * @returns 
+     */
+    facingAwayFromTile(mybounds: Readonly<rect>, tile: TileComponent): boolean {
+        if (this.direction == Direction.Right) {
+            if (mybounds.right < tile.screenBounds.right) {
+                return false;
+            }
+        }
+
+        if (this.direction == Direction.Left) {
+            if (mybounds.left > tile.screenBounds.left) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    checkForCollision(screenPosition: vec3): boolean {
+
+        this.tempBounds = this.screenBounds.copy(this.tempBounds);
+        this.tempBounds.left = this.screenPosition.x;
+        this.tempBounds.top = this.screenPosition.y + this.tempBounds.height;
+
+        // check screen bounds
+        if (this.tempBounds.left < this.eng.viewManager.left && this.lookingLeft) {
+            return true;
+        }
+        if (this.tempBounds.right > this.eng.viewManager.right && this.lookingRight) {
+            return true;
+        }
+        if (this.tempBounds.top > this.eng.viewManager.top) {
+            return true;
+        }
+        if (this.tempBounds.top < this.eng.viewManager.bottom) {
+            return true;
+        }
+
+        // check to tiles
+        let tiles = this.eng.groundManager.getTilesAt(this.tempBounds);
+        tiles = tiles.filter((tile) => !this.facingAwayFromTile(this.tempBounds, tile))
+
+        return tiles.length > 0;
     }
 
     fall(): void {
@@ -177,13 +239,20 @@ export class PlayerController extends TileComponent {
         // clear the old tiles
         this.lastTilesBelow.forEach((tile) => tile.spriteController.setSprite(tile.spriteName))
 
-        this.lastTilesBelow = this.eng.groundManager.getTileBelow(this);
+        this.lastTilesBelow = this.eng.groundManager.getClosestTiles(this.tileBounds, Direction.Down);
 
         // highlight the ones below
         this.lastTilesBelow.forEach(tile => tile.spriteController.setSprite('block.1.glow'));
 
         this.teleport.groundLevel = position.y;
         this.teleport.xOffset = position.x;
+        const forwardPadding = 200;
+        const upPadding = 100;
+        const xOffset = this.screenPosition.x - this.eng.width / 2 + forwardPadding;
+        const yOffset = this.screenPosition.y - this.eng.height / 2 + upPadding;
+        this.eng.viewManager.setTarget(xOffset, yOffset);
+
+        console.debug('player pos: ' + this.screenPosition);
     }
 
     update(dt: number): void {

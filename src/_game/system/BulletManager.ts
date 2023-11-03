@@ -67,6 +67,7 @@ export class BulletManager extends GameComponent {
 
         this.bullets = this.bullets.filter((b => b.active));
 
+        //console.debug(' active: ' + this.bullets.length + ' inactive: ' + this.inactiveBullets.length);
     }
 
 }

@@ -13,7 +13,8 @@ export class Level1 extends SceneComponent {
 
   constructor(eng: PlatformEngine) {
     super(eng);
-
+    this.eng.viewManager.minX = 0;
+    this.eng.viewManager.maxX = 1000;
   }
 
   /**

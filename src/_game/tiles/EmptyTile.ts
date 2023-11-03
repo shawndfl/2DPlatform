@@ -15,8 +15,8 @@ export class EmptyTile extends TileComponent {
 
     public get screenBounds(): Readonly<rect> {
         this._screenBounds.left = this._screenPosition.x;
-        this._screenBounds.width = this.tileWidth;
-        this._screenBounds.height = this.tileHeight;
+        this._screenBounds.width = TileComponent.tileWidth;
+        this._screenBounds.height = TileComponent.tileHeight;
         this._screenBounds.top = this._screenPosition.y;
         return this._screenBounds;
     }

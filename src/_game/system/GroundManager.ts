@@ -5,6 +5,7 @@ import rect from "../../math/rect";
 import vec2 from "../../math/vec2";
 import { PlatformEngine } from "../PlatformEngine";
 import { GameComponent } from "../components/GameComponent";
+import { Direction } from "../components/PlayerController";
 import { ILevelData } from "../data/ILevelData";
 import { TileComponent } from "../tiles/TileComponent";
 import { TileFactory } from "../tiles/TileFactorey";
@@ -62,34 +63,108 @@ export class GroundManager extends GameComponent {
         const assets = this.eng.assetManager.getTexture(TextureAssest.level1);
         this._staticSprite.initialize(assets.texture, assets.data);
     }
-    private tempBounds: rect;
-    /**
-     * Gets the tile below this x position in screen pixels
-     * @param x 
-     */
-    getTileBelow(tile: TileComponent): TileComponent[] {
 
-        const tileI1 = Math.floor(tile.tileBounds.left);
-        const tileI2 = Math.floor(tile.tileBounds.right);
-        let tileJ = tile.tileBounds.top;
+    /**
+     * Get all tiles inside this bounds
+     * @param bounds 
+     * @returns 
+     */
+    getTilesAt(screenBounds: Readonly<rect>): TileComponent[] {
+        const iStart = Math.floor(screenBounds.left / TileComponent.tileWidth);
+        const iEnd = Math.floor(screenBounds.right / TileComponent.tileWidth);
+        const jStart = Math.floor(screenBounds.bottom / TileComponent.tileHeight);
+        const jEnd = Math.floor(screenBounds.top / TileComponent.tileHeight);
         const k = 0;
         const tiles = [];
-        for (let j = tileJ; j > 0; j--) {
-            if (!this.tiles[k] || !this.tiles[k][j]) {
-                continue
-            }
-            let tile = this.tiles[k][j][tileI1];
-            if (tile && !tile.empty) {
-                tiles.push(tile);
-            }
-            if (tileI1 != tileI2) {
-                tile = this.tiles[k][j][tileI2];
-                if (tile && !tile.empty) {
+        for (let j = jStart; j <= jEnd; j++) {
+            for (let i = iStart; i <= iEnd; i++) {
+                const tile = this.getTileAt(i, j, k);
+                if (tile) {
                     tiles.push(tile);
                 }
             }
         }
-        tiles.sort((a, b) => b.screenPosition.y - a.screenPosition.y);
+        return tiles;
+    }
+
+    /**
+     * Get a tile at this location
+     * @param i - in tile space
+     * @param j - in tile space
+     * @param k - in tile space
+     * @returns 
+     */
+    getTileAt(i: number, j: number, k: number): TileComponent {
+        if (!this.tiles[k] || !this.tiles[k][j] || !this.tiles[k][j][i]) {
+            return null;
+        }
+        let tile = this.tiles[k][j][i];
+        if (!tile.empty) {
+            return tile;
+        }
+        return null;
+    }
+
+    /**
+     * Gets the closest tiles
+     * @param bounds - in tile space
+     * @param direction - direction to look in
+     * @param x 
+     */
+    getClosestTiles(screenBounds: Readonly<rect>, direction: Direction): TileComponent[] {
+
+        const iStart = Math.floor(screenBounds.left / TileComponent.tileWidth);
+        const iEnd = Math.floor(screenBounds.right / TileComponent.tileWidth);
+        const jStart = Math.floor(screenBounds.bottom / TileComponent.tileHeight);
+        const jEnd = Math.floor(screenBounds.top / TileComponent.tileHeight);
+        const k = 0;
+        const tiles = [];
+        switch (direction) {
+            case Direction.Up:
+                for (let j = jEnd; j < this.tiles[k].length; j++) {
+                    for (let i = iStart; i < iEnd; i++) {
+                        const tile = this.getTileAt(i, j, k);
+                        if (tile) {
+                            tiles.push(tile);
+                        }
+                    }
+                }
+                tiles.sort((a, b) => a.screenPosition.y - b.screenPosition.y);
+                break;
+            case Direction.Down:
+                for (let j = jStart; j >= 0; j--) {
+                    for (let i = iStart; i < iEnd; i++) {
+                        const tile = this.getTileAt(i, j, k);
+                        if (tile) {
+                            tiles.push(tile);
+                        }
+                    }
+                }
+                tiles.sort((a, b) => b.screenPosition.y - a.screenPosition.y);
+                break;
+            case Direction.Right:
+                for (let j = jStart; j < jEnd; j++) {
+                    for (let i = iEnd; i < this.tiles[k][j].length; i++) {
+                        const tile = this.getTileAt(i, j, k);
+                        if (tile) {
+                            tiles.push(tile);
+                        }
+                    }
+                }
+                tiles.sort((a, b) => a.screenPosition.x - b.screenPosition.x);
+                break;
+            case Direction.Left:
+                for (let j = jStart; j < jEnd; j++) {
+                    for (let i = iStart; i >= 0; i--) {
+                        const tile = this.getTileAt(i, j, k);
+                        if (tile) {
+                            tiles.push(tile);
+                        }
+                    }
+                }
+                tiles.sort((a, b) => b.screenPosition.x - a.screenPosition.x);
+                break;
+        }
         return tiles;
     }
 

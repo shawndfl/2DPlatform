@@ -425,9 +425,9 @@ export class InputHandler extends Component {
   private pollGamePad(dt: number): void {
     this.gamepadPolling += dt;
 
-    if (this.gamepadPolling > 500) {
+    if (this.gamepadPolling > 1500) {
       this.hasGamePad = !!navigator.getGamepads();
-      console.debug(' gamepad supported ', navigator.getGamepads());
+      //console.debug(' gamepad supported ', navigator.getGamepads());
 
       this.gamepadPolling = 0;
     }

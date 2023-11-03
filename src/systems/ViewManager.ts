@@ -118,7 +118,7 @@ export class ViewManager extends Component {
 
   updateProjection() {
     this._screenX = Math.floor(this._targetX);
-    if (this.minX && this.maxX) {
+    if (this.minX != undefined && this.maxX != undefined) {
       this._screenX = MathConst.clamp(this._targetX, this.minX, this.maxX);
     }
 

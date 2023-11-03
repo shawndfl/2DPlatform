@@ -39,17 +39,17 @@ export class BulletController extends GameComponent {
     }
 
     private hitTest(newPos: vec3): boolean {
-        if (newPos.x > this.eng.width + this.sprite.spriteWidth()) {
+        if (newPos.x > this.eng.viewManager.right + this.sprite.spriteWidth()) {
             return true;
         }
-        if (newPos.x < 0 - this.sprite.spriteWidth()) {
+        if (newPos.x < this.eng.viewManager.left - this.sprite.spriteWidth()) {
             return true;
         }
 
-        if (newPos.y > this.eng.height + this.sprite.spriteHeight()) {
+        if (newPos.y > this.eng.viewManager.top + this.sprite.spriteHeight()) {
             return true;
         }
-        if (newPos.y < -this.sprite.spriteHeight()) {
+        if (newPos.y < this.eng.viewManager.bottom) {
             return true;
         }
     }
