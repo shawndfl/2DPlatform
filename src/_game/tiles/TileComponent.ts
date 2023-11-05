@@ -3,6 +3,7 @@ import { SpritBaseController } from "../../graphics/SpriteBaseController";
 import rect from "../../math/rect";
 import vec3 from "../../math/vec3";
 import { GameComponent } from "../components/GameComponent";
+import { PlayerController } from "../components/PlayerController";
 import { GroundManager } from "../system/GroundManager";
 import { EmptyTileId } from "./EmptyTileId";
 
@@ -107,6 +108,22 @@ export abstract class TileComponent extends GameComponent {
         return screen;
     }
 
+    isColliding(other: TileComponent): boolean {
+        return this.screenBounds.intersects(other.screenBounds);
+    }
+
+    /**
+     * Handle collision when a tile is colliding with us.
+     * @param other - The other tile
+     * @param newPosition - the other tile's new position. This can be adjusted.
+     */
+    onCollision(other: TileComponent): void {
+        if (other instanceof PlayerController) {
+            const player = other as PlayerController;
+            player.screenPosition
+        }
+    }
+
     /**
      * Take the screen position and convert it to a tile index (int)
      * @param screen 
@@ -137,6 +154,25 @@ export abstract class TileComponent extends GameComponent {
         this._tilePosition.z = k;
 
         this.TileToScreen(this._tilePosition, this.screenPosition);
+
+        // move the sprite if there is one. some tiles like empty
+        // don't need sprite controllers
+        if (this.spriteController) {
+            this.spriteController.setSpritePosition(this.screenPosition.x, this.screenPosition.y, this.screenPosition.z);
+        }
+    }
+
+    /**
+     * Sets the sprite position given a screen position
+     * @param position 
+     */
+    setScreenPosition(position: Readonly<vec3>) {
+
+        this._screenPosition.x = position.x;
+        this._screenPosition.y = position.y;
+        this._screenPosition.z = position.z;
+
+        this.screenToTile(this._screenPosition, this._tilePosition);
 
         // move the sprite if there is one. some tiles like empty
         // don't need sprite controllers

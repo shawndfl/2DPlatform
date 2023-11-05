@@ -11,6 +11,11 @@ export class TeleportAnimation extends AnimationComponent {
     private curve: Curve;
     private curveMove: Curve;
     private sprite: SpritBatchController;
+    private _running: boolean;
+
+    public get running(): boolean {
+        return this._running;
+    }
 
     groundLevel: number = 300;
     xOffset: number = 10;
@@ -20,6 +25,7 @@ export class TeleportAnimation extends AnimationComponent {
         this.sprite = sprite;
         this.curveMove = new Curve();
         this.curve = new Curve();
+        this._running = false;
         this.curveMove.curve(CurveType.linear);
         this.curveMove.onUpdate((value) => {
             // move
@@ -28,6 +34,7 @@ export class TeleportAnimation extends AnimationComponent {
         this.curveMove.onDone((curve) => {
 
             if (this.goingUp) {
+                this._running = false;
                 // if we were going up then we are done here
                 if (this._onDone) {
                     this._onDone();
@@ -62,6 +69,7 @@ export class TeleportAnimation extends AnimationComponent {
         });
         this.curve.onDone((curve) => {
             if (!this.goingUp) {
+                this._running = false;
                 if (this._onDone) {
                     this._onDone();
                 }
@@ -79,6 +87,7 @@ export class TeleportAnimation extends AnimationComponent {
 
     start(goingUp: boolean): TeleportAnimation {
 
+        this._running = true;
         const speed = .2;
         const padding = 10;
         const maxHeight = this.eng.height + padding;
@@ -109,7 +118,8 @@ export class TeleportAnimation extends AnimationComponent {
 
     stop(): void {
         this.curve.pause();
-        this.curveMove.pause()
+        this.curveMove.pause();
+        this._running = false;
     }
 
 

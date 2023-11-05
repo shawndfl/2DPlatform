@@ -9,6 +9,7 @@ import { BulletManager } from "./system/BulletManager";
 import { GameAssetManager } from "./system/GameAssetManager";
 import { GameSceneManager } from "./system/GameSceneManager";
 import { GroundManager } from "./system/GroundManager";
+import { PhysicsManager } from "./system/PhysicsManager";
 
 /**
  * This is the engine override that will kick off our editor
@@ -22,6 +23,7 @@ export class PlatformEngine extends Engine {
   readonly groundManager: GroundManager;
   readonly bullets: BulletManager;
   readonly urlParams: URLSearchParams;
+  readonly physics: PhysicsManager;
 
   private editorMode: boolean;
   private animationMode: boolean;
@@ -36,6 +38,7 @@ export class PlatformEngine extends Engine {
     this.testAnimation = new TestAnimationController(this);
     this.editor = new GameEditor(this);
     this.bullets = new BulletManager(this);
+    this.physics = new PhysicsManager(this);
   }
 
   createAssetManager(): AssetManager {
@@ -59,6 +62,7 @@ export class PlatformEngine extends Engine {
     // See jameshfisher.com/2020/10/22/why-is-my-webgl-texture-upside-down
     // NOTE, this must be done before any textures are loaded
     this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+    this.physics.initialize();
 
     await this.assetManager.initialize();
     this.groundManager.initialize();

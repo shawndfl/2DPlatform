@@ -9,7 +9,7 @@ import { Direction } from "../components/PlayerController";
 import { ILevelData } from "../data/ILevelData";
 import { TileComponent } from "../tiles/TileComponent";
 import { TileFactory } from "../tiles/TileFactorey";
-import { TextureAssest } from "./GameAssetManager";
+import { TextureAssets } from "./GameAssetManager";
 
 export class GroundManager extends GameComponent {
 
@@ -60,16 +60,17 @@ export class GroundManager extends GameComponent {
      * Initial the sprites
      */
     initialize(): void {
-        const assets = this.eng.assetManager.getTexture(TextureAssest.level1);
+        const assets = this.eng.assetManager.getTexture(TextureAssets.level1);
         this._staticSprite.initialize(assets.texture, assets.data);
     }
 
     /**
      * Get all tiles inside this bounds
-     * @param bounds 
+     * @param bounds - screen bounds
      * @returns 
      */
-    getTilesAt(screenBounds: Readonly<rect>): TileComponent[] {
+    getTilesAt(source: TileComponent): TileComponent[] {
+        const screenBounds = source.screenBounds;
         const iStart = Math.floor(screenBounds.left / TileComponent.tileWidth);
         const iEnd = Math.floor(screenBounds.right / TileComponent.tileWidth);
         const jStart = Math.floor(screenBounds.bottom / TileComponent.tileHeight);
@@ -79,7 +80,7 @@ export class GroundManager extends GameComponent {
         for (let j = jStart; j <= jEnd; j++) {
             for (let i = iStart; i <= iEnd; i++) {
                 const tile = this.getTileAt(i, j, k);
-                if (tile) {
+                if (tile && tile.isColliding(source)) {
                     tiles.push(tile);
                 }
             }

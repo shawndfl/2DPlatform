@@ -11,7 +11,7 @@ import { ISpriteData } from "../../graphics/ISpriteData";
 import level1Tile from '../assets/Level1Tiles.png'
 import level1TileData from '../assets/Level1Tiles.json'
 
-export enum TextureAssest {
+export enum TextureAssets {
     player1 = 'Player1',
     player2 = 'Player2',
     level1 = 'level1',
@@ -28,22 +28,22 @@ export class GameAssetManager extends AssetManager {
         this.textures = new Map<string, { texture: Texture, data: ISpriteData }>
     }
 
-    getTexture(name: TextureAssest): { texture: Texture; data: ISpriteData } {
+    getTexture(name: TextureAssets): { texture: Texture; data: ISpriteData } {
         return this.textures.get(name);
     }
 
     async initialize() {
         super.initialize();
 
-        this.textures.set(TextureAssest.player1, {
+        this.textures.set(TextureAssets.player1, {
             texture: await (new Texture(this.gl)).loadImage(Player1), data: Player1Data
         });
 
-        this.textures.set(TextureAssest.player2, {
+        this.textures.set(TextureAssets.player2, {
             texture: await (new Texture(this.gl)).loadImage(Player2), data: Player2Data
         });
 
-        this.textures.set(TextureAssest.level1, {
+        this.textures.set(TextureAssets.level1, {
             texture: await (new Texture(this.gl)).loadImage(level1Tile), data: level1TileData
         });
 

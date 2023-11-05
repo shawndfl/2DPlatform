@@ -90,7 +90,7 @@ export default class rect {
     return false;
   }
 
-  intersects(other: rect): boolean {
+  intersects(other: Readonly<rect>): boolean {
     if ((this.left > other.left && this.left < other.right) ||
       (this.right > other.left && this.right < other.right) ||
       (this.left < other.left && this.right > other.right)) {

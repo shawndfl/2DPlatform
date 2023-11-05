@@ -1,7 +1,6 @@
 import { InputState } from "../../core/InputHandler";
 import { UserAction } from "../../core/UserAction";
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
-import { TextureAssest } from "../system/GameAssetManager";
 import { PlatformEngine } from "../PlatformEngine";
 import { TileComponent } from "../tiles/TileComponent";
 import { WalkAnimation } from "./WalkAnimation";
@@ -9,6 +8,7 @@ import { AnimationComponent } from "./AnimationComponent";
 import { TeleportAnimation } from "./TeleportAnimation";
 import { SpritBatchController } from "../../graphics/SpriteBatchController";
 import { ShootAnimation } from "./ShootAnimation";
+import { TextureAssets } from "../system/GameAssetManager";
 
 export class TestAnimationController extends TileComponent {
 
@@ -30,7 +30,7 @@ export class TestAnimationController extends TileComponent {
 
     initialize(): void {
 
-        const spriteData = this.eng.assetManager.getTexture(TextureAssest.player1);
+        const spriteData = this.eng.assetManager.getTexture(TextureAssets.player1);
         this.sprite.initialize(spriteData.texture, spriteData.data);
         this.setTilePosition(3, 9, 0);
 

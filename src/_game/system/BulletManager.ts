@@ -4,7 +4,7 @@ import { Random } from "../../utilities/Random";
 import { PlatformEngine } from "../PlatformEngine";
 import { BulletController } from "../components/BulletController";
 import { GameComponent } from "../components/GameComponent";
-import { TextureAssest } from "./GameAssetManager";
+import { TextureAssets } from "./GameAssetManager";
 
 export enum BulletType {
     Normal,
@@ -46,7 +46,7 @@ export class BulletManager extends GameComponent {
     }
 
     initialize(): void {
-        const texture = this.eng.assetManager.getTexture(TextureAssest.player1);
+        const texture = this.eng.assetManager.getTexture(TextureAssets.player1);
 
         this.sprite.initialize(texture.texture, texture.data);
 
