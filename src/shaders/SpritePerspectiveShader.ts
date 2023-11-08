@@ -9,12 +9,13 @@ const vsSource = `
 attribute vec3 aPos;
 attribute vec2 aTex;
 uniform mat4 uProj;
+uniform mat4 uWorld;
 varying mediump vec2 vTex;
 varying mediump vec3 depth;
 
 void main() {
     vTex = aTex;
-    vec4 pos = uProj * vec4(aPos.xyz, 1.0);
+    vec4 pos =  uProj * vec4(aPos.xyz, 1.0);
     gl_Position =  pos;
     depth = vec3((pos.z + 1.0) *.5);
 }
@@ -52,6 +53,7 @@ export class SpritePerspectiveShader {
   private _uSampler: number;
   private _texture: Texture;
   private _uProj: number;
+  private _uWorld: number;
 
   constructor(private gl: WebGL2RenderingContext, shaderId: string) {
     this._shader = new ShaderController(this.gl, shaderId);
@@ -62,10 +64,16 @@ export class SpritePerspectiveShader {
     this._aTex = this._shader.getAttribute('aTex');
     this._uSampler = this._shader.getUniform('uSampler');
     this._uProj = this._shader.getUniform('uProj');
+    this._uWorld = this._shader.getUniform('uWorld');
+
   }
 
   setProj(proj: mat4) {
     this._shader.setMat4(this._uProj, proj);
+  }
+
+  setWorld(world: mat4) {
+    this._shader.setMat4(this._uWorld, world);
   }
 
   setSpriteSheet(texture: Texture) {

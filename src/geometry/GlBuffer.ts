@@ -1,6 +1,7 @@
+import mat2 from "../math/mat2";
+import mat4 from "../math/mat4";
 import vec2 from "../math/vec2";
 import vec3 from "../math/vec3";
-import vec4 from "../math/vec4";
 
 /**
  * This is the model data that represents a quad
@@ -11,6 +12,9 @@ export interface IQuadModel {
 
   /**min (x,y) corner of the quad in screen space -1 t0 1 */
   max: vec3
+
+  /** scale and rotation */
+  transform?: mat4;
 
   /** min texture (u,v) in uv space -1 to 1 */
   minTex: vec2;
@@ -110,6 +114,7 @@ export class GlBuffer {
     let indexIndex = 0;
     for (let i = 0; i < length; i++) {
       const quad = quads[i];
+
       this.verts[vertIndex++] = quad.min.x;
       this.verts[vertIndex++] = quad.min.y;
       this.verts[vertIndex++] = quad.min.z;

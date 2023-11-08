@@ -1,6 +1,7 @@
 import vec2 from './vec2'
 
 import { epsilon } from './constants'
+import vec3 from './vec3'
 
 export default class mat2 {
 
@@ -160,6 +161,25 @@ export default class mat2 {
             return new vec2([
                 x * this.values[0] + y * this.values[1],
                 x * this.values[2] + y * this.values[3],
+            ])
+        }
+    }
+
+    multiplyVec3(vector: vec3, result: vec3): vec3 {
+        const x = vector.x
+        const y = vector.y
+
+        if (result) {
+            result.xy = [
+                x * this.values[0] + y * this.values[1],
+                x * this.values[2] + y * this.values[3],
+            ]
+
+            return result
+        } else {
+            return new vec3([
+                x * this.values[0] + y * this.values[1],
+                x * this.values[2] + y * this.values[3], 0
             ])
         }
     }

@@ -3,11 +3,14 @@ import vec3 from './vec3';
 import vec4 from './vec4';
 
 import { epsilon } from './constants';
+import vec2 from './vec2';
 
 export default class mat4 {
   constructor(values?: number[]) {
     if (values !== undefined) {
       this.init(values);
+    } else {
+      this.setIdentity();
     }
   }
 
@@ -280,16 +283,20 @@ export default class mat4 {
     return this;
   }
 
-  multiplyVec3(vector: vec3): vec3 {
+  multiplyVec3(vector: vec3, dest?: vec3): vec3 {
     const x = vector.x;
     const y = vector.y;
     const z = vector.z;
 
-    return new vec3([
-      this.values[0] * x + this.values[4] * y + this.values[8] * z + this.values[12],
-      this.values[1] * x + this.values[5] * y + this.values[9] * z + this.values[13],
-      this.values[2] * x + this.values[6] * y + this.values[10] * z + this.values[14],
-    ]);
+    if (!dest) {
+      dest = new vec3();
+    }
+
+    dest.x = this.values[0] * x + this.values[4] * y + this.values[8] * z + this.values[12];
+    dest.y = this.values[1] * x + this.values[5] * y + this.values[9] * z + this.values[13];
+    dest.z = this.values[2] * x + this.values[6] * y + this.values[10] * z + this.values[14];
+
+    return dest;
   }
 
   multiplyVec4(vector: vec4, dest?: vec4): vec4 {
@@ -360,10 +367,10 @@ export default class mat4 {
     ]);
   }
 
-  translate(vector: vec3): mat4 {
+  translateLocal(vector: vec3 | vec2): mat4 {
     const x = vector.x;
     const y = vector.y;
-    const z = vector.z;
+    const z = (vector as vec3).z === undefined ? 0 : (vector as vec3).z;
 
     this.values[12] += this.values[0] * x + this.values[4] * y + this.values[8] * z;
     this.values[13] += this.values[1] * x + this.values[5] * y + this.values[9] * z;
@@ -373,10 +380,22 @@ export default class mat4 {
     return this;
   }
 
-  scale(vector: vec3): mat4 {
+  translate(vector: vec3 | vec2): mat4 {
     const x = vector.x;
     const y = vector.y;
-    const z = vector.z;
+    const z = (vector as vec3).z === undefined ? 0 : (vector as vec3).z;
+
+    this.values[12] = x;
+    this.values[13] = y;
+    this.values[14] = z;
+
+    return this;
+  }
+
+  scale(vector: vec3 | vec2): mat4 {
+    const x = vector.x;
+    const y = vector.y;
+    const z = (vector as vec3).z === undefined ? 1 : (vector as vec3).z;
 
     this.values[0] *= x;
     this.values[1] *= x;

@@ -4,6 +4,7 @@ import { IQuadModel } from '../geometry/GlBuffer';
 import { Texture } from './Texture';
 import * as MathConst from '../math/constants';
 import vec3 from '../math/vec3';
+import mat4 from '../math/mat4';
 
 export enum SpriteFlip {
   None,
@@ -27,7 +28,7 @@ export class Sprite {
   private _spriteSheetSize: { width: number; height: number };
 
   /** The position in pixels of the canvas where the sprite will go. */
-  private _position: { x: number; y: number };
+  private _position: vec2;
 
   /** the depth of the bottom 2 verts of the sprite -1 is nearest 1 is farthest  */
   private _depth: number;
@@ -39,13 +40,13 @@ export class Sprite {
   private _spriteRotate: number;
 
   /** The scale image and keep the aspect ratio  */
-  private _scale: { x: number; y: number };
+  private _scale: vec2;
 
   /** Screen size */
   private _screenSize: { width: number; height: number };
 
   /** this is used to offset a sprites position so it can be centered on a tile */
-  private _positionOffset: { x: number; y: number };
+  private _positionOffset: vec2;
 
   /** this is used by the buffer */
   private _quad: IQuadModel;
@@ -98,13 +99,16 @@ export class Sprite {
     screenWidth: number,
     screenHeight: number
   ) {
+
     this._quad = {
       min: new vec3([-1, -1, -1]),
       max: new vec3([1, 1, 1]),
       minTex: new vec2([0, 0]),
       maxTex: new vec2([1, 1]),
+      transform: new mat4()
     };
-    this._position = { x: 0, y: 0 };
+
+    this._position = new vec2();
     this._spriteLoc = { x: 0, y: 0, width: 0, height: 0 };
 
     this._spriteSheetSize = {
@@ -114,9 +118,9 @@ export class Sprite {
     this._screenSize = { width: screenWidth, height: screenHeight };
     this._spriteFlip = SpriteFlip.None;
     this._spriteRotate = 0;
-    this._scale = { x: 1.0, y: 1.0 };
+    this._scale = new vec2([1.0, 1.0]);
     this._depth = 0;
-    this._positionOffset = { x: 0, y: 0 };
+    this._positionOffset = new vec2();
   }
 
   /**
@@ -152,7 +156,8 @@ export class Sprite {
    */
   setSpriteScale(scale: number | { x: number; y: number }) {
     if (typeof scale === 'number') {
-      this._scale = { x: scale, y: scale };
+      this._scale.x = scale;
+      this._scale.y = scale;
     } else {
       this._scale.x = scale.x;
       this._scale.y = scale.y;
@@ -231,36 +236,24 @@ export class Sprite {
       this._quad.maxTex.y = maxY;
     }
 
-    // convert to screen space, min is the top left corner
-
-    this._quad.min.x = this._position.x + this._positionOffset.x;
-    this._quad.min.y = this._position.y + this._positionOffset.y;
+    // set the offset
+    this._quad.min.x = this._positionOffset.x;
+    this._quad.min.y = this._positionOffset.y;
     this._quad.min.z = this._depth;
 
-    const spriteWidth = this._spriteLoc.width * this._scale.x;
-    const spriteHeight = this._spriteLoc.height * this._scale.y;
-
-    // max is the bottom right
-    this._quad.max.x = this._quad.min.x + spriteWidth;
-    this._quad.max.y = this._quad.min.y + spriteHeight;
+    this._quad.max.x = this._spriteLoc.width + this._positionOffset.x;
+    this._quad.max.y = this._spriteLoc.height + this._positionOffset.y;
     this._quad.max.z = this._depth;
 
-    // if we have some rotation then apply it
-    if (!MathConst.equals(this._spriteRotate, 0.0)) {
-      let minTmp = new vec2([-this._quad.min.x, -this._quad.min.y]);
-      let maxTmp = new vec2([-this._quad.max.x, -this._quad.max.y]);
-      const rotation = new mat2();
-      rotation.setIdentity();
+    // rotate and scale
+    const transform = this._quad.transform.setIdentity();
+    transform.setIdentity();
+    transform.rotate(MathConst.toRadian(this._spriteRotate), vec3.forward);
+    transform.scale(this._scale);
+    transform.translate(this._position);
 
-      rotation.rotate(MathConst.toRadian(this._spriteRotate));
-
-      minTmp.multiplyMat2(rotation);
-      maxTmp.multiplyMat2(rotation);
-
-      this._quad.min.x = minTmp.x + this._quad.min.x;
-      this._quad.min.y = minTmp.y + this._quad.min.y;
-      this._quad.max.x = maxTmp.x + this._quad.max.x;
-      this._quad.max.y = maxTmp.y + this._quad.max.y;
-    }
+    // transform min and max
+    transform.multiplyVec3(this._quad.max, this._quad.max);
+    transform.multiplyVec3(this._quad.min, this._quad.min);
   }
 }

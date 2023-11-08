@@ -12,16 +12,21 @@ export class TeleportAnimation extends AnimationComponent {
     private curveMove: Curve;
     private sprite: SpritBatchController;
     private _running: boolean;
+    private _isUp: boolean;
 
     public get running(): boolean {
         return this._running;
+    }
+
+    public get isUp(): boolean {
+        return this._isUp;
     }
 
     groundLevel: number = 300;
     xOffset: number = 10;
 
     initialize(sprite: SpritBatchController): void {
-
+        this._isUp = true;
         this.sprite = sprite;
         this.curveMove = new Curve();
         this.curve = new Curve();
@@ -34,6 +39,7 @@ export class TeleportAnimation extends AnimationComponent {
         this.curveMove.onDone((curve) => {
 
             if (this.goingUp) {
+                this._isUp = true;
                 this._running = false;
                 // if we were going up then we are done here
                 if (this._onDone) {
@@ -87,10 +93,11 @@ export class TeleportAnimation extends AnimationComponent {
 
     start(goingUp: boolean): TeleportAnimation {
 
+        this._isUp = false;
         this._running = true;
         const speed = .2;
         const padding = 10;
-        const maxHeight = this.eng.height + padding;
+        const maxHeight = this.eng.viewManager.top + padding;
         const distance = maxHeight + this.groundLevel;
         const t = distance * speed;
         this.curveMove.points([{ p: maxHeight, t: 0 }, { p: this.groundLevel, t }]);

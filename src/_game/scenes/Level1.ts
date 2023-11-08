@@ -5,8 +5,11 @@ import { PlayerController } from "../components/PlayerController";
 import { GroundManager } from "../system/GroundManager";
 import Level1Data from '../assets/levels/level1.json'
 import { PlatformEngine } from "../PlatformEngine";
+import { LineComponent } from "../../components/LineComponent";
 
 export class Level1 extends SceneComponent {
+  private line: LineComponent;
+
   get eng(): PlatformEngine {
     return super.eng as PlatformEngine;
   }
@@ -15,6 +18,7 @@ export class Level1 extends SceneComponent {
     super(eng);
     this.eng.viewManager.minX = 0;
     this.eng.viewManager.maxX = 1000;
+    this.line = new LineComponent(eng);
   }
 
   /**
@@ -28,9 +32,10 @@ export class Level1 extends SceneComponent {
 
   initialize(): void {
     this.eng.groundManager.loadLevel(Level1Data);
+    this.line.initialize();
   }
 
   update(dt: number): void {
-
+    this.line.update(dt);
   }
 }

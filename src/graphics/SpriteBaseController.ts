@@ -104,7 +104,6 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
   setSpritePosition(x: number, y: number, depth?: number) {
     this.sprite.setPosition(x, y, depth);
     this._dirty = true;
-    //console.debug('Sprite: setSpritePosition');
   }
 
   spriteWidth() {
@@ -153,7 +152,6 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
   viewOffset(offset?: vec2) {
     this._viewOffset = offset;
     this._dirty = true;
-    //console.debug('Sprite: view offset');
   }
 
   /**
@@ -164,7 +162,6 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
   viewScale(scale?: number) {
     this._viewScale = scale;
     this._dirty = true;
-    //console.debug('Sprite: view scale');
   }
 
   /**
@@ -279,6 +276,7 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
 
       // set the project
       this.eng.spritePerspectiveShader.setProj(projection);
+      this.eng.spritePerspectiveShader.setWorld(this.sprite.quad.transform);
 
       this.render();
     }

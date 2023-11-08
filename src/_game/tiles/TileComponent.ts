@@ -21,11 +21,12 @@ export interface ITileCreationArgs {
  */
 export abstract class TileComponent extends GameComponent {
 
+    static readonly tileWidth: number = 128;
+    static readonly tileHeight: number = 48;
+
     private _id: string;
     protected _screenBounds: rect;
-    protected _tileBounds: rect;
     protected _screenPosition: vec3 = new vec3();
-    protected _tilePosition: vec3 = new vec3();
 
     public get id(): string {
         return this._id;
@@ -35,9 +36,6 @@ export abstract class TileComponent extends GameComponent {
         return this._groundManager;
     }
 
-    static readonly tileWidth: number = 64;
-    static readonly tileHeight: number = 24;
-
     public get spriteName(): string {
         return this._tileData.spriteName;
     }
@@ -46,7 +44,12 @@ export abstract class TileComponent extends GameComponent {
         return this._tileData.tileClass;
     }
 
-    public get screenPosition(): Readonly<vec3> {
+    /**
+     * Get the screen position.
+     * If the components are changed make sure
+     * to call setScreenPosition(). 
+     */
+    public get screenPosition(): vec3 {
         return this._screenPosition;
     }
 
@@ -60,12 +63,6 @@ export abstract class TileComponent extends GameComponent {
         this._screenBounds.height = this.spriteController.spriteHeight();
         this._screenBounds.top = this._screenPosition.y;
         return this._screenBounds;
-    }
-
-    public get tileBounds(): Readonly<rect> {
-        this._tileBounds.left = this._tilePosition.x;
-        this._tileBounds.top = this._tilePosition.y;
-        return this._tileBounds;
     }
 
     /**
@@ -83,12 +80,17 @@ export abstract class TileComponent extends GameComponent {
 
     constructor(private _groundManager: GroundManager, private _tileData: ITileCreationArgs) {
         super(_groundManager.eng);
-        this._tilePosition = new vec3([this._tileData.i, this._tileData.j, this._tileData.k]);
         this._id = this.createTileId(this._tileData?.i, this._tileData?.j, this._tileData?.k);
         this._screenBounds = new rect([0, 0, 0, 0]);
-        this._tileBounds = new rect([0, 1, 0, 1]);
     }
 
+    /**
+     * Default tile id from the index
+     * @param i 
+     * @param j 
+     * @param k 
+     * @returns 
+     */
     createTileId(i: number, j: number, k: number): string {
         return 'tile.' + (i ?? '_') + '.' + (j ?? '_') + '.' + (k ?? '_');
     }
@@ -99,15 +101,20 @@ export abstract class TileComponent extends GameComponent {
      * @param screen 
      * @returns 
      */
-    TileToScreen(index: vec3, screen?: vec3): vec3 {
+    TileToScreen(i: number, j: number, k: number, screen?: vec3): vec3 {
         if (!screen) {
             screen = new vec3();
         }
-        screen.x = index.x * TileComponent.tileWidth;
-        screen.y = index.y * TileComponent.tileHeight;
+        screen.x = i * TileComponent.tileWidth;
+        screen.y = j * TileComponent.tileHeight;
         return screen;
     }
 
+    /**
+     * Check for a collision with another tile
+     * @param other 
+     * @returns 
+     */
     isColliding(other: TileComponent): boolean {
         return this.screenBounds.intersects(other.screenBounds);
     }
@@ -120,7 +127,22 @@ export abstract class TileComponent extends GameComponent {
     onCollision(other: TileComponent): void {
         if (other instanceof PlayerController) {
             const player = other as PlayerController;
-            player.screenPosition
+            if (this.isColliding(other)) {
+                let left = Math.min(this.screenBounds.left - player.screenBounds.right, 0);
+                let right = Math.min(player.screenBounds.left - this.screenBounds.right, 0);
+                let top = Math.min(player.screenBounds.bottom - this.screenBounds.top, 0);
+                let bottom = Math.min(this.screenBounds.bottom - player.screenBounds.top);
+
+                if (left > right && left > top && left > bottom) {
+                    other.screenPosition.x += left;
+                } else if (right > left && right > top && right > bottom) {
+                    other.screenPosition.x -= right;
+                } else if (top > right && top > left && top > bottom) {
+                    other.screenPosition.y -= top;
+                } else if (bottom > right && bottom > left && bottom > top) {
+                    other.screenPosition.y += bottom;
+                }
+            }
         }
     }
 
@@ -149,30 +171,22 @@ export abstract class TileComponent extends GameComponent {
    */
     setTilePosition(i: number, j: number, k: number) {
 
-        this._tilePosition.x = i;
-        this._tilePosition.y = j;
-        this._tilePosition.z = k;
-
-        this.TileToScreen(this._tilePosition, this.screenPosition);
-
-        // move the sprite if there is one. some tiles like empty
-        // don't need sprite controllers
-        if (this.spriteController) {
-            this.spriteController.setSpritePosition(this.screenPosition.x, this.screenPosition.y, this.screenPosition.z);
-        }
+        this.TileToScreen(i, j, k, this.screenPosition);
+        this.setScreenPosition(this.screenPosition);
     }
 
     /**
      * Sets the sprite position given a screen position
-     * @param position 
+     * @param position - If the position is not given this will just update the sprite position
+     *                   with the current screen position. 
      */
-    setScreenPosition(position: Readonly<vec3>) {
+    setScreenPosition(position?: Readonly<vec3>) {
 
-        this._screenPosition.x = position.x;
-        this._screenPosition.y = position.y;
-        this._screenPosition.z = position.z;
-
-        this.screenToTile(this._screenPosition, this._tilePosition);
+        if (position) {
+            this._screenPosition.x = position.x;
+            this._screenPosition.y = position.y;
+            this._screenPosition.z = position.z;
+        }
 
         // move the sprite if there is one. some tiles like empty
         // don't need sprite controllers

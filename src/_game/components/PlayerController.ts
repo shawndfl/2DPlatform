@@ -12,8 +12,6 @@ import { SpriteId } from "../data/SpriteId";
 import { BulletType } from "../system/BulletManager";
 import { ShootAnimation } from "./ShootAnimation";
 import rect from "../../math/rect";
-import { RidgeBody } from "../physics/RidgeBody";
-import { Curve } from "../../math/Curve";
 import { JumpAnimation } from "./JumpAnimation";
 
 export enum Direction {
@@ -28,9 +26,9 @@ export class PlayerController extends TileComponent {
     private active: boolean;
     private sprite: SpritBatchController;
     private tempPosition: vec3;
-    private tempBounds: rect;
     private running: boolean;
-    private direction: Direction;
+    private facingDirection: Direction;
+    private movementDirection: Direction;
     private teleportAnimation: TeleportAnimation;
     private walk: WalkAnimation;
     private shootAnimation: ShootAnimation;
@@ -41,12 +39,12 @@ export class PlayerController extends TileComponent {
         return SpriteId.Player;
     }
 
-    get lookingRight(): boolean {
-        return this.direction == Direction.Right;
+    get facingRight(): boolean {
+        return this.facingDirection == Direction.Right;
     }
 
-    get lookingLeft(): boolean {
-        return this.direction == Direction.Left;
+    get facingLeft(): boolean {
+        return this.facingDirection == Direction.Left;
     }
 
     public get spriteController(): SpritBaseController {
@@ -60,7 +58,8 @@ export class PlayerController extends TileComponent {
         this.walk = new WalkAnimation(this.eng);
         this.shootAnimation = new ShootAnimation(this.eng);
 
-        this.direction = Direction.Right;
+        this.facingDirection = Direction.Right;
+        this.movementDirection = Direction.Right;
         this.running = false;
         this.jumpAnimation = new JumpAnimation(eng);
     }
@@ -70,7 +69,7 @@ export class PlayerController extends TileComponent {
         const spriteData = this.eng.assetManager.getTexture(TextureAssets.player1);
 
         this.sprite.initialize(spriteData.texture, spriteData.data);
-        this.setTilePosition(2, 9, 0);
+        this.setTilePosition(2, 10, 0);
 
         this.sprite.activeSprite(this.id);
         this.sprite.setSprite('teleport.1');
@@ -83,12 +82,8 @@ export class PlayerController extends TileComponent {
         this.jumpAnimation.initialize(this.sprite);
 
         // setup the teleport animation
-        let goingUp = false;
 
-        this.teleportAnimation.start(goingUp).onDone(() => {
-            this.active = true;
-        });
-
+        this.teleport(false);
         this.tempPosition = this.screenPosition.copy();
     }
 
@@ -100,14 +95,16 @@ export class PlayerController extends TileComponent {
         if (state.isDown(UserAction.Right)) {
             this.walk.start(true);
 
-            this.direction = Direction.Right;
+            this.facingDirection = Direction.Right;
+            this.movementDirection = Direction.Right;
             this.running = true;
             return true;
         }
         if (state.isDown(UserAction.Left)) {
 
             this.walk.start(false);
-            this.direction = Direction.Left;
+            this.facingDirection = Direction.Left;
+            this.movementDirection = Direction.Left;
             this.running = true;
             return true;
         }
@@ -157,13 +154,13 @@ export class PlayerController extends TileComponent {
         // update teleport position
         this.teleportAnimation.groundLevel = this.screenPosition.y;
         this.teleportAnimation.xOffset = this.screenPosition.x;
+        this.active = false;
         this.teleportAnimation.start(up).onDone(() => {
             this.active = true;
         })
     }
 
     private jump(): void {
-
         this.jumpAnimation.groundLevel = this.screenPosition.y;
         this.jumpAnimation.xOffset = this.screenPosition.x;
         this.jumpAnimation.height = this.screenPosition.y + 120;
@@ -171,7 +168,7 @@ export class PlayerController extends TileComponent {
     }
 
     private shoot(): void {
-        const facingRight = this.direction == Direction.Right;
+        const facingRight = this.facingRight;
         this.shootAnimation.start(facingRight);
         const startPos = this._screenPosition.copy();
         startPos.y += 30;
@@ -181,19 +178,26 @@ export class PlayerController extends TileComponent {
         this.eng.bullets.addBullet({ bulletType: BulletType.Normal, position: startPos, velocity });
     }
 
+    fall(position: vec3): void {
+        //position.y += -.5
+
+    }
+
     run(dt: number): void {
 
-        this.screenPosition.copy(this.tempPosition);
-        if (this.running) {
-            if (this.direction == Direction.Right) {
-                this.tempPosition.x += 5;
-            } else {
-                this.tempPosition.x -= 5;
+        if (!this.teleportAnimation.running && !this.teleportAnimation.isUp) {
+            this.screenPosition.copy(this.tempPosition);
+            if (this.running) {
+                if (this.facingRight) {
+                    this.tempPosition.x += 5;
+                } else {
+                    this.tempPosition.x -= 5;
+                }
             }
-        }
 
-        if (!this.teleportAnimation.running) {
+            this.fall(this.tempPosition);
 
+            this.setPosition(this.tempPosition);
         }
     }
 
@@ -204,13 +208,13 @@ export class PlayerController extends TileComponent {
      * @returns 
      */
     facingAwayFromTile(myBounds: Readonly<rect>, tile: TileComponent): boolean {
-        if (this.direction == Direction.Right) {
+        if (this.movementDirection == Direction.Right) {
             if (myBounds.right < tile.screenBounds.right) {
                 return false;
             }
         }
 
-        if (this.direction == Direction.Left) {
+        if (this.movementDirection == Direction.Left) {
             if (myBounds.left > tile.screenBounds.left) {
                 return false;
             }
@@ -227,39 +231,34 @@ export class PlayerController extends TileComponent {
      */
     private checkScreenCollisionAndAdjust(): boolean {
 
-        this.tempBounds = this.screenBounds.copy(this.tempBounds);
-        this.tempBounds.left = this.screenPosition.x;
-        this.tempBounds.top = this.screenPosition.y + this.tempBounds.height;
+        const bounds = this.screenBounds;
 
         // check screen bounds
-        if (this.tempBounds.left < this.eng.viewManager.left && this.lookingLeft) {
+        if (bounds.left < this.eng.viewManager.left && this.facingLeft) {
             this.screenPosition.x = this.eng.viewManager.left;
             return true;
         }
-        if (this.tempBounds.right > this.eng.viewManager.right && this.lookingRight) {
-            screenPosition.x = this.eng.viewManager.right;
+        if (bounds.right > this.eng.viewManager.right && this.facingRight) {
+            this.screenPosition.x = this.eng.viewManager.right;
             return true;
         }
-        if (this.tempBounds.top > this.eng.viewManager.top) {
-            screenPosition.y = this.eng.viewManager.top;
+        if (bounds.top > this.eng.viewManager.top) {
+            this.screenPosition.y = this.eng.viewManager.top;
             return true;
         }
-        if (this.tempBounds.top < this.eng.viewManager.bottom) {
-            screenPosition.y = this.eng.viewManager.bottom;
+        if (bounds.top < 0) {
+            this.screenPosition.y = 0;
             return true;
         }
 
         return false;
     }
 
-    private checkForCollision(): boolean {
+    private checkForCollision(): void {
 
         // check to tiles
-        let tiles = this.eng.groundManager.getTilesAt(this);
+        let tiles = this.eng.groundManager.collisionCheck(this);
         tiles.forEach(tile => tile.onCollision(this))
-        tiles = tiles.filter((tile) => !this.facingAwayFromTile(this.tempBounds, tile))
-
-        return tiles.length > 0;
     }
 
     private lastTilesBelow: TileComponent[] = [];
@@ -275,22 +274,25 @@ export class PlayerController extends TileComponent {
         this.setScreenPosition(position);
 
         //collision detection on the screen limits
-        this.checkScreenCollisionAndAdjust(position);
+        this.checkScreenCollisionAndAdjust();
 
         //collision detection with other tiles
         this.checkForCollision();
 
         // finalize screen position after collision
-        this.finalizeScreenPosition(position);
-
+        this.finalizeScreenPosition();
     }
 
-    finalizeScreenPosition(position: Readonly<vec3>): void {
-        this.setScreenPosition(position);
+    finalizeScreenPosition(): void {
+
+        // update the screen position with the changes made to
+        // screen position as a response to collisions.
+        this.setScreenPosition();
 
         // clear the old tiles
-        this.lastTilesBelow.forEach((tile) => tile.spriteController.setSprite(tile.spriteName))
-        this.lastTilesBelow = this.eng.groundManager.getClosestTiles(this.tileBounds, Direction.Down);
+        this.lastTilesBelow.forEach((tile) => tile.spriteController.setSprite(tile.spriteName));
+
+        this.lastTilesBelow = this.eng.groundManager.collisionCheck(this);
 
         // highlight the ones below
         this.lastTilesBelow.forEach(tile => tile.spriteController.setSprite('block.1.glow'));
@@ -300,7 +302,7 @@ export class PlayerController extends TileComponent {
         const upPadding = 100;
         const xOffset = this.screenPosition.x - this.eng.width / 2 + forwardPadding;
         const yOffset = this.screenPosition.y - this.eng.height / 2 + upPadding;
-        this.eng.viewManager.setTarget(xOffset, yOffset);
+        //this.eng.viewManager.setTarget(xOffset, yOffset);
 
         console.debug('player pos: ' + this.screenPosition);
     }

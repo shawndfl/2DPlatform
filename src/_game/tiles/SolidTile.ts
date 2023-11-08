@@ -13,6 +13,7 @@ export class SolidTile extends TileComponent {
         super(gm, tileData);
 
         gm.staticSprite.activeSprite(this.id);
+        gm.staticSprite.scale(2.0);
         gm.staticSprite.setSprite(this.spriteName);
 
         this.setTilePosition(tileData.i, tileData.j, tileData.k);

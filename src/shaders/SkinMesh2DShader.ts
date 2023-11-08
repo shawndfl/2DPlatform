@@ -11,11 +11,12 @@ const vsSource = `
 attribute vec3 aPos;
 attribute vec4 aColor;
 uniform mat4 uProj;
+uniform mat4 uWorld;
 varying mediump vec4 vColor;
 
 void main() {
     vColor = aColor;
-    //vec4 pos = uProj * vec4(aPos.xyz, 1.0);
+    //vec4 pos = uWorld * uProj * vec4(aPos.xyz, 1.0);
     vec4 pos = vec4(aPos.xyz, 1.0);
     gl_Position =  pos;
 }
