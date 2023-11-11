@@ -1,6 +1,5 @@
 import { Engine } from "../core/Engine";
 import { InputState } from "../core/InputHandler";
-import { ISceneManager } from "../interfaces/ISceneManager";
 import { AssetManager } from "../systems/AssetManager";
 import { PlayerController } from "./components/PlayerController";
 import { TestAnimationController } from "./components/TestAnimationController";
@@ -78,6 +77,10 @@ export class PlatformEngine extends Engine {
     await this.dialogManager.initialize();
     await this.sceneManager.initialize();
 
+    // load the first scene
+    this.sceneManager.changeScene("level.1.0");
+    this.sceneManager.changeScene("levelRenderTest");
+
     // some gl setup
     this.gl.enable(this.gl.CULL_FACE);
     this.gl.cullFace(this.gl.BACK);
@@ -118,5 +121,10 @@ export class PlatformEngine extends Engine {
 
     this.groundManager.update(dt);
     this.bullets.update(dt);
+  }
+
+  update(dt: number): void {
+
+    this.sceneManager.update(dt);
   }
 }

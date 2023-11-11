@@ -276,7 +276,6 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
 
       // set the project
       this.eng.spritePerspectiveShader.setProj(projection);
-      this.eng.spritePerspectiveShader.setWorld(this.sprite.quad.transform);
 
       this.render();
     }

@@ -8,13 +8,14 @@ import mat4 from '../math/mat4';
 const vsSource = `
 attribute vec3 aPos;
 attribute vec2 aTex;
+attribute mat4 aInstanceWorld;
 uniform mat4 uProj;
 varying mediump vec2 vTex;
 varying mediump vec3 depth;
 
 void main() {
     vTex = aTex;
-    vec4 pos =  uProj * vec4(aPos.xyz, 1.0);
+    vec4 pos =  uProj * aInstanceWorld * vec4(aPos.xyz, 1.0);
     gl_Position =  pos;
     depth = vec3((pos.z + 1.0) *.5);
 }
@@ -44,11 +45,12 @@ void main() {
 /**
  * Shader for sprites
  */
-export class SpritePerspectiveShader {
+export class SpriteInstanceShader {
   private _shader: ShaderController;
 
   private _aPos: number;
   private _aTex: number;
+  private _aInstanceWorld: number;
   private _uSampler: number;
   private _texture: Texture;
   private _uProj: number;
@@ -62,7 +64,6 @@ export class SpritePerspectiveShader {
     this._aTex = this._shader.getAttribute('aTex');
     this._uSampler = this._shader.getUniform('uSampler');
     this._uProj = this._shader.getUniform('uProj');
-
   }
 
   setProj(proj: mat4) {

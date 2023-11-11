@@ -20,7 +20,7 @@ export class GameSceneManager extends GameComponent implements ISceneManager {
   }
 
   async initialize() {
-    this.changeScene("level.1.0");
+    //NOP    
   }
 
 
