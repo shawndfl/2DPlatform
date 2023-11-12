@@ -1,22 +1,24 @@
 import { SceneComponent } from "../../components/SceneComponent";
 import { InputState } from "../../core/InputHandler";
-import { ShaderController } from "../../graphics/ShaderController";
 import { Texture } from "../../graphics/Texture";
-import mat4 from "../../math/mat4";
+import mat2 from "../../math/mat2";
 import vec2 from "../../math/vec2";
-import vec3 from "../../math/vec3";
+import vec4 from "../../math/vec4";
 import { SpriteInstanceShader } from "../../shaders/SpriteInstanceShader";
-
 import { PlatformEngine } from "../PlatformEngine";
-
-
 
 /**
  * This is the model data that represents a quad
  */
 interface IQuadModel {
   /** scale and rotation */
-  transform?: mat4;
+  //transform?: mat4;
+
+  rotScale: mat2;
+
+  translation: vec4;
+
+  color: vec4;
 
   /** min texture (u,v) in uv space -1 to 1 */
   minTex: vec2;
@@ -34,10 +36,12 @@ class GlBuffer2 {
   vertBuffer: WebGLBuffer;
   indexBuffer: WebGLBuffer;
   instanceBuffer: WebGLBuffer;
+  textureCoordBuffer: WebGLBuffer;
   vertArrayBufferGeometry: WebGLVertexArrayObject;
 
   verts: Float32Array;
   instances: Float32Array;
+  textureCoords: Float32Array;
   index: Uint16Array;
 
   /** were the buffers created */
@@ -60,9 +64,11 @@ class GlBuffer2 {
     this.instanceCount = 0;
     this.vertArrayBufferGeometry = 0;
     this.instanceBuffer = 0;
+    this.textureCoordBuffer = 0
     this.verts = new Float32Array();
     this.index = new Uint16Array();
     this.instances = new Float32Array();
+    this.textureCoords = new Float32Array();
   }
 
   /**
@@ -80,6 +86,9 @@ class GlBuffer2 {
 
     // instance buffer
     this.instanceBuffer = this.gl.createBuffer();
+
+    // used to hold the texture coordinates
+    this.textureCoordBuffer = this.gl.createBuffer();
   }
 
   /**
@@ -102,17 +111,23 @@ class GlBuffer2 {
       this.createBuffer();
     }
 
-    if (this.verts.length < length * (4 * 5)) {
-      this.verts = new Float32Array(length * (4 * 5));
+    // make sure the buffers have enough space for data needed to create each quad
+    if (this.verts.length < length * 3 * 4) {
+      this.verts = new Float32Array(length * 3 * 4);
     }
 
     if (this.index.length < length * 6) {
       this.index = new Uint16Array(length * 6);
     }
 
-    // 16 floats in a mat4
-    if (this.instances.length < length * 16) {
-      this.instances = new Float32Array(length * 16);
+    // this will hold transform (mat2), translation (vec4), and color(vec4)
+    // vec4 * 3 = 12 floats
+    if (this.instances.length < length * 12) {
+      this.instances = new Float32Array(length * 12);
+    }
+
+    if (this.textureCoords.length < length * 2 * 4) {
+      this.textureCoords = new Float32Array(length * 2 * 4);
     }
 
     // reset counters
@@ -133,30 +148,23 @@ class GlBuffer2 {
     let vertIndex = 0;
     let indexIndex = 0;
     let instanceIndex = 0;
+    let textureCoordIndex = 0;
 
-    this.verts[vertIndex++] = 0;
-    this.verts[vertIndex++] = 0;
     this.verts[vertIndex++] = 0;
     this.verts[vertIndex++] = 0;
     this.verts[vertIndex++] = 0;
 
     this.verts[vertIndex++] = 1;
     this.verts[vertIndex++] = 0;
-    this.verts[vertIndex++] = 0;
-    this.verts[vertIndex++] = 1;
     this.verts[vertIndex++] = 0;
 
     this.verts[vertIndex++] = 1;
     this.verts[vertIndex++] = 1;
     this.verts[vertIndex++] = 0;
-    this.verts[vertIndex++] = 1;
-    this.verts[vertIndex++] = 1;
 
     this.verts[vertIndex++] = 0;
     this.verts[vertIndex++] = 1;
     this.verts[vertIndex++] = 0;
-    this.verts[vertIndex++] = 0;
-    this.verts[vertIndex++] = 1;
 
     this.index[indexIndex++] = vertCount + 0;
     this.index[indexIndex++] = vertCount + 1;
@@ -170,12 +178,31 @@ class GlBuffer2 {
 
     for (let i = 0; i < length; i++) {
       const quad = quads[i];
-      const trans = quad.transform ?? new mat4();
+      const rotScale = quad.rotScale ?? new mat2();
+      const translate = quad.translation ?? new vec4();
+      const color = quad.color;
 
-      // update the instance matrix
-      for (let j = 0; j < trans.values.length; j++) {
-        this.instances[instanceIndex++] = trans.values[j];
-      }
+      // texture coordinates are stored in a separate buffer because 
+      // they can be updated dynamically and will be different for each quad.
+      this.textureCoords[textureCoordIndex++] = quad.minTex.x;
+      this.textureCoords[textureCoordIndex++] = quad.maxTex.y;
+
+      this.textureCoords[textureCoordIndex++] = quad.maxTex.x;
+      this.textureCoords[textureCoordIndex++] = quad.maxTex.y;
+
+      this.textureCoords[textureCoordIndex++] = quad.maxTex.x;
+      this.textureCoords[textureCoordIndex++] = quad.minTex.y;
+
+      this.textureCoords[textureCoordIndex++] = quad.minTex.x;
+      this.textureCoords[textureCoordIndex++] = quad.minTex.y;
+
+      // rotate scale mat 2
+      rotScale.foreach(val => this.instances[instanceIndex++] = val);
+      // translation vec4
+      translate.foreach(val => this.instances[instanceIndex++] = val);
+      // color scale vec4
+      color.foreach(val => this.instances[instanceIndex++] = val);
+
     };
 
     // bind the array buffer
@@ -187,8 +214,16 @@ class GlBuffer2 {
       this.gl.ARRAY_BUFFER,
       this.verts,
       isStatic ? this.gl.STATIC_DRAW : this.gl.DYNAMIC_DRAW,
-      bufferIndex,
-      vertIndex
+      bufferIndex
+    );
+
+    // create a buffer for texture coordinates
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      this.textureCoords,
+      isStatic ? this.gl.STATIC_DRAW : this.gl.DYNAMIC_DRAW,
+      bufferIndex
     );
 
     // instance buffer
@@ -197,119 +232,8 @@ class GlBuffer2 {
       this.gl.ARRAY_BUFFER,
       this.instances,
       isStatic ? this.gl.STATIC_DRAW : this.gl.DYNAMIC_DRAW,
-      bufferIndex,
-      instanceIndex
+      bufferIndex
     );
-
-    // in order for this to work the vertex shader will
-    // need to have position
-    //  vec3 aPos;
-    //  vec2 aTex;
-    //
-    const positionAttribute = 0;
-    const textureAttribute = 1;
-    const world1Attribute = 2;
-    const world2Attribute = 3;
-    const world3Attribute = 4;
-    const world4Attribute = 5;
-    const color1Attribute = 6;
-
-    // Tell WebGL how to pull out the positions from the position
-    // buffer into the vertexPosition attribute
-    {
-      const numComponents = 3; // position x, y, z
-      const type = this.gl.FLOAT;
-      const normalize = false;
-      const stride = 5 * 4; // pos(x,y,x) + tex(u,v) * 4 byte float
-      const offset = 0;
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertBuffer);
-      this.gl.vertexAttribPointer(
-        positionAttribute,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset
-      );
-      this.gl.enableVertexAttribArray(positionAttribute);
-    }
-
-    // Tell WebGL how to pull out the texture coordinates from
-    // the texture coordinate buffer into the textureCoord attribute.
-    {
-      const numComponents = 2;
-      const type = this.gl.FLOAT;
-      const normalize = false;
-      const stride = 5 * 4; // pos(x,y,x) + tex(u,v) * 4 byte float
-      const offset = 3 * 4; // start after the position
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertBuffer);
-      this.gl.vertexAttribPointer(
-        textureAttribute,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset
-      );
-      this.gl.enableVertexAttribArray(textureAttribute);
-    }
-
-    {
-
-      const numComponents = 4;
-      const type = this.gl.FLOAT;
-      const normalize = false;
-      const step = 4 * 4; // vec4 size
-      const stride = step * 4; // mat4  * 4 byte float
-      let offset = 0 * step; // start after the position
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceBuffer);
-      this.gl.vertexAttribPointer(
-        world1Attribute,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset
-      );
-      this.gl.enableVertexAttribArray(world1Attribute);
-      this.gl.vertexAttribDivisor(world1Attribute, 1);
-
-      offset += step;
-      this.gl.vertexAttribPointer(
-        world2Attribute,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset
-      );
-      this.gl.enableVertexAttribArray(world2Attribute);
-      this.gl.vertexAttribDivisor(world2Attribute, 1);
-
-      offset += step;
-      this.gl.vertexAttribPointer(
-        world3Attribute,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset
-      );
-      this.gl.enableVertexAttribArray(world3Attribute);
-      this.gl.vertexAttribDivisor(world3Attribute, 1);
-
-      offset += step;
-      this.gl.vertexAttribPointer(
-        world4Attribute,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset
-      );
-      this.gl.enableVertexAttribArray(world4Attribute);
-      this.gl.vertexAttribDivisor(world4Attribute, 1);
-    }
 
     // index buffer
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -317,11 +241,123 @@ class GlBuffer2 {
       this.gl.ELEMENT_ARRAY_BUFFER,
       this.index,
       isStatic ? this.gl.STATIC_DRAW : this.gl.DYNAMIC_DRAW,
-      bufferIndex,
-      this.indexCount
+      bufferIndex
     );
 
+    // in order for this to work the vertex shader will
+    // need to have position
+    //  vec3 aPos;
+    //  vec2 aTex;
+    //  mat2 aTransform;
+    //  vec4 aTranslate;
+    //  vec4 aColorScale;
+    this.positionAttribute();
+    this.textureAttribute();
+    this.transformAttribute();
+    this.translateAttribute();
+    this.colorScaleAttribute();
     this.gl.bindVertexArray(null);
+  }
+
+  positionAttribute(): void {
+    const index = 0;
+    const numComponents = 3; // position x, y, z
+    const type = this.gl.FLOAT;
+    const normalize = false;
+    const stride = 3 * 4; // pos(x,y,x) * 4 byte float
+    const offset = 0;
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertBuffer);
+    this.gl.vertexAttribPointer(
+      index,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset
+    );
+    this.gl.enableVertexAttribArray(index);
+  }
+
+  textureAttribute(): void {
+    const index = 1;
+    const numComponents = 2; // texture u,v
+    const type = this.gl.FLOAT;
+    const normalize = false;
+    const stride = 2 * 4; // tx(u,v) * 4 byte float
+    const offset = 0;
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
+    this.gl.vertexAttribPointer(
+      index,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset
+    );
+    this.gl.enableVertexAttribArray(index);
+  }
+
+  transformAttribute(): void {
+    const index = 2;
+    const numComponents = 4;
+    const type = this.gl.FLOAT;
+    const normalize = false;
+    const step = 4 * 4; // mat2 size * 4 byte float
+    const stride = step * 3; // step * 3 (vec4)
+    let offset = 0 * step; // start after the position
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceBuffer);
+    this.gl.vertexAttribPointer(
+      index,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset
+    );
+    this.gl.enableVertexAttribArray(index);
+    this.gl.vertexAttribDivisor(index, 1);
+  }
+
+  translateAttribute(): void {
+    const index = 3;
+    const numComponents = 4;
+    const type = this.gl.FLOAT;
+    const normalize = false;
+    const step = 4 * 4; // vec4 size * 4 byte float
+    const stride = step * 3; // step * 3 (vec4)
+    let offset = 1 * step; // start after the position
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceBuffer);
+    this.gl.vertexAttribPointer(
+      index,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset
+    );
+    this.gl.enableVertexAttribArray(index);
+    this.gl.vertexAttribDivisor(index, 1);
+  }
+
+  colorScaleAttribute(): void {
+    const index = 4;
+    const numComponents = 4;
+    const type = this.gl.FLOAT;
+    const normalize = false;
+    const step = 4 * 4; // vec4 size * 4 byte float
+    const stride = step * 3; // step * 3 (vec4)
+    let offset = 2 * step; // start after the position
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceBuffer);
+    this.gl.vertexAttribPointer(
+      index,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset
+    );
+    this.gl.enableVertexAttribArray(index);
+    this.gl.vertexAttribDivisor(index, 1);
   }
 
   /**
@@ -392,14 +428,27 @@ export class LevelRenderTest extends SceneComponent {
 
   initialize(): void {
     this.spriteTexture = this.eng.assetManager.menu.texture;
-    const transform = new mat4();
-    transform.scale(new vec3([500, 500, 1]));
-    transform.translate(new vec3([10, 10, 0]));
+    const transform = new mat2();
+    transform.scale(new vec2([100, 100]));
+    transform.rotate(45);
+
+    const spriteX = 48;
+    const spriteY = 16;
+    const spriteW = 32;
+    const spriteH = 16;
+    const sheetW = this.spriteTexture.width;
+    const sheetH = this.spriteTexture.height;
+    let minX = spriteX / sheetW;
+    let minY = 1.0 - spriteY / sheetH;
+    let maxX = (spriteX + spriteW) / sheetW;
+    let maxY = 1.0 - (spriteY + spriteH) / sheetH;
 
     this.buffer.setBuffers([{
-      transform,
-      minTex: new vec2([0, 0]),
-      maxTex: new vec2([1, 1]),
+      rotScale: transform,
+      translation: new vec4([250, 400, 0, 0]),
+      color: new vec4([.3, .7, .5, .5]),
+      minTex: new vec2([minX, minY]),
+      maxTex: new vec2([maxX, maxY]),
     }])
   }
 

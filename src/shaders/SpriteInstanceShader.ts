@@ -8,14 +8,23 @@ import mat4 from '../math/mat4';
 const vsSource = `
 attribute vec3 aPos;
 attribute vec2 aTex;
-attribute mat4 aInstanceWorld;
+attribute vec4 aInstanceWorld;
+attribute vec4 aTranslate;
+attribute vec4 aColorScale;
 uniform mat4 uProj;
 varying mediump vec2 vTex;
+varying mediump vec4 vColorScale;
 varying mediump vec3 depth;
 
 void main() {
-    vTex = aTex;
-    vec4 pos =  uProj * aInstanceWorld * vec4(aPos.xyz, 1.0);
+    vTex = (aTex);
+    vColorScale = aColorScale;
+
+    mat2 trans = mat2(aInstanceWorld.xyzw);
+    vec4 localPos = vec4(aPos.xy * trans, aPos.z, 1);
+
+    localPos +=vec4(aTranslate.xyz, 0);
+    vec4 pos =  uProj * localPos;
     gl_Position =  pos;
     depth = vec3((pos.z + 1.0) *.5);
 }
@@ -28,6 +37,7 @@ const fsSource = `
 varying mediump vec2 vTex;
 varying mediump  vec3 depth;
 uniform sampler2D uSampler;
+varying mediump vec4 vColorScale;
 
 void main() {
   mediump vec4 color = texture2D(uSampler, vTex);
@@ -37,7 +47,7 @@ void main() {
 
     // uncomment to show depth
     //gl_FragColor = vec4(depth.xyz, 1.0);
-    gl_FragColor = color;
+    gl_FragColor = color * vColorScale;
   
 }
 `;

@@ -8,12 +8,20 @@ export default class mat2 {
     constructor(values?: number[]) {
         if (values !== undefined) {
             this.init(values)
+        } else {
+            this.setIdentity();
         }
     }
 
     private values = new Float32Array(4)
 
     static readonly identity = new mat2().setIdentity()
+
+    foreach(fn: (val: number) => void): void {
+        for (let i = 0; i < this.values.length; i++) {
+            fn(this.values[i]);
+        }
+    }
 
     at(index: number): number {
         return this.values[index]

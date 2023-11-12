@@ -138,6 +138,12 @@ export default class vec4 {
   static readonly zero = new vec4([0, 0, 0, 1]);
   static readonly one = new vec4([1, 1, 1, 1]);
 
+  foreach(fn: (val: number) => void): void {
+    for (let i = 0; i < this.values.length; i++) {
+      fn(this.values[i]);
+    }
+  }
+
   at(index: number): number {
     return this.values[index];
   }
