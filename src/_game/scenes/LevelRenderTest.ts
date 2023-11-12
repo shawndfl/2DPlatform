@@ -15,12 +15,6 @@ import { PlatformEngine } from "../PlatformEngine";
  * This is the model data that represents a quad
  */
 interface IQuadModel {
-  /**min (x,y) corner of the quad in screen space -1 t0 1 */
-  min: vec3;
-
-  /**min (x,y) corner of the quad in screen space -1 t0 1 */
-  max: vec3;
-
   /** scale and rotation */
   transform?: mat4;
 
@@ -140,6 +134,40 @@ class GlBuffer2 {
     let indexIndex = 0;
     let instanceIndex = 0;
 
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 0;
+
+    this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 0;
+
+    this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 1;
+
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 1;
+
+    this.index[indexIndex++] = vertCount + 0;
+    this.index[indexIndex++] = vertCount + 1;
+    this.index[indexIndex++] = vertCount + 3;
+
+    this.index[indexIndex++] = vertCount + 1;
+    this.index[indexIndex++] = vertCount + 2;
+    this.index[indexIndex++] = vertCount + 3;
+
+    vertCount += 4;
+
     for (let i = 0; i < length; i++) {
       const quad = quads[i];
       const trans = quad.transform ?? new mat4();
@@ -148,40 +176,6 @@ class GlBuffer2 {
       for (let j = 0; j < trans.values.length; j++) {
         this.instances[instanceIndex++] = trans.values[j];
       }
-
-      this.verts[vertIndex++] = quad.min.x;
-      this.verts[vertIndex++] = quad.min.y;
-      this.verts[vertIndex++] = quad.min.z;
-      this.verts[vertIndex++] = quad.minTex.x;
-      this.verts[vertIndex++] = quad.maxTex.y;
-
-      this.verts[vertIndex++] = quad.max.x;
-      this.verts[vertIndex++] = quad.min.y;
-      this.verts[vertIndex++] = quad.min.z;
-      this.verts[vertIndex++] = quad.maxTex.x;
-      this.verts[vertIndex++] = quad.maxTex.y;
-
-      this.verts[vertIndex++] = quad.max.x;
-      this.verts[vertIndex++] = quad.max.y;
-      this.verts[vertIndex++] = quad.max.z;
-      this.verts[vertIndex++] = quad.maxTex.x;
-      this.verts[vertIndex++] = quad.minTex.y;
-
-      this.verts[vertIndex++] = quad.min.x;
-      this.verts[vertIndex++] = quad.max.y;
-      this.verts[vertIndex++] = quad.max.z;
-      this.verts[vertIndex++] = quad.minTex.x;
-      this.verts[vertIndex++] = quad.minTex.y;
-
-      this.index[indexIndex++] = vertCount + 0;
-      this.index[indexIndex++] = vertCount + 1;
-      this.index[indexIndex++] = vertCount + 3;
-
-      this.index[indexIndex++] = vertCount + 1;
-      this.index[indexIndex++] = vertCount + 2;
-      this.index[indexIndex++] = vertCount + 3;
-
-      vertCount += 4;
     };
 
     // bind the array buffer
@@ -398,9 +392,12 @@ export class LevelRenderTest extends SceneComponent {
 
   initialize(): void {
     this.spriteTexture = this.eng.assetManager.menu.texture;
+    const transform = new mat4();
+    transform.scale(new vec3([500, 500, 1]));
+    transform.translate(new vec3([10, 10, 0]));
+
     this.buffer.setBuffers([{
-      min: new vec3([10, 10, 0]),
-      max: new vec3([100, 100, 0]),
+      transform,
       minTex: new vec2([0, 0]),
       maxTex: new vec2([1, 1]),
     }])
