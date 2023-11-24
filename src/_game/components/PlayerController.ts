@@ -13,6 +13,7 @@ import { BulletType } from "../system/BulletManager";
 import { ShootAnimation } from "./ShootAnimation";
 import rect from "../../math/rect";
 import { JumpAnimation } from "./JumpAnimation";
+import vec2 from "../../math/vec2";
 
 export enum Direction {
     Right,
@@ -70,6 +71,7 @@ export class PlayerController extends TileComponent {
 
         this.sprite.initialize(spriteData.texture, spriteData.data);
         this.setTilePosition(2, 10, 0);
+        this.eng.particleManager.setEmitter('player', { position: new vec2(20, 100) })
 
         this.sprite.activeSprite(this.id);
         this.sprite.setSprite('teleport.1');

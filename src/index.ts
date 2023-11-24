@@ -1,6 +1,7 @@
 
 import './css/canvas.scss';
 import { PlatformEngine } from './_game/PlatformEngine';
+import { clamp } from './math/constants';
 
 /**
  * Create the only instance of a canvas controller

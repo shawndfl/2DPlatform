@@ -11,6 +11,7 @@ import { SoundManager } from "../systems/SoundManager";
 import { DialogManager } from "../systems/DialogManager";
 import { UserAction } from "./UserAction";
 import { ISceneManager } from "../interfaces/ISceneManager";
+import { ParticleManager } from "../systems/ParticleManager";
 
 /**
  * The engine for this game. There is one instance of this
@@ -30,6 +31,7 @@ export abstract class Engine {
   readonly assetManager: AssetManager;
   readonly rootElement: HTMLElement;
   readonly dialogManager: DialogManager;
+  readonly particleManager: ParticleManager;
 
   abstract get sceneManager(): ISceneManager;
 
@@ -59,6 +61,7 @@ export abstract class Engine {
     this.fps = new FpsController(this);
     this.assetManager = this.createAssetManager();
     this.spritePerspectiveShader = new SpritePerspectiveShader(this.gl, "spritePerspectiveShader");
+    this.particleManager = new ParticleManager(this);
   }
 
   createAssetManager(): AssetManager {
@@ -86,6 +89,7 @@ export abstract class Engine {
     await this.textManager.initialize();
     await this.dialogManager.initialize();
     await this.sceneManager.initialize();
+    await this.particleManager.initialize();
 
     // some gl setup
     this.gl.enable(this.gl.CULL_FACE);
@@ -107,6 +111,7 @@ export abstract class Engine {
     this.sceneManager.update(dt);
     this.dialogManager.update(dt);
     this.textManager.update(dt);
+    this.particleManager.update(dt);
   }
 
   update(dt: number): void {

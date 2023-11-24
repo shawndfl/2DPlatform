@@ -58,6 +58,12 @@ export default class vec2 {
     this.y = 0;
   }
 
+  foreach(fn: (val: number) => void): void {
+    for (let i = 0; i < this.values.length; i++) {
+      fn(this.values[i]);
+    }
+  }
+
   copy(dest?: vec2): vec2 {
     if (!dest) {
       dest = new vec2();

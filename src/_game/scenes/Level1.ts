@@ -21,18 +21,21 @@ export class Level1 extends SceneComponent {
     this.line = new LineComponent(eng);
   }
 
-  /**
-   * Handle user input
-   * @param action 
-   * @returns 
-   */
-  handleUserAction(action: InputState): boolean {
-    return false;
-  }
-
   initialize(): void {
     this.eng.groundManager.loadLevel(Level1Data);
     this.line.initialize();
+
+    // set the texture for the particle manager
+    this.eng.particleManager.setTexture(this.eng.assetManager.menu.texture);
+  }
+
+  /**
+  * Handle user input
+  * @param action 
+  * @returns 
+  */
+  handleUserAction(action: InputState): boolean {
+    return false;
   }
 
   update(dt: number): void {

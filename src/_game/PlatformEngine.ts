@@ -79,7 +79,9 @@ export class PlatformEngine extends Engine {
 
     // load the first scene
     this.sceneManager.changeScene("level.1.0");
-    this.sceneManager.changeScene("levelRenderTest");
+
+    // used for isolated feature debugger
+    //this.sceneManager.changeScene("levelRenderTest");
 
     // some gl setup
     this.gl.enable(this.gl.CULL_FACE);
@@ -123,8 +125,10 @@ export class PlatformEngine extends Engine {
     this.bullets.update(dt);
   }
 
+  // Used for isolated feature debugger
+  /*
   update(dt: number): void {
-
     this.sceneManager.update(dt);
   }
+  */
 }

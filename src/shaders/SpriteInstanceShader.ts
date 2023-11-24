@@ -9,7 +9,8 @@ const vsSource = `
 attribute vec3 aPos;
 attribute vec2 aTex;
 attribute vec4 aInstanceWorld;
-attribute vec4 aTranslate;
+attribute vec2 aOffset;
+attribute vec3 aTranslate;
 attribute vec4 aColorScale;
 uniform mat4 uProj;
 varying mediump vec2 vTex;
@@ -21,9 +22,9 @@ void main() {
     vColorScale = aColorScale;
 
     mat2 trans = mat2(aInstanceWorld.xyzw);
-    vec4 localPos = vec4(aPos.xy * trans, aPos.z, 1);
+    vec4 localPos = vec4((aPos.xy + aOffset)  * trans, aPos.z, 1);
 
-    localPos +=vec4(aTranslate.xyz, 0);
+    localPos +=vec4(aTranslate, 0);
     vec4 pos =  uProj * localPos;
     gl_Position =  pos;
     depth = vec3((pos.z + 1.0) *.5);

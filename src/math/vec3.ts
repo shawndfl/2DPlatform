@@ -85,6 +85,12 @@ export default class vec3 {
     this.z = 0;
   }
 
+  foreach(fn: (val: number) => void): void {
+    for (let i = 0; i < this.values.length; i++) {
+      fn(this.values[i]);
+    }
+  }
+
   copy(dest?: vec3): vec3 {
     if (!dest) {
       dest = new vec3();
