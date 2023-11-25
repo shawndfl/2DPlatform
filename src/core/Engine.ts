@@ -6,12 +6,13 @@ import { TextManager } from "../systems/TextManager";
 import { ViewManager } from "../systems/ViewManager";
 import { Random } from "../utilities/Random";
 import { CanvasController } from "./CanvasController";
-import { InputHandler, InputState } from "./InputHandler";
+import { InputHandler } from "./InputHandler";
+import { InputState } from './InputState';
 import { SoundManager } from "../systems/SoundManager";
 import { DialogManager } from "../systems/DialogManager";
-import { UserAction } from "./UserAction";
 import { ISceneManager } from "../interfaces/ISceneManager";
 import { ParticleManager } from "../systems/ParticleManager";
+import { PhysicsManager } from "../systems/PhysicsManager";
 
 /**
  * The engine for this game. There is one instance of this
@@ -32,6 +33,7 @@ export abstract class Engine {
   readonly rootElement: HTMLElement;
   readonly dialogManager: DialogManager;
   readonly particleManager: ParticleManager;
+  readonly physicsManager: PhysicsManager;
 
   abstract get sceneManager(): ISceneManager;
 
@@ -62,6 +64,7 @@ export abstract class Engine {
     this.assetManager = this.createAssetManager();
     this.spritePerspectiveShader = new SpritePerspectiveShader(this.gl, "spritePerspectiveShader");
     this.particleManager = new ParticleManager(this);
+    this.physicsManager = new PhysicsManager(this);
   }
 
   createAssetManager(): AssetManager {
@@ -90,6 +93,7 @@ export abstract class Engine {
     await this.dialogManager.initialize();
     await this.sceneManager.initialize();
     await this.particleManager.initialize();
+    await this.physicsManager.initialize();
 
     // some gl setup
     this.gl.enable(this.gl.CULL_FACE);
@@ -108,10 +112,11 @@ export abstract class Engine {
   }
 
   gameUpdate(dt: number) {
+    this.physicsManager.update(dt);
     this.sceneManager.update(dt);
+    this.particleManager.update(dt);
     this.dialogManager.update(dt);
     this.textManager.update(dt);
-    this.particleManager.update(dt);
   }
 
   update(dt: number): void {

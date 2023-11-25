@@ -1,4 +1,4 @@
-import { InputState } from "../../core/InputHandler";
+import { InputState } from '../../core/InputState';
 import { SceneComponent } from "../../components/SceneComponent";
 import { Engine } from "../../core/Engine";
 import { SpritBaseController } from "../../graphics/SpriteBaseController";

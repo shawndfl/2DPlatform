@@ -1,5 +1,6 @@
 import { SceneComponent } from "../../components/SceneComponent";
-import { InputState } from "../../core/InputHandler";
+import { InputState } from "../../core/InputState";
+
 import { GlBufferQuadInstance, IQuadModelInstance } from "../../geometry/GlBufferQuadInstance";
 import { Texture } from "../../graphics/Texture";
 import { toRadian } from "../../math/constants";

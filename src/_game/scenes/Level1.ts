@@ -1,14 +1,13 @@
 import { SceneComponent } from "../../components/SceneComponent";
-import { Engine } from "../../core/Engine";
-import { InputState } from "../../core/InputHandler";
-import { PlayerController } from "../components/PlayerController";
-import { GroundManager } from "../system/GroundManager";
 import Level1Data from '../assets/levels/level1.json'
 import { PlatformEngine } from "../PlatformEngine";
 import { LineComponent } from "../../components/LineComponent";
+import { InputState } from "../../core/InputState";
+import { InputCalibration } from "../../core/InputCalibration";
 
 export class Level1 extends SceneComponent {
   private line: LineComponent;
+  private inputCal: InputCalibration;
 
   get eng(): PlatformEngine {
     return super.eng as PlatformEngine;
@@ -19,6 +18,7 @@ export class Level1 extends SceneComponent {
     this.eng.viewManager.minX = 0;
     this.eng.viewManager.maxX = 1000;
     this.line = new LineComponent(eng);
+    this.inputCal = new InputCalibration(eng);
   }
 
   initialize(): void {
@@ -27,6 +27,26 @@ export class Level1 extends SceneComponent {
 
     // set the texture for the particle manager
     this.eng.particleManager.setTexture(this.eng.assetManager.menu.texture);
+    /*
+        this.eng.dialogManager.showDialog('Welcome:', { x: 100, y: 100, width: 500, height: 300 }, (d) => {
+          console.debug('Selected ' + d.selectedOption);
+          if (d.selectedOption == "Input Mapping") {
+            this.startCalibration();
+    
+          }
+    
+        }, ["Start", "Input Mapping"], undefined, -.5);
+        */
+  }
+
+  private startCalibration(): void {
+    this.inputCal.beginCalibration(this.inputCalibrationStep.bind(this));
+  }
+
+  private inputCalibrationStep(stepName: string, button: string, nextStep: string): void {
+    this.eng.dialogManager.showDialog('Mapping key:' + stepName + ' to button ' + button, { x: 100, y: 100, width: 200, height: 100 }, (d) => {
+      console.debug('Selected ' + d.selectedOption);
+    });
   }
 
   /**
@@ -40,5 +60,6 @@ export class Level1 extends SceneComponent {
 
   update(dt: number): void {
     this.line.update(dt);
+    this.inputCal.update(dt);
   }
 }

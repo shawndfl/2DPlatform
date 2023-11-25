@@ -2,11 +2,11 @@ import { Engine } from '../core/Engine';
 import { Curve, CurveType } from '../math/Curve';
 import { DialogBuilder } from './DialogBuilder';
 import { PanelComponent } from './PanelComponent';
-import { InputState } from '../core/InputHandler';
 import { UserAction } from '../core/UserAction';
 import { DialogCursor } from './DialogCursor';
 import vec2 from '../math/vec2';
 import vec4 from '../math/vec4';
+import { InputState } from '../core/InputState';
 
 /**
  * A dialog component that can be sized and display text in the game.

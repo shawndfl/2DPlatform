@@ -2,7 +2,7 @@ import { Component } from '../components/Component';
 import { SpritBatchController } from '../graphics/SpriteBatchController';
 import { Engine } from '../core/Engine';
 import { DialogComponent } from '../menus/DialogComponent';
-import { InputState } from '../core/InputHandler';
+import { InputState } from '../core/InputState';
 import { GameMenuComponent } from '../menus/GameMenuComponent';
 import { DialogBuilder } from '../menus/DialogBuilder';
 import { GameMenuBuilder } from '../menus/GameMenuBuilder';

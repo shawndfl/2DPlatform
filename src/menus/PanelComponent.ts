@@ -7,6 +7,7 @@ import { DialogBuilder } from './DialogBuilder';
 import { IDialogParams } from './IDialogParams';
 import { Component } from '../components/Component';
 
+
 export class PanelComponent extends Component {
   protected _id: string;
   protected _spriteController: SpritBatchController;

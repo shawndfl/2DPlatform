@@ -61,6 +61,13 @@ export default class rect {
     return this.values[index];
   }
 
+  set(left: number, width: number, top: number, height: number): void {
+    this.values[0] = left;
+    this.values[1] = width;
+    this.values[2] = top;
+    this.values[3] = height;
+  }
+
   reset(): void {
     this.values[0] = 0;
     this.values[1] = 0;
@@ -91,17 +98,13 @@ export default class rect {
   }
 
   intersects(other: Readonly<rect>): boolean {
-    if ((this.left > other.left && this.left < other.right) ||
-      (this.right > other.left && this.right < other.right) ||
-      (this.left < other.left && this.right > other.right)) {
-
-      if ((this.top < other.top && this.top > other.bottom) ||
-        (this.bottom < other.top && this.bottom > other.bottom) ||
-        this.top > other.top && this.bottom < other.bottom) {
+    if (this.right > other.left && this.left < other.right) {
+      if (this.top > other.bottom && this.bottom < other.top) {
         return true;
       }
-
     }
+
+    return false;
   }
 
   equals(vector: rect, threshold = epsilon): boolean {

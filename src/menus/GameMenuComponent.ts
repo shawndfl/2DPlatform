@@ -4,9 +4,9 @@ import vec2 from '../math/vec2';
 import vec4 from '../math/vec4';
 import { Component } from '../components/Component';
 import { GameMenuBuilder } from './GameMenuBuilder';
-import { InputState } from '../core/InputHandler';
 import { UserAction } from '../core/UserAction';
 import { DialogCursor } from './DialogCursor';
+import { InputState } from '../core/InputState';
 
 /**
  * The game menu. The player can equip, use items and see stats

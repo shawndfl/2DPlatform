@@ -1,5 +1,5 @@
 import { Engine } from "../core/Engine";
-import { InputState } from "../core/InputHandler";
+import { InputState } from '../core/InputState';
 import { AssetManager } from "../systems/AssetManager";
 import { PlayerController } from "./components/PlayerController";
 import { TestAnimationController } from "./components/TestAnimationController";
@@ -8,7 +8,6 @@ import { BulletManager } from "./system/BulletManager";
 import { GameAssetManager } from "./system/GameAssetManager";
 import { GameSceneManager } from "./system/GameSceneManager";
 import { GroundManager } from "./system/GroundManager";
-import { PhysicsManager } from "./system/PhysicsManager";
 
 /**
  * This is the engine override that will kick off our editor
@@ -22,7 +21,6 @@ export class PlatformEngine extends Engine {
   readonly groundManager: GroundManager;
   readonly bullets: BulletManager;
   readonly urlParams: URLSearchParams;
-  readonly physics: PhysicsManager;
 
   private editorMode: boolean;
   private animationMode: boolean;
@@ -37,7 +35,6 @@ export class PlatformEngine extends Engine {
     this.testAnimation = new TestAnimationController(this);
     this.editor = new GameEditor(this);
     this.bullets = new BulletManager(this);
-    this.physics = new PhysicsManager(this);
   }
 
   createAssetManager(): AssetManager {
@@ -61,7 +58,6 @@ export class PlatformEngine extends Engine {
     // See jameshfisher.com/2020/10/22/why-is-my-webgl-texture-upside-down
     // NOTE, this must be done before any textures are loaded
     this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
-    this.physics.initialize();
 
     await this.assetManager.initialize();
     this.groundManager.initialize();
@@ -110,8 +106,8 @@ export class PlatformEngine extends Engine {
   }
 
   gameUpdate(dt: number): void {
-    super.gameUpdate(dt);
 
+    this.sceneManager.update(dt);
     if (this.editorMode) {
       this.editor.update(dt);
     }
@@ -121,8 +117,12 @@ export class PlatformEngine extends Engine {
       this.player.update(dt);
     }
 
+    this.physicsManager.update(dt);
     this.groundManager.update(dt);
     this.bullets.update(dt);
+    this.particleManager.update(dt);
+    this.dialogManager.update(dt);
+    this.textManager.update(dt);
   }
 
   // Used for isolated feature debugger

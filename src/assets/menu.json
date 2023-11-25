@@ -2,55 +2,55 @@
   "tiles": [
     {
       "id": "menu.left.top",
-      "loc": [80, 672, 64, 64],
+      "loc": [19, 193, 64, 64],
       "offset": [0, 0]
     },
     {
       "id": "menu.left.middle",
-      "loc": [80, 721, 64, 64],
+      "loc": [19, 239, 64, 64],
       "offset": [0, 0]
     },
     {
       "id": "menu.left.bottom",
-      "loc": [80, 784, 64, 64],
+      "loc": [19, 284, 64, 64],
       "offset": [0, 0]
     },
 
     {
       "id": "menu.center.top",
-      "loc": [141, 672, 64, 64],
+      "loc": [69, 193, 64, 64],
       "offset": [0, 0]
     },
     {
       "id": "menu.center.middle",
-      "loc": [141, 718, 64, 64],
+      "loc": [69, 245, 64, 64],
       "offset": [0, 0]
     },
     {
       "id": "menu.center.bottom",
-      "loc": [141, 784, 64, 64],
+      "loc": [69, 284, 64, 64],
       "offset": [0, 0]
     },
 
     {
       "id": "menu.right.top",
-      "loc": [208, 672, 64, 64],
+      "loc": [130, 193, 64, 64],
       "offset": [0, 0]
     },
     {
       "id": "menu.right.middle",
-      "loc": [208, 720, 64, 64],
+      "loc": [130, 245, 64, 64],
       "offset": [0, 0]
     },
     {
       "id": "menu.right.bottom",
-      "loc": [208, 784, 64, 64],
+      "loc": [130, 284, 64, 64],
       "offset": [0, 0]
     },
 
     {
       "id": "cursor",
-      "loc": [97, 609, 64, 47],
+      "loc": [25, 118, 64, 47],
       "offset": [-4, 0]
     },
     {

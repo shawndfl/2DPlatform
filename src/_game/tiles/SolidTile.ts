@@ -1,4 +1,5 @@
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
+import { Collision2D } from "../../physics/Collision2D";
 import { GroundManager } from "../system/GroundManager";
 import { TileComponent, ITileCreationArgs } from "./TileComponent";
 
@@ -19,6 +20,8 @@ export class SolidTile extends TileComponent {
         this.setTilePosition(tileData.i, tileData.j, tileData.k);
 
         gm.staticSprite.commitToBuffer();
+        const collision = new Collision2D(this.eng, this.id, this.screenBounds)
+        this.eng.physicsManager.addStatic(collision);
     }
 
     initialize(): void {

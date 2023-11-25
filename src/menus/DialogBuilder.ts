@@ -63,10 +63,6 @@ export class DialogBuilder extends Component {
       p.x + (p.width - this.tileWidth * this.iconScale),
       p.height + p.y - this.tileHeight * this.iconScale
     );
-    const innerBottomLeft = new vec2(
-      p.x + this.tileWidth * this.iconScale,
-      p.height + p.y - this.tileHeight * this.iconScale
-    );
 
     const bottomRight = new vec2(p.x + (p.width - this.tileWidth * this.iconScale), p.height + p.y);
     const bottomLeft = new vec2(p.x + this.tileWidth * this.iconScale, p.height + p.y);

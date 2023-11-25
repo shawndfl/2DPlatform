@@ -1,8 +1,9 @@
-import vec3 from "../../math/vec3";
-import { PlatformEngine } from "../PlatformEngine";
-import { GameComponent } from "../components/GameComponent";
 
-export class RidgeBody extends GameComponent {
+import { Engine } from "../core/Engine";
+import vec3 from "../math/vec3";
+import { Collision2D } from "./Collision2D";
+
+export class RidgeBody extends Collision2D {
     public position: vec3;
     public acceleration: vec3;
     public velocity: vec3;
@@ -14,8 +15,8 @@ export class RidgeBody extends GameComponent {
     private newPos: vec3;
     private newVel: vec3;
 
-    constructor(eng: PlatformEngine) {
-        super(eng);
+    constructor(eng: Engine, id: string) {
+        super(eng, id);
         this.position = new vec3();
         this.velocity = new vec3();
         this.acceleration = new vec3

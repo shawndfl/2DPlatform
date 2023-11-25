@@ -1,4 +1,3 @@
-import { InputState } from "../../core/InputHandler";
 import { UserAction } from "../../core/UserAction";
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
 import { SpritBatchController } from "../../graphics/SpriteBatchController";
@@ -14,6 +13,7 @@ import { ShootAnimation } from "./ShootAnimation";
 import rect from "../../math/rect";
 import { JumpAnimation } from "./JumpAnimation";
 import vec2 from "../../math/vec2";
+import { InputState } from '../../core/InputState';
 
 export enum Direction {
     Right,
@@ -127,7 +127,7 @@ export class PlayerController extends TileComponent {
         if (state.isReleased(UserAction.Down)) {
             this.teleport(false);
         }
-        if (state.isReleased(UserAction.Y)) {
+        if (state.isReleased(UserAction.A)) {
             this.shoot();
         }
         if (state.isDown(UserAction.B)) {
@@ -140,13 +140,6 @@ export class PlayerController extends TileComponent {
         if (state.isReleased(UserAction.B)) {
             console.debug('reset jump');
             this.jumpReset = false;
-        }
-        if (state.isDown(UserAction.TriggerR)) {
-            console.debug('dashing...');
-        }
-        if (state.isReleased(UserAction.TriggerR)) {
-            console.debug('reset dash');
-
         }
         return false;
     }
