@@ -8,6 +8,9 @@ import vec4 from "../math/vec4";
  */
 export interface IQuadModelInstance {
 
+    /** A way to find the quad later */
+    id: string;
+
     /** scale and rotation */
     rotScale: mat2;
 

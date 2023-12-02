@@ -209,6 +209,20 @@ export default class mat2 {
         return this
     }
 
+    scaleNumber(x: number, y: number): mat2 {
+        const a11 = this.values[0]
+        const a12 = this.values[1]
+        const a21 = this.values[2]
+        const a22 = this.values[3]
+
+        this.values[0] = a11 * x
+        this.values[1] = a12 * y
+        this.values[2] = a21 * x
+        this.values[3] = a22 * y
+
+        return this
+    }
+
     static product(m1: mat2, m2: mat2, result: mat2): mat2 {
         const a11 = m1.at(0)
         const a12 = m1.at(1)

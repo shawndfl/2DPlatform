@@ -61,7 +61,7 @@ export abstract class TileComponent extends GameComponent {
         this._screenBounds.left = this._screenPosition.x;
         this._screenBounds.width = this.spriteController.spriteWidth();
         this._screenBounds.height = this.spriteController.spriteHeight();
-        this._screenBounds.top = this._screenPosition.y;
+        this._screenBounds.top = this._screenPosition.y + this.spriteController.spriteHeight();
         return this._screenBounds;
     }
 

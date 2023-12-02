@@ -43,23 +43,8 @@ export class PlatformEngine extends Engine {
 
   async initialize(root?: HTMLElement): Promise<void> {
 
-    if (!root) {
-      console.error("cannot find root element");
-      return;
-    }
-    this.canvasController.initialize(root);
+    await super.initialize(root);
 
-    // Browsers copy pixels from the loaded image in top-to-bottom order —
-    // from the top-left corner; but WebGL wants the pixels in bottom-to-top
-    // order — starting from the bottom-left corner. So in order to prevent
-    // the resulting image texture from having the wrong orientation when
-    // rendered, we need to make the following call, to cause the pixels to
-    // be flipped into the bottom-to-top order that WebGL expects.
-    // See jameshfisher.com/2020/10/22/why-is-my-webgl-texture-upside-down
-    // NOTE, this must be done before any textures are loaded
-    this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
-
-    await this.assetManager.initialize();
     this.groundManager.initialize();
     if (this.urlParams.get('animation')) {
       this.testAnimation.initialize();
@@ -67,30 +52,14 @@ export class PlatformEngine extends Engine {
     } else {
       this.player.initialize();
     }
-    //await this.gameManager.initialize();
-    await this.textManager.initialize();
+
     await this.bullets.initialize();
-    await this.dialogManager.initialize();
-    await this.sceneManager.initialize();
 
     // load the first scene
     this.sceneManager.changeScene("level.1.0");
 
     // used for isolated feature debugger
     //this.sceneManager.changeScene("levelRenderTest");
-
-    // some gl setup
-    this.gl.enable(this.gl.CULL_FACE);
-    this.gl.cullFace(this.gl.BACK);
-
-    this.gl.enable(this.gl.BLEND);
-
-    this.gl.blendFuncSeparate(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA, this.gl.ONE, this.gl.ZERO);
-    this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA);
-    this.gl.enable(this.gl.DEPTH_TEST); // Enable depth testing
-    this.gl.depthFunc(this.gl.LEQUAL); // Near things obscure far things
-
-
     if (this.urlParams.get('editor')) {
       await this.editor.initialize(document.getElementById('rootContainer'));
       this.editorMode = true;
@@ -123,6 +92,7 @@ export class PlatformEngine extends Engine {
     this.particleManager.update(dt);
     this.dialogManager.update(dt);
     this.textManager.update(dt);
+    this.annotationManager.update(dt);
   }
 
   // Used for isolated feature debugger

@@ -1,4 +1,5 @@
 import { SpritBaseController } from "../../graphics/SpriteBaseController";
+import vec3 from "../../math/vec3";
 import { Collision2D } from "../../physics/Collision2D";
 import { GroundManager } from "../system/GroundManager";
 import { TileComponent, ITileCreationArgs } from "./TileComponent";
@@ -20,8 +21,18 @@ export class SolidTile extends TileComponent {
         this.setTilePosition(tileData.i, tileData.j, tileData.k);
 
         gm.staticSprite.commitToBuffer();
-        const collision = new Collision2D(this.eng, this.id, this.screenBounds)
-        this.eng.physicsManager.addStatic(collision);
+        const collision = new Collision2D(this.id, this.screenBounds)
+        this.eng.physicsManager.setCollision(collision);
+    }
+
+    /**
+    * Sets the sprite position given a screen position
+    * @param position - If the position is not given this will just update the sprite position
+    *                   with the current screen position. 
+    */
+    setScreenPosition(position?: Readonly<vec3>) {
+
+        super.setScreenPosition(position);
     }
 
     initialize(): void {

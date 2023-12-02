@@ -16,7 +16,7 @@ export class RidgeBody extends Collision2D {
     private newVel: vec3;
 
     constructor(eng: Engine, id: string) {
-        super(eng, id);
+        super(id);
         this.position = new vec3();
         this.velocity = new vec3();
         this.acceleration = new vec3

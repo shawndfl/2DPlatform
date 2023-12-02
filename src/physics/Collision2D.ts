@@ -1,9 +1,7 @@
-import { Component } from "../components/Component";
-import { Engine } from "../core/Engine";
 import rect from "../math/rect";
 
 
-export class Collision2D extends Component {
+export class Collision2D {
     private _id: string;
     private _bounds: rect;
 
@@ -15,18 +13,20 @@ export class Collision2D extends Component {
         return this._id;
     }
 
-    constructor(eng: Engine, id: string, bounds?: Readonly<rect>) {
-        super(eng);
+    constructor(id: string, bounds?: Readonly<rect>) {
         this._id = id;
         this.setBounds(bounds);
     }
 
-    public setBounds(bounds?: Readonly<rect>): void {
-        this._bounds = bounds.copy() ?? new rect();
-        this.eng.physicsManager.addStatic(this);
+    set(left: number, width: number, top: number, height: number): void {
+        this._bounds.set(left, width, top, height);
     }
 
-    public isColliding(other: rect): boolean {
+    public setBounds(bounds?: Readonly<rect>): void {
+        this._bounds = bounds.copy() ?? new rect();
+    }
+
+    public isColliding(other: Readonly<rect>): boolean {
         return this._bounds.intersects(other);
     }
 

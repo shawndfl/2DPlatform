@@ -13,6 +13,7 @@ import { DialogManager } from "../systems/DialogManager";
 import { ISceneManager } from "../interfaces/ISceneManager";
 import { ParticleManager } from "../systems/ParticleManager";
 import { PhysicsManager } from "../systems/PhysicsManager";
+import { AnnotationManager } from "../systems/AnnotationManager";
 
 /**
  * The engine for this game. There is one instance of this
@@ -34,6 +35,7 @@ export abstract class Engine {
   readonly dialogManager: DialogManager;
   readonly particleManager: ParticleManager;
   readonly physicsManager: PhysicsManager;
+  readonly annotationManager: AnnotationManager;
 
   abstract get sceneManager(): ISceneManager;
 
@@ -65,6 +67,7 @@ export abstract class Engine {
     this.spritePerspectiveShader = new SpritePerspectiveShader(this.gl, "spritePerspectiveShader");
     this.particleManager = new ParticleManager(this);
     this.physicsManager = new PhysicsManager(this);
+    this.annotationManager = new AnnotationManager(this);
   }
 
   createAssetManager(): AssetManager {
@@ -94,6 +97,7 @@ export abstract class Engine {
     await this.sceneManager.initialize();
     await this.particleManager.initialize();
     await this.physicsManager.initialize();
+    await this.annotationManager.initialize();
 
     // some gl setup
     this.gl.enable(this.gl.CULL_FACE);
@@ -117,6 +121,7 @@ export abstract class Engine {
     this.particleManager.update(dt);
     this.dialogManager.update(dt);
     this.textManager.update(dt);
+    this.annotationManager.update(dt);
   }
 
   update(dt: number): void {

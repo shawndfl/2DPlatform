@@ -21,14 +21,14 @@ export class PhysicsManager extends Component {
         super(eng);
         this.gravity = new vec3([0, -9.8, 0]);
         this.wind = new vec3();
-        this.quadTree = new QuadTree(this.eng);
+        this.quadTree = new QuadTree();
     }
 
     initialize(): void {
 
     }
 
-    addStatic(collision: Collision2D): void {
+    setCollision(collision: Collision2D): void {
         this.quadTree.addCollision(collision);
     }
 

@@ -1,5 +1,5 @@
 import { Texture } from "../../graphics/Texture";
-import { AssetManager } from "../../systems/AssetManager";
+import { AssetManager, BuiltInTextureAssets } from "../../systems/AssetManager";
 import { PlatformEngine } from "../PlatformEngine";
 import Player1 from '../assets/man2.png'
 import Player1Data from '../assets/man2.json'
@@ -11,24 +11,22 @@ import { ISpriteData } from "../../graphics/ISpriteData";
 import level1Tile from '../assets/Level1Tiles.png'
 import level1TileData from '../assets/Level1Tiles.json'
 
-export enum TextureAssets {
-    player1 = 'Player1',
-    player2 = 'Player2',
-    level1 = 'level1',
+export class TextureAssets extends BuiltInTextureAssets {
+    static readonly player1 = 'Player1';
+    static readonly player2 = 'Player2';
+    static readonly level1 = 'level1';
 }
 
 /**
  * Manages game asses for this platform game
  */
 export class GameAssetManager extends AssetManager {
-    private textures: Map<string, { texture: Texture, data: ISpriteData }>;
 
     constructor(eng: PlatformEngine) {
         super(eng);
-        this.textures = new Map<string, { texture: Texture, data: ISpriteData }>
     }
 
-    getTexture(name: TextureAssets): { texture: Texture; data: ISpriteData } {
+    getTexture(name: string): { texture: Texture; data: ISpriteData } {
         return this.textures.get(name);
     }
 

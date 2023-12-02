@@ -6,7 +6,7 @@ import { InputState } from "../../core/InputState";
 import { InputCalibration } from "../../core/InputCalibration";
 
 export class Level1 extends SceneComponent {
-  private line: LineComponent;
+
   private inputCal: InputCalibration;
 
   get eng(): PlatformEngine {
@@ -17,13 +17,13 @@ export class Level1 extends SceneComponent {
     super(eng);
     this.eng.viewManager.minX = 0;
     this.eng.viewManager.maxX = 1000;
-    this.line = new LineComponent(eng);
+
     this.inputCal = new InputCalibration(eng);
   }
 
   initialize(): void {
     this.eng.groundManager.loadLevel(Level1Data);
-    this.line.initialize();
+
 
     // set the texture for the particle manager
     this.eng.particleManager.setTexture(this.eng.assetManager.menu.texture);
@@ -59,7 +59,7 @@ export class Level1 extends SceneComponent {
   }
 
   update(dt: number): void {
-    this.line.update(dt);
+
     this.inputCal.update(dt);
   }
 }

@@ -1,21 +1,27 @@
 import { Component } from "../../components/Component";
 import { Engine } from "../../core/Engine";
+import { Line } from "../../data/Line";
 import { SpritBatchController } from "../../graphics/SpriteBatchController";
+import { SpriteInstanceController } from "../../graphics/SpriteInstanceController";
 import rect from "../../math/rect";
+import vec2 from "../../math/vec2";
+import vec3 from "../../math/vec3";
+import vec4 from "../../math/vec4";
+import { BuiltInTextureAssets } from "../../systems/AssetManager";
 import { PlatformEngine } from "../PlatformEngine";
 import { GameComponent } from "../components/GameComponent";
-import { Direction } from "../components/PlayerController";
 import { ILevelData } from "../data/ILevelData";
 import { TileComponent } from "../tiles/TileComponent";
 import { TileFactory } from "../tiles/TileFactorey";
 import { TextureAssets } from "./GameAssetManager";
 
+
 export class GroundManager extends GameComponent {
 
     private _staticSprite: SpritBatchController;
+
     private _tileFactory: TileFactory;
     protected _levelData: ILevelData;
-
     private tiles: TileComponent[][][];
 
     public get staticSprite() {
@@ -30,12 +36,19 @@ export class GroundManager extends GameComponent {
         super(eng);
         this._staticSprite = new SpritBatchController(this.eng);
         this._tileFactory = new TileFactory(this);
-        this.tiles = [[[]]]
+        this.tiles = [[[]]];
+    }
+
+    buildLines(): void {
+
     }
 
     loadLevel(level: ILevelData): void {
         this.dispose();
         this._levelData = level;
+
+        this.buildLines();
+
 
         for (let k = 0; k < level.encode.length; k++) {
             this.tiles.push([]);

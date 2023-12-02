@@ -14,6 +14,7 @@ import rect from "../../math/rect";
 import { JumpAnimation } from "./JumpAnimation";
 import vec2 from "../../math/vec2";
 import { InputState } from '../../core/InputState';
+import vec4 from "../../math/vec4";
 
 export enum Direction {
     Right,
@@ -174,14 +175,15 @@ export class PlayerController extends TileComponent {
     }
 
     fall(position: vec3): void {
-        //position.y += -.5
+        position.y += -.5
 
     }
 
     run(dt: number): void {
+        this.screenPosition.copy(this.tempPosition);
 
         if (!this.teleportAnimation.running && !this.teleportAnimation.isUp) {
-            this.screenPosition.copy(this.tempPosition);
+
             if (this.running) {
                 if (this.facingRight) {
                     this.tempPosition.x += 5;
@@ -189,11 +191,10 @@ export class PlayerController extends TileComponent {
                     this.tempPosition.x -= 5;
                 }
             }
-
             this.fall(this.tempPosition);
-
             this.setPosition(this.tempPosition);
         }
+
     }
 
     /**
@@ -297,7 +298,36 @@ export class PlayerController extends TileComponent {
         const upPadding = 100;
         const xOffset = this.screenPosition.x - this.eng.width / 2 + forwardPadding;
         const yOffset = this.screenPosition.y - this.eng.height / 2 + upPadding;
-        //this.eng.viewManager.setTarget(xOffset, yOffset);
+        this.eng.viewManager.setTarget(xOffset, yOffset);
+
+        const bounds = this.screenBounds;
+        const pos2 = this.screenPosition.copy();
+
+        pos2.y += 32;
+        this.eng.annotationManager.buildLine({
+            id: "playerBoundsLeft",
+            start: new vec2(bounds.left, bounds.bottom),
+            end: new vec2(bounds.left, bounds.top),
+            color: new vec4([0, 1, 0, 1])
+        });
+        this.eng.annotationManager.buildLine({
+            id: "playerBoundsTop",
+            start: new vec2(bounds.left, bounds.top),
+            end: new vec2(bounds.right, bounds.top),
+            color: new vec4([0, .5, 0, 1])
+        });
+        this.eng.annotationManager.buildLine({
+            id: "playerBoundsBottom",
+            start: new vec2(bounds.left, bounds.bottom),
+            end: new vec2(bounds.right, bounds.bottom),
+            color: new vec4([0, 0, .5, 1])
+        });
+        this.eng.annotationManager.buildLine({
+            id: "playerBoundsRight",
+            start: new vec2(bounds.right, bounds.top),
+            end: new vec2(bounds.right, bounds.bottom),
+            color: new vec4([.7, 0, .5, 1])
+        });
 
         console.debug('player pos: ' + this.screenPosition);
     }

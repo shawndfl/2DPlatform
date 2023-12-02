@@ -25,6 +25,7 @@ export function round(a: number): number {
 }
 
 export const degree = Math.PI / 180;
+export const radian = 180 / Math.PI;
 
 /**
  * Convert Degree To Radian
@@ -33,6 +34,10 @@ export const degree = Math.PI / 180;
  */
 export function toRadian(a: number): number {
   return a * degree;
+}
+
+export function toDegrees(a: number): number {
+  return a * radian;
 }
 
 /**
