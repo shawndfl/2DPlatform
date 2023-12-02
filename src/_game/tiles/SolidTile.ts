@@ -21,7 +21,7 @@ export class SolidTile extends TileComponent {
         this.setTilePosition(tileData.i, tileData.j, tileData.k);
 
         gm.staticSprite.commitToBuffer();
-        const collision = new Collision2D(this.id, this.screenBounds)
+        const collision = new Collision2D(gm.eng, this.id, this, this.screenBounds)
         this.eng.physicsManager.setCollision(collision);
     }
 

@@ -30,7 +30,7 @@ export class QuadTreeNode {
     addCollision(collision: Collision2D, minSize: number): boolean {
 
         // does not go here
-        if (!collision.isColliding(this.bounds)) {
+        if (!collision.isCollidingRect(this.bounds)) {
             return false;
         }
 
@@ -72,13 +72,13 @@ export class QuadTreeNode {
             analytics.intersectionTests++;
             analytics.nodesTested++;
         }
-        if (other.isColliding(this.bounds)) {
+        if (other.isCollidingRect(this.bounds)) {
             if (this.collisions) {
                 this.collisions.forEach((c) => {
                     if (analytics) {
                         analytics.intersectionTests++;
                     }
-                    if (c.isColliding(other.bounds)) {
+                    if (c.isColliding(other)) {
                         results.push(c);
                     }
                 });

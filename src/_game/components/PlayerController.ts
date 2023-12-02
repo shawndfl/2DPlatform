@@ -15,6 +15,7 @@ import { JumpAnimation } from "./JumpAnimation";
 import vec2 from "../../math/vec2";
 import { InputState } from '../../core/InputState';
 import vec4 from "../../math/vec4";
+import { Collision2D } from "../../physics/Collision2D";
 
 export enum Direction {
     Right,
@@ -36,6 +37,7 @@ export class PlayerController extends TileComponent {
     private shootAnimation: ShootAnimation;
     private jumpAnimation: JumpAnimation;
     private jumpReset: boolean;
+    private collision: Collision2D;
 
     get id(): string {
         return SpriteId.Player;
@@ -64,6 +66,7 @@ export class PlayerController extends TileComponent {
         this.movementDirection = Direction.Right;
         this.running = false;
         this.jumpAnimation = new JumpAnimation(eng);
+        this.collision = new Collision2D(this.eng, 'player', this, new rect([0, 0, 32, 32]));
     }
 
     initialize(): void {
@@ -303,33 +306,10 @@ export class PlayerController extends TileComponent {
         const bounds = this.screenBounds;
         const pos2 = this.screenPosition.copy();
 
-        pos2.y += 32;
-        this.eng.annotationManager.buildLine({
-            id: "playerBoundsLeft",
-            start: new vec2(bounds.left, bounds.bottom),
-            end: new vec2(bounds.left, bounds.top),
-            color: new vec4([0, 1, 0, 1])
-        });
-        this.eng.annotationManager.buildLine({
-            id: "playerBoundsTop",
-            start: new vec2(bounds.left, bounds.top),
-            end: new vec2(bounds.right, bounds.top),
-            color: new vec4([0, .5, 0, 1])
-        });
-        this.eng.annotationManager.buildLine({
-            id: "playerBoundsBottom",
-            start: new vec2(bounds.left, bounds.bottom),
-            end: new vec2(bounds.right, bounds.bottom),
-            color: new vec4([0, 0, .5, 1])
-        });
-        this.eng.annotationManager.buildLine({
-            id: "playerBoundsRight",
-            start: new vec2(bounds.right, bounds.top),
-            end: new vec2(bounds.right, bounds.bottom),
-            color: new vec4([.7, 0, .5, 1])
-        });
+        pos2.y += 100;
 
-        console.debug('player pos: ' + this.screenPosition);
+
+        //console.debug('player pos: ' + this.screenPosition);
     }
 
     update(dt: number): void {

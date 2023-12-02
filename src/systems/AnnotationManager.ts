@@ -3,6 +3,7 @@ import { Engine } from "../core/Engine";
 import { TileData } from "../graphics/ISpriteData";
 import { SpriteInstanceController } from "../graphics/SpriteInstanceController";
 import { toDegrees, toRadian } from "../math/constants";
+import rect from "../math/rect";
 import vec2 from "../math/vec2";
 import vec4 from "../math/vec4";
 import { BuiltInTextureAssets } from "./AssetManager";
@@ -31,6 +32,10 @@ export class AnnotationManager extends Component {
         //this._boundSprites = new SpriteInstanceController(eng);
     }
 
+    /**
+     * builds a line
+     * @param args 
+     */
     buildLine(args: LineArgs): void {
         const id = args.id + "_line";
         const rotation = toDegrees(Math.atan2(args.end.y - args.start.y, args.end.x - args.start.x));
@@ -43,6 +48,56 @@ export class AnnotationManager extends Component {
             scaleHeight: args.thickness ?? 1,
             rotation: rotation,
             tileData: this.tileData
+        });
+    }
+
+    buildCrossHair(id: string, bounds: Readonly<rect>, color: vec4): void {
+        const midX = (bounds.left + bounds.right) * .5
+        const midY = (bounds.top + bounds.bottom) * .5
+        this.eng.annotationManager.buildLine({
+            id: id + "_vertical",
+            start: new vec2(midX, bounds.top),
+            end: new vec2(midX, bounds.bottom),
+            color
+        });
+        this.eng.annotationManager.buildLine({
+            id: id + "_horizontal",
+            start: new vec2(bounds.left, midY),
+            end: new vec2(bounds.right, midY),
+            color
+        });
+    }
+
+    /**
+     * Builds a rect
+     * @param id 
+     * @param bounds 
+     * @param color 
+     */
+    buildRect(id: string, bounds: Readonly<rect>, color: vec4): void {
+        this.eng.annotationManager.buildLine({
+            id: id + "_left",
+            start: new vec2(bounds.left, bounds.bottom),
+            end: new vec2(bounds.left, bounds.top),
+            color
+        });
+        this.eng.annotationManager.buildLine({
+            id: id + "_top",
+            start: new vec2(bounds.left, bounds.top),
+            end: new vec2(bounds.right, bounds.top),
+            color
+        });
+        this.eng.annotationManager.buildLine({
+            id: id + "_right",
+            start: new vec2(bounds.right, bounds.top),
+            end: new vec2(bounds.right, bounds.bottom),
+            color
+        });
+        this.eng.annotationManager.buildLine({
+            id: id + "_bottom",
+            start: new vec2(bounds.left, bounds.bottom),
+            end: new vec2(bounds.right, bounds.bottom),
+            color
         });
     }
 

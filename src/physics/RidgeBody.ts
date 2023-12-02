@@ -1,4 +1,5 @@
 
+import { Component } from "../components/Component";
 import { Engine } from "../core/Engine";
 import vec3 from "../math/vec3";
 import { Collision2D } from "./Collision2D";
@@ -15,8 +16,8 @@ export class RidgeBody extends Collision2D {
     private newPos: vec3;
     private newVel: vec3;
 
-    constructor(eng: Engine, id: string) {
-        super(id);
+    constructor(eng: Engine, tag: Component, id: string) {
+        super(eng, id, tag);
         this.position = new vec3();
         this.velocity = new vec3();
         this.acceleration = new vec3

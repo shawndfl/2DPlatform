@@ -6,8 +6,8 @@ import { QuadTree, QuadTreeAnalytics } from "../src/physics/QuadTree";
 test('quadTreeAdd', () => {
     const tree = new QuadTree(10000, 10);
 
-    const collision = new Collision2D('test', new rect([0, 10, 10, 10]));
-    const testBlock = new Collision2D('test', new rect([9, 10, 9, 10]));
+    const collision = new Collision2D(null, 'test', null, new rect([0, 10, 10, 10]));
+    const testBlock = new Collision2D(null, 'test', null, new rect([9, 10, 9, 10]));
     tree.addCollision(collision);
 
     let analytics: QuadTreeAnalytics = { intersectionTests: 0, nodesTested: 0 };
@@ -31,11 +31,11 @@ test('quadTreeCheck', () => {
     for (let i = 0; i < maxCollision; i++) {
         for (let j = 0; j < maxCollision; j++) {
             const id = 'test_' + i + ',' + j;
-            const collision = new Collision2D(id, new rect([i * step, step, maxCollision - (j * step), step]));
+            const collision = new Collision2D(null, id, null, new rect([i * step, step, maxCollision - (j * step), step]));
             tree.addCollision(collision);
         }
     }
-    const testBlock = new Collision2D('test', new rect([0, 1, 1, 1]));
+    const testBlock = new Collision2D(null, 'test', null, new rect([0, 1, 1, 1]));
 
     var t0 = performance.now();
     let analytics: QuadTreeAnalytics = { intersectionTests: 0, nodesTested: 0 };
@@ -58,14 +58,14 @@ test('slowCheck', () => {
     for (let i = 0; i < maxCollision; i++) {
         for (let j = 0; j < maxCollision; j++) {
             const id = 'test_' + i + ',' + j;
-            collisions.push(new Collision2D(id, new rect([i * step, step, maxCollision - (j * step), step])));
+            collisions.push(new Collision2D(null, id, null, new rect([i * step, step, maxCollision - (j * step), step])));
         }
     }
 
-    const testBlock = new Collision2D('test', new rect([0, 1, 1, 1]));
+    const testBlock = new Collision2D(null, 'test', null, new rect([0, 1, 1, 1]));
 
     var t0 = performance.now();
-    collisions.forEach(c => c.isColliding(testBlock.bounds));
+    collisions.forEach(c => c.isColliding(testBlock));
     var t1 = performance.now();
 
     console.debug(' time slow: ', (t1 - t0));
