@@ -1,12 +1,31 @@
 import { Curve, CurveType } from '../src/math/Curve';
 import rect from '../src/math/rect';
 
-test('collisionCorners', () => {
+
+test('encapsulates', () => {
     const r = new rect();
     // left    10
     // right   20
     // top     10
-    // bottom  20
+    // bottom  0
+    r.set(10, 10, 10, 10);
+    const r2 = new rect();
+
+    r2.set(11, 2, 9, 2);
+    expect(r.encapsulates(r2)).toBe(true);
+
+    r2.set(11, 2, 10, 2);
+    expect(r.encapsulates(r2)).toBe(false);
+
+    r2.set(11, 10, 9, 2);
+    expect(r.encapsulates(r2)).toBe(false);
+
+    r2.set(10.0001, 9.8999, 9.9999, 9.8999);
+    expect(r.encapsulates(r2)).toBe(true);
+});
+
+test('collisionCorners', () => {
+    const r = new rect();
     r.set(10, 10, 10, 10);
     const r2 = new rect();
 
@@ -25,10 +44,6 @@ test('collisionCorners', () => {
 
 test('collisionMiss', () => {
     const r = new rect();
-    // left    10
-    // right   20
-    // top     10
-    // bottom  30
     r.set(10, 10, 10, 10);
     const r2 = new rect();
 
@@ -48,10 +63,6 @@ test('collisionMiss', () => {
 
 test('collisionOverlap', () => {
     const r = new rect();
-    // left    10
-    // right   20
-    // top     10
-    // bottom  20
     r.set(10, 10, 10, 10);
     const r2 = new rect();
 
@@ -65,10 +76,6 @@ test('collisionOverlap', () => {
 
 test('collisionOverlapMiss', () => {
     const r = new rect();
-    // left    10
-    // right   20
-    // top     10
-    // bottom  20
     r.set(10, 10, 10, 10);
     const r2 = new rect();
 

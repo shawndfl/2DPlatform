@@ -1,6 +1,8 @@
 import { epsilon } from './constants';
 import vec2 from './vec2';
-
+/**
+ * The bottom left is 0,0
+ */
 export default class rect {
   get left(): number {
     return this.values[0];
@@ -100,6 +102,16 @@ export default class rect {
   intersects(other: Readonly<rect>): boolean {
     if (this.right > other.left && this.left < other.right) {
       if (this.top > other.bottom && this.bottom < other.top) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  encapsulates(other: Readonly<rect>): boolean {
+    if (this.left < other.left && this.right > other.right) {
+      if (this.top > other.top && this.bottom < other.bottom) {
         return true;
       }
     }
