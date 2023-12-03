@@ -66,7 +66,13 @@ export class PlayerController extends TileComponent {
         this.movementDirection = Direction.Right;
         this.running = false;
         this.jumpAnimation = new JumpAnimation(eng);
-        this.collision = new Collision2D(this.eng, 'player', this, new rect([0, 0, 32, 32]));
+        this.collision = new Collision2D(this.eng, 'player', this, new rect([0, 32, 0, 32]));
+        this.collision.onCollision = this.onCollision.bind(this);
+        this.eng.physicsManager.setCollision(this.collision);
+    }
+
+    onCollision(other: Collision2D): void {
+        console.debug('colliding ', other);
     }
 
     initialize(): void {
@@ -178,8 +184,7 @@ export class PlayerController extends TileComponent {
     }
 
     fall(position: vec3): void {
-        position.y += -.5
-
+        position.y += -10
     }
 
     run(dt: number): void {
@@ -231,33 +236,26 @@ export class PlayerController extends TileComponent {
     private checkScreenCollisionAndAdjust(): boolean {
 
         const bounds = this.screenBounds;
-
+        let hitSomething = false;
         // check screen bounds
         if (bounds.left < this.eng.viewManager.left && this.facingLeft) {
             this.screenPosition.x = this.eng.viewManager.left;
-            return true;
+            hitSomething = true;
         }
         if (bounds.right > this.eng.viewManager.right && this.facingRight) {
-            this.screenPosition.x = this.eng.viewManager.right;
-            return true;
+            this.screenPosition.x = this.eng.viewManager.right - this.collision.bounds.width;
+            hitSomething = true;
         }
         if (bounds.top > this.eng.viewManager.top) {
             this.screenPosition.y = this.eng.viewManager.top;
-            return true;
+            hitSomething = true;
         }
-        if (bounds.top < 0) {
+        if (bounds.bottom < 0) {
             this.screenPosition.y = 0;
-            return true;
+            hitSomething = true;
         }
 
-        return false;
-    }
-
-    private checkForCollision(): void {
-
-        // check to tiles
-        let tiles = this.eng.groundManager.collisionCheck(this);
-        tiles.forEach(tile => tile.onCollision(this))
+        return hitSomething;
     }
 
     private lastTilesBelow: TileComponent[] = [];
@@ -275,9 +273,6 @@ export class PlayerController extends TileComponent {
         //collision detection on the screen limits
         this.checkScreenCollisionAndAdjust();
 
-        //collision detection with other tiles
-        this.checkForCollision();
-
         // finalize screen position after collision
         this.finalizeScreenPosition();
     }
@@ -291,7 +286,7 @@ export class PlayerController extends TileComponent {
         // clear the old tiles
         this.lastTilesBelow.forEach((tile) => tile.spriteController.setSprite(tile.spriteName));
 
-        this.lastTilesBelow = this.eng.groundManager.collisionCheck(this);
+        //this.lastTilesBelow = this.eng.groundManager.collisionCheck(this);
 
         // highlight the ones below
         this.lastTilesBelow.forEach(tile => tile.spriteController.setSprite('block.1.glow'));

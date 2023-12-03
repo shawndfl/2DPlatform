@@ -111,42 +111,6 @@ export abstract class TileComponent extends GameComponent {
     }
 
     /**
-     * Check for a collision with another tile
-     * @param other 
-     * @returns 
-     */
-    isColliding(other: TileComponent): boolean {
-        return this.screenBounds.intersects(other.screenBounds);
-    }
-
-    /**
-     * Handle collision when a tile is colliding with us.
-     * @param other - The other tile
-     * @param newPosition - the other tile's new position. This can be adjusted.
-     */
-    onCollision(other: TileComponent): void {
-        if (other instanceof PlayerController) {
-            const player = other as PlayerController;
-            if (this.isColliding(other)) {
-                let left = Math.min(this.screenBounds.left - player.screenBounds.right, 0);
-                let right = Math.min(player.screenBounds.left - this.screenBounds.right, 0);
-                let top = Math.min(player.screenBounds.bottom - this.screenBounds.top, 0);
-                let bottom = Math.min(this.screenBounds.bottom - player.screenBounds.top);
-
-                if (left > right && left > top && left > bottom) {
-                    other.screenPosition.x += left;
-                } else if (right > left && right > top && right > bottom) {
-                    other.screenPosition.x -= right;
-                } else if (top > right && top > left && top > bottom) {
-                    other.screenPosition.y -= top;
-                } else if (bottom > right && bottom > left && bottom > top) {
-                    other.screenPosition.y += bottom;
-                }
-            }
-        }
-    }
-
-    /**
      * Take the screen position and convert it to a tile index (int)
      * @param screen 
      * @param index 

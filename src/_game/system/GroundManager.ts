@@ -94,28 +94,6 @@ export class GroundManager extends GameComponent {
         return null;
     }
 
-    /**
-     * Gets the closest tiles
-     * @param bounds - in tile space
-     * @param direction - direction to look in
-     * @param x 
-     */
-    collisionCheck(other: TileComponent): TileComponent[] {
-
-        const tiles = [];
-        const k = 0;
-        for (let j = 0; j < this.tiles[k].length; j++) {
-            for (let i = 0; i < this.tiles[k][j].length; i++) {
-                const tile = this.getTileAt(i, j, k);
-                if (tile && tile.isColliding(other)) {
-                    tiles.push(tile);
-                }
-            }
-        }
-
-        return tiles;
-    }
-
     update(dt: number): void {
         this._staticSprite.update(dt);
     }
