@@ -1,4 +1,3 @@
-import { Component } from "../components/Component";
 import rect from "../math/rect";
 import vec2 from "../math/vec2";
 import { Collision2D } from "./Collision2D";
@@ -10,22 +9,19 @@ export interface QuadTreeAnalytics {
 
 export class QuadTreeNode {
     bounds: rect;
-    offset: vec2;
-    size: number;
-    mid: vec2;
     collisions: Map<string, Collision2D>;
     topLeft: QuadTreeNode;
     topRight: QuadTreeNode;
     bottomLeft: QuadTreeNode;
     bottomRight: QuadTreeNode;
 
+    public get size(): number {
+        return this.bounds.width;
+    }
+
     constructor(offset: vec2, size: number) {
-        this.offset = offset;
-        this.size = size;
         this.collisions = new Map<string, Collision2D>();
-        this.bounds = new rect([this.offset.x, this.size, this.offset.y, this.size]);
-        const halfSize = (this.size * .5);
-        this.mid = new vec2(this.bounds.left + halfSize, this.bounds.top + halfSize);
+        this.bounds = new rect([offset.x, size, offset.y, size]);
     }
 
     addCollision(collision: Collision2D, minSize: number): QuadTreeNode {
@@ -35,27 +31,33 @@ export class QuadTreeNode {
             return null;
         }
 
+        const halfSize = (this.size * .5);
+
         // no more quad trees just add this collision
-        if (this.mid.x - this.offset.x < minSize) {
+        if (halfSize < minSize) {
             this.collisions.set(collision.id, collision);
             return this;
         }
         // add to children
         else {
 
+            const midX = this.bounds.left + halfSize;
+            const midY = this.bounds.top - halfSize;
+            const x = this.bounds.left;
+            const y = this.bounds.top;
+
             // allocate new nodes as 
-            const halfSize = this.size * .5;
             if (!this.topLeft) {
-                this.topLeft = new QuadTreeNode(this.offset.copy(), halfSize);
+                this.topLeft = new QuadTreeNode(new vec2(x, y), halfSize);
             }
             if (!this.topRight) {
-                this.topRight = new QuadTreeNode(new vec2(this.offset.x + halfSize, this.offset.y), halfSize);
+                this.topRight = new QuadTreeNode(new vec2(midX, y), halfSize);
             }
             if (!this.bottomLeft) {
-                this.bottomLeft = new QuadTreeNode(new vec2(this.offset.x, this.offset.y - halfSize), halfSize);
+                this.bottomLeft = new QuadTreeNode(new vec2(x, midY), halfSize);
             }
             if (!this.bottomRight) {
-                this.bottomRight = new QuadTreeNode(new vec2(this.offset.x + halfSize, this.offset.y - halfSize), halfSize);
+                this.bottomRight = new QuadTreeNode(new vec2(midX, midY), halfSize);
             }
 
             // see if this fits in one of the child nodes
