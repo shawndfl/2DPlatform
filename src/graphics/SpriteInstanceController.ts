@@ -238,6 +238,10 @@ export class SpriteInstanceController extends Component {
      * @param dt 
      */
     update(dt: number): void {
+        if (this.quads.values.length == 0) {
+            return;
+        }
+
         this.commitToBuffer();
 
         const view = this.eng.viewManager;

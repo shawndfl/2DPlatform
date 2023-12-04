@@ -73,9 +73,10 @@ export class Collision2D extends Component {
             if (this.onCollision) {
                 this.onCollision(other);
             }
-        }
-        if (this.showCollision && this._isColliding) {
-            this.eng.annotationManager.buildRect(this.id + 'collision', this._bounds, new vec4([1, 0, 0, 1]));
+
+            if (this.showCollision) {
+                this.eng.annotationManager.buildRect(this.id + 'collision', this._bounds, new vec4([1, 0, 0, 1]));
+            }
         }
         return this._isColliding;
     }

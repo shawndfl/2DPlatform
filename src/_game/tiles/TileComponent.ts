@@ -49,7 +49,7 @@ export abstract class TileComponent extends GameComponent {
      * If the components are changed make sure
      * to call setScreenPosition(). 
      */
-    public get screenPosition(): vec3 {
+    public get screenPosition(): Readonly<vec3> {
         return this._screenPosition;
     }
 

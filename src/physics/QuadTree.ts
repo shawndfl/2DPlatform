@@ -1,5 +1,6 @@
 import rect from "../math/rect";
 import vec2 from "../math/vec2";
+import vec4 from "../math/vec4";
 import { Collision2D } from "./Collision2D";
 
 export interface QuadTreeAnalytics {
@@ -97,6 +98,7 @@ export class QuadTreeNode {
         if (other.isCollidingRect(this.bounds)) {
             if (this.collisions) {
                 this.collisions.forEach((c) => {
+                    //other.eng.annotationManager.buildRect('bounds', this.bounds, new vec4([1, 0, 0, 1]));
                     if (analytics) {
                         analytics.intersectionTests++;
                     }

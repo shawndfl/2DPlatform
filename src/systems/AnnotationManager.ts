@@ -43,6 +43,7 @@ export class AnnotationManager extends Component {
         this._lineSprites.buildQuad(id, {
             translation: args.start,
             offset: new vec2(1, 0),
+            depth: .5,
             color: args.color ?? new vec4([0, 0, 0, 1]),
             scaleWidth: distance * .5, // because of the offset is half the distance from center
             scaleHeight: args.thickness ?? 1,
@@ -54,13 +55,13 @@ export class AnnotationManager extends Component {
     buildCrossHair(id: string, bounds: Readonly<rect>, color: vec4): void {
         const midX = (bounds.left + bounds.right) * .5
         const midY = (bounds.top + bounds.bottom) * .5
-        this.eng.annotationManager.buildLine({
+        this.buildLine({
             id: id + "_vertical",
             start: new vec2(midX, bounds.top),
             end: new vec2(midX, bounds.bottom),
             color
         });
-        this.eng.annotationManager.buildLine({
+        this.buildLine({
             id: id + "_horizontal",
             start: new vec2(bounds.left, midY),
             end: new vec2(bounds.right, midY),
@@ -75,25 +76,26 @@ export class AnnotationManager extends Component {
      * @param color 
      */
     buildRect(id: string, bounds: Readonly<rect>, color: vec4): void {
-        this.eng.annotationManager.buildLine({
+        this.buildLine({
             id: id + "_left",
+
             start: new vec2(bounds.left, bounds.bottom),
             end: new vec2(bounds.left, bounds.top),
             color
         });
-        this.eng.annotationManager.buildLine({
+        this.buildLine({
             id: id + "_top",
             start: new vec2(bounds.left, bounds.top),
             end: new vec2(bounds.right, bounds.top),
             color
         });
-        this.eng.annotationManager.buildLine({
+        this.buildLine({
             id: id + "_right",
             start: new vec2(bounds.right, bounds.top),
             end: new vec2(bounds.right, bounds.bottom),
             color
         });
-        this.eng.annotationManager.buildLine({
+        this.buildLine({
             id: id + "_bottom",
             start: new vec2(bounds.left, bounds.bottom),
             end: new vec2(bounds.right, bounds.bottom),
@@ -107,12 +109,9 @@ export class AnnotationManager extends Component {
         // setup texture and tile data
         this._lineSprites.setTexture(this.eng.assetManager.menu.texture);
         this.tileData = this.eng.assetManager.getSpriteInfo(BuiltInTextureAssets.Menu, "block");
-
-        //this._boundSprites.initialize();
     }
 
     update(dt: number) {
-        //this._boundSprites.update(dt);
         this._lineSprites.update(dt);
     }
 }

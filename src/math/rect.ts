@@ -119,6 +119,28 @@ export default class rect {
     return false;
   }
 
+  overlap(other: Readonly<rect>): vec2 {
+    const overlap = new vec2();
+    const overlapLeft = Math.max(other.right - this.left, 0);
+    const overlapRight = Math.max(this.right - other.left, 0);
+    const overlapTop = Math.max(this.top - other.bottom, 0);
+    //const overlapBottom = Math.max(other.bottom - this.top, 0);
+
+    //if (overlapLeft > overlapRight) {
+    //  overlap.x = overlapRight;
+    //} else if (overlapLeft < overlapRight) {
+    //  overlap.x = -overlapLeft;
+    //}
+
+    //if (overlapTop > overlapBottom) {
+    // overlap.y = -overlapBottom;
+    //} else if (overlapTop < overlapBottom) {
+    //  overlap.y = overlapTop;
+    //}
+
+    return overlap;
+  }
+
   equals(vector: rect, threshold = epsilon): boolean {
     if (Math.abs(this.left - vector.left) > threshold) {
       return false;

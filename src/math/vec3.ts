@@ -180,9 +180,9 @@ export default class vec3 {
       dest = this;
     }
 
-    dest.x *= value;
-    dest.y *= value;
-    dest.z *= value;
+    dest.x = this.x * value;
+    dest.y = this.y * value;
+    dest.z = this.z * value;
 
     return dest;
   }
