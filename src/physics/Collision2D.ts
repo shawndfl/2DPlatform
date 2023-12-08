@@ -47,9 +47,6 @@ export class Collision2D extends Component {
     }
 
     public setBounds(bounds?: Readonly<rect>): void {
-        if (this.showCollision) {
-            this.eng.annotationManager.buildRect(this.id + 'collision', this._bounds, new vec4([0, 0, 1, 1]));
-        }
         this._bounds = bounds.copy() ?? new rect();
     }
 
@@ -74,9 +71,6 @@ export class Collision2D extends Component {
                 this.onCollision(other);
             }
 
-            if (this.showCollision) {
-                this.eng.annotationManager.buildRect(this.id + 'collision', this._bounds, new vec4([1, 0, 0, 1]));
-            }
         }
         return this._isColliding;
     }

@@ -63,6 +63,11 @@ export default class rect {
     return this.values[index];
   }
 
+  setPosition(left: number, top: number): void {
+    this.values[0] = left;
+    this.values[2] = top;
+  }
+
   set(left: number, width: number, top: number, height: number): void {
     this.values[0] = left;
     this.values[1] = width;
@@ -110,8 +115,8 @@ export default class rect {
   }
 
   encapsulates(other: Readonly<rect>): boolean {
-    if (this.left < other.left && this.right > other.right) {
-      if (this.top > other.top && this.bottom < other.bottom) {
+    if (this.left <= other.left && this.right >= other.right) {
+      if (this.top >= other.top && this.bottom <= other.bottom) {
         return true;
       }
     }

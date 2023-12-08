@@ -116,11 +116,14 @@ export default class vec2 {
     return this;
   }
 
-  subtract(vector: vec2): vec2 {
-    this.x -= vector.x;
-    this.y -= vector.y;
+  subtract(vector: vec2, dest?: vec2): vec2 {
+    if (!dest) {
+      dest = this;
+    }
+    dest.x = this.x - vector.x;
+    dest.y = this.y - vector.y;
 
-    return this;
+    return dest;
   }
 
   multiply(vector: vec2): vec2 {

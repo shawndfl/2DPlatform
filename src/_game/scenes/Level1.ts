@@ -4,6 +4,9 @@ import { PlatformEngine } from "../PlatformEngine";
 import { LineComponent } from "../../components/LineComponent";
 import { InputState } from "../../core/InputState";
 import { InputCalibration } from "../../core/InputCalibration";
+import { QuadTree, QuadTreeAnalytics } from "../../physics/QuadTree";
+import { Collision2D } from "../../physics/Collision2D";
+import rect from "../../math/rect";
 
 export class Level1 extends SceneComponent {
 
@@ -37,6 +40,32 @@ export class Level1 extends SceneComponent {
     
         }, ["Start", "Input Mapping"], undefined, -.5);
         */
+
+    //Test
+    ///
+    //const tree = new QuadTree(500, 5);
+    /*
+        // create a 10 x 10 grid of 2x2 colliders
+        const step = 2;
+        const maxCollision = 100;
+        for (let i = 0; i < maxCollision; i++) {
+          for (let j = 0; j < maxCollision; j++) {
+            const id = 'test_' + i + ',' + j;
+            const collision = new Collision2D(null, id, null, new rect([i * step, step, (maxCollision - j) * step, step]));
+            tree.addCollision(collision);
+          }
+        }
+        const testBlock = new Collision2D(null, 'test', null, new rect([0, 1, 1, 1]));
+    
+        var t0 = performance.now();
+        let analytics: QuadTreeAnalytics = { intersectionTests: 0, nodesTested: 0 };
+        let results = tree.checkForCollision(testBlock, undefined, analytics);
+        var t1 = performance.now();
+    
+        console.debug(' analytics ', analytics, results);
+        console.debug(' time quad tree: ', (t1 - t0));
+        console.debug('quadTree ', tree);
+    */
   }
 
   private startCalibration(): void {

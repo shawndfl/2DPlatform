@@ -10,79 +10,94 @@ export interface QuadTreeAnalytics {
 
 export class QuadTreeNode {
     bounds: rect;
+    childCount: number;
+    depth: number;
     collisions: Map<string, Collision2D>;
     topLeft: QuadTreeNode;
     topRight: QuadTreeNode;
     bottomLeft: QuadTreeNode;
     bottomRight: QuadTreeNode;
 
+    /**
+     * Min size of the tree
+     */
+    static maxDepth: number = 3;
+
     public get size(): number {
         return this.bounds.width;
     }
 
-    constructor(offset: vec2, size: number) {
+    constructor(offset: vec2, size: number, depth: number) {
         this.collisions = new Map<string, Collision2D>();
         this.bounds = new rect([offset.x, size, offset.y, size]);
+        this.depth = depth;
+        this.childCount = 0;
     }
 
-    addCollision(collision: Collision2D, minSize: number): QuadTreeNode {
+    addCollision(collision: Collision2D, nodesFound: QuadTreeNode[]): boolean {
 
-        // does not collide with this node
-        if (!collision.isCollidingRect(this.bounds)) {
-            return null;
+        // if the collision is not fully inside this node return null
+        if (!this.bounds.intersects(collision.bounds)) {
+            return false;
         }
 
         const halfSize = (this.size * .5);
 
         // no more quad trees just add this collision
-        if (halfSize < minSize) {
+        if (this.depth >= QuadTreeNode.maxDepth - 1) {
             this.collisions.set(collision.id, collision);
-            return this;
+            this.childCount++;
+            nodesFound.push(this);
+            return true;
         }
+
         // add to children
-        else {
+        const midX = this.bounds.left + halfSize;
+        const midY = this.bounds.top - halfSize;
+        const x = this.bounds.left;
+        const y = this.bounds.top;
 
-            const midX = this.bounds.left + halfSize;
-            const midY = this.bounds.top - halfSize;
-            const x = this.bounds.left;
-            const y = this.bounds.top;
-
-            // allocate new nodes as 
-            if (!this.topLeft) {
-                this.topLeft = new QuadTreeNode(new vec2(x, y), halfSize);
-            }
-            if (!this.topRight) {
-                this.topRight = new QuadTreeNode(new vec2(midX, y), halfSize);
-            }
-            if (!this.bottomLeft) {
-                this.bottomLeft = new QuadTreeNode(new vec2(x, midY), halfSize);
-            }
-            if (!this.bottomRight) {
-                this.bottomRight = new QuadTreeNode(new vec2(midX, midY), halfSize);
-            }
-
-            // see if this fits in one of the child nodes
-            let node: QuadTreeNode;
-            if (node = this.topLeft.addCollision(collision, minSize)) {
-                return node;
-            }
-            if (node = this.topRight.addCollision(collision, minSize)) {
-                return node;
-            }
-            if (node = this.bottomLeft.addCollision(collision, minSize)) {
-                return node
-            }
-            if (node = this.bottomRight.addCollision(collision, minSize)) {
-                return node;
-            }
-
-            // If this collision is encapsulates then add the collision
-            // to this node. At this point is does not fit in any child node 
-            if (this.bounds.encapsulates(collision.bounds)) {
-                this.collisions.set(collision.id, collision);
-                return this;
-            }
+        // allocate new nodes as 
+        if (!this.topLeft) {
+            this.topLeft = new QuadTreeNode(new vec2(x, y), halfSize, this.depth + 1);
         }
+        if (!this.topRight) {
+            this.topRight = new QuadTreeNode(new vec2(midX, y), halfSize, this.depth + 1);
+        }
+        if (!this.bottomLeft) {
+            this.bottomLeft = new QuadTreeNode(new vec2(x, midY), halfSize, this.depth + 1);
+        }
+        if (!this.bottomRight) {
+            this.bottomRight = new QuadTreeNode(new vec2(midX, midY), halfSize, this.depth + 1);
+        }
+
+        this.childCount = 0;
+        // see if this fits in one of the child nodes
+        if (this.topLeft.addCollision(collision, nodesFound)) {
+            this.childCount++;
+        }
+        if (this.topRight.addCollision(collision, nodesFound)) {
+            this.childCount++;
+        }
+        if (this.bottomLeft.addCollision(collision, nodesFound)) {
+            this.childCount++;
+        }
+        if (this.bottomRight.addCollision(collision, nodesFound)) {
+            this.childCount++;
+        }
+
+        return true;
+    }
+
+    clear(): void {
+        this.bounds = new rect();
+        this.depth = 0;
+        this.collisions.clear();
+        this.childCount = 0;
+        this.bottomLeft = null;
+        this.bottomRight = null;
+        this.topLeft = null;
+        this.topRight = null;
     }
 
     removeCollision(id: string): void {
@@ -96,17 +111,15 @@ export class QuadTreeNode {
             analytics.nodesTested++;
         }
         if (other.isCollidingRect(this.bounds)) {
-            if (this.collisions) {
-                this.collisions.forEach((c) => {
-                    //other.eng.annotationManager.buildRect('bounds', this.bounds, new vec4([1, 0, 0, 1]));
-                    if (analytics) {
-                        analytics.intersectionTests++;
-                    }
-                    if (c.isColliding(other)) {
-                        results.push(c);
-                    }
-                });
-            }
+            this.collisions.forEach((c) => {
+                if (analytics) {
+                    analytics.intersectionTests++;
+                }
+                if (c.isColliding(other)) {
+                    results.push(c);
+                }
+            });
+
             if (this.topLeft) {
                 this.topLeft.checkForCollision(other, results, analytics);
             }
@@ -122,37 +135,6 @@ export class QuadTreeNode {
         }
         return true;
     }
-
-    /**
-     * Prints the node
-     * @param depth 
-     */
-    printTree(depth: number): void {
-        const padding = ''.padStart(depth, '_');
-        let header = '|' + padding + 'size (' + this.size + ')';
-        if (this.collisions) {
-            header += ' #' + this.collisions.size;
-        }
-        console.debug(header);
-
-        //console.debug('|' + padding + 'TR');
-        if (this.topRight) {
-            this.topRight.printTree(++depth);
-        }
-        //console.debug('|' + padding + 'TL');
-        if (this.topLeft) {
-            this.topLeft.printTree(++depth);
-        }
-        //console.debug('|' + padding + 'BR');
-        if (this.bottomRight) {
-            this.bottomRight.printTree(++depth);
-        }
-        //console.debug('|' + padding + 'BL');
-        if (this.bottomLeft) {
-            this.bottomLeft.printTree(++depth);
-        }
-    }
-
 }
 
 /**
@@ -165,24 +147,19 @@ export class QuadTree {
      */
     size: number;
 
-    /**
-     * Min size of the tree
-     */
-    minSize: number;
-
     /** Root node */
     root: QuadTreeNode;
 
     /**
      * Collision and the node they are mapped to
      */
-    collisions: Map<string, QuadTreeNode>;
+    collisions: Map<string, QuadTreeNode[]>;
 
-    constructor(size?: number, minSize?: number) {
-        this.size = size ?? 10000;
-        this.collisions = new Map<string, QuadTreeNode>();
-        this.minSize = minSize ?? 128;
-        this.root = new QuadTreeNode(new vec2(0, this.size), this.size);
+    constructor(size: number = 1000, maxDepth: number = 4) {
+        QuadTreeNode.maxDepth = maxDepth;
+        this.size = size;
+        this.collisions = new Map<string, QuadTreeNode[]>();
+        this.root = new QuadTreeNode(new vec2(0, this.size), this.size, 0);
     }
 
     /**
@@ -192,20 +169,28 @@ export class QuadTree {
     addCollision(collision: Collision2D): void {
         this.removeCollision(collision.id);
 
-        const quadTree = this.root.addCollision(collision, this.minSize);
-        if (quadTree) {
-            this.collisions.set(collision.id, quadTree);
+        const nodesFound: QuadTreeNode[] = [];
+        const added = this.root.addCollision(collision, nodesFound);
+
+        if (!added) {
+            this.root.collisions.set(collision.id, collision);
+            this.root.childCount++;
+            nodesFound.push(this.root);
+            console.warn('collision is outside bounds of the tree ' + collision.id);
         }
+
+        // save the list of nodes that hold this collision
+        this.collisions.set(collision.id, nodesFound);
     }
 
     /**
-     * Removes a collision from the node it is attached to
+     * Removes a collision from all the nodes it is attached to
      * @param id 
      */
     removeCollision(id: string): void {
-        const node = this.collisions.get(id);
-        if (node) {
-            node.removeCollision(id);
+        const nodes = this.collisions.get(id);
+        if (nodes) {
+            nodes.forEach(n => n.removeCollision(id));
         }
     }
 
@@ -222,13 +207,6 @@ export class QuadTree {
         }
         this.root.checkForCollision(collision, results, analytics);
         return results
-    }
-
-    /**
-     * Print the tree
-     */
-    printTree(): void {
-        this.root.printTree(0);
     }
 
 }

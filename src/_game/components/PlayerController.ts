@@ -14,9 +14,8 @@ import rect from "../../math/rect";
 import { JumpAnimation } from "./JumpAnimation";
 import vec2 from "../../math/vec2";
 import { InputState } from '../../core/InputState';
-import vec4 from "../../math/vec4";
-import { Collision2D } from "../../physics/Collision2D";
 import { RidgeBody } from "../../physics/RidgeBody";
+import { MetersToPixels, PixelsToMeters } from "../../systems/PhysicsManager";
 
 export enum Direction {
     Right,
@@ -69,7 +68,7 @@ export class PlayerController extends TileComponent {
         this.running = false;
         this.jumpAnimation = new JumpAnimation(eng);
 
-        this.ridgeBody = new RidgeBody(this.eng, 'player', this, new rect([0, 32, 0, 32]));
+        this.ridgeBody = new RidgeBody(this.eng, 'player', this, new rect([0, 64, 0, 64]));
         this.ridgeBody.onPositionChange = this.setPosition.bind(this);
         this.eng.physicsManager.addBody(this.ridgeBody);
     }
@@ -79,14 +78,16 @@ export class PlayerController extends TileComponent {
         const spriteData = this.eng.assetManager.getTexture(TextureAssets.player1);
 
         this.sprite.initialize(spriteData.texture, spriteData.data);
+        // initial the player's position
         this.setTilePosition(2, 10, 0);
-        this.ridgeBody.position = this.screenPosition.copy();
+        this.ridgeBody.position = this.screenPosition.copy().scale(PixelsToMeters);
+        this.setPosition(this.ridgeBody.position);
+
         this.eng.particleManager.setEmitter('player', { position: new vec2(20, 100) })
 
         this.sprite.activeSprite(this.id);
         this.sprite.setSprite('teleport.1');
         this.sprite.scale(2.0);
-        this.setPosition(this.screenPosition);
 
         this.teleportAnimation.initialize(this.sprite);
         this.walk.initialize(this.sprite);
@@ -100,7 +101,6 @@ export class PlayerController extends TileComponent {
     }
 
     handleUserAction(state: InputState): boolean {
-
 
         if (state.isReleased(UserAction.Up)) {
             this.teleport(true);
@@ -151,14 +151,13 @@ export class PlayerController extends TileComponent {
         }
         if (state.isReleased(UserAction.B)) {
             console.debug('reset jump');
+            this.ridgeBody.velocity.y = 0;
             this.jumpReset = false;
         }
         return false;
     }
 
     private teleport(up: boolean): void {
-
-
         this.ridgeBody.active = false;
 
         // update teleport position
@@ -172,9 +171,7 @@ export class PlayerController extends TileComponent {
     }
 
     private jump(): void {
-        this.jumpAnimation.groundLevel = this.screenPosition.y;
-        this.jumpAnimation.xOffset = this.screenPosition.x;
-        this.jumpAnimation.height = this.screenPosition.y + 120;
+        this.ridgeBody.velocity.y = 4;
         this.jumpAnimation.start(false);
     }
 
@@ -189,10 +186,6 @@ export class PlayerController extends TileComponent {
         this.eng.bullets.addBullet({ bulletType: BulletType.Normal, position: startPos, velocity });
     }
 
-    fall(): void {
-        //this.ridgeBody.acceleration.y = -.09;
-    }
-
     run(dt: number): void {
         this.screenPosition.copy(this.tempPosition);
 
@@ -200,14 +193,11 @@ export class PlayerController extends TileComponent {
 
             if (this.running) {
                 if (this.facingRight) {
-                    this.ridgeBody.position.x += 5;
+                    this.ridgeBody.position.x += PixelsToMeters * 5;
                 } else {
-                    this.ridgeBody.position.x -= 5;
+                    this.ridgeBody.position.x -= PixelsToMeters * 5;
                 }
             }
-            this.fall();
-
-            this.movementVector = this._screenPosition.subtract(this.tempPosition).normalize();
         }
 
     }
@@ -240,10 +230,10 @@ export class PlayerController extends TileComponent {
      * This will check for collisions and adjust the position 
      * @param position 
      */
-    setPosition(position: vec3): void {
+    setPosition(position: Readonly<vec3>): void {
 
         // update the screen position.
-        this.setScreenPosition(position);
+        this.setScreenPosition(position.copy().scale(MetersToPixels));
 
         // update view manager position
         const forwardPadding = 200;

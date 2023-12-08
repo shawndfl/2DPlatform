@@ -78,7 +78,6 @@ export class AnnotationManager extends Component {
     buildRect(id: string, bounds: Readonly<rect>, color: vec4): void {
         this.buildLine({
             id: id + "_left",
-
             start: new vec2(bounds.left, bounds.bottom),
             end: new vec2(bounds.left, bounds.top),
             color

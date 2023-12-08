@@ -15,23 +15,23 @@ export class Random {
   }
 
   getUuid(): string {
-    if (window?.crypto?.randomUUID != undefined) {
+    if ((typeof window !== 'undefined') && window?.crypto?.randomUUID != undefined) {
       return window.crypto.randomUUID();
     } else {
       return (
-        Math.floor(Math.random() * 100000000)
+        Math.floor(this.rand() * 100000000)
           .toString(16)
           .padStart(8, '0') +
         '-' +
-        Math.floor(Math.random() * 1000)
+        Math.floor(this.rand() * 1000)
           .toString(16)
           .padStart(4, '0') +
         '-' +
-        Math.floor(Math.random() * 1000)
+        Math.floor(this.rand() * 1000)
           .toString(16)
           .padStart(4, '0') +
         '-' +
-        Math.floor(Math.random() * 100000000)
+        Math.floor(this.rand() * 100000000)
           .toString(16)
           .padStart(8, '0')
       );

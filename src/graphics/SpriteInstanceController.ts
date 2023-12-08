@@ -238,7 +238,7 @@ export class SpriteInstanceController extends Component {
      * @param dt 
      */
     update(dt: number): void {
-        if (this.quads.values.length == 0) {
+        if (this.quads.size == 0) {
             return;
         }
 
