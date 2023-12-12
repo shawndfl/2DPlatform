@@ -4,6 +4,16 @@ import vec2 from './vec2';
  * The bottom left is 0,0
  */
 export default class rect {
+  /**
+   * Used in some calculations
+   */
+  private static vec2Temp: [vec2, vec2, vec2, vec2] = [
+    new vec2(),
+    new vec2(),
+    new vec2(),
+    new vec2(),
+  ];
+
   get left(): number {
     return this.values[0];
   }
@@ -46,7 +56,7 @@ export default class rect {
 
   /**
    * Left, width, top, height
-   * @param values 
+   * @param values
    */
   constructor(values?: [number, number, number, number]) {
     if (values !== undefined) {
@@ -104,7 +114,7 @@ export default class rect {
     return false;
   }
 
-  intersects(other: Readonly<rect>): boolean {
+  intersects(other: Readonly<rect>, correctionVector?: vec2): boolean {
     if (this.right > other.left && this.left < other.right) {
       if (this.top > other.bottom && this.bottom < other.top) {
         return true;
@@ -112,6 +122,39 @@ export default class rect {
     }
 
     return false;
+  }
+
+  intersectionPoint(start: vec2, end: vec2): vec2 {
+    const topLeft = new vec2(this.left, this.top);
+    const topRight = new vec2(this.right, this.top);
+    const bottomLeft = new vec2(this.left, this.bottom);
+    const bottomRight = new vec2(this.right, this.bottom);
+
+    // left
+    let point = vec2.lineIntersectionLine(start, end, topLeft, bottomLeft);
+    if (point) {
+      return point;
+    }
+
+    //top
+    point = vec2.lineIntersectionLine(start, end, topLeft, topRight);
+    if (point) {
+      return point;
+    }
+
+    //bottom
+    point = vec2.lineIntersectionLine(start, end, bottomLeft, bottomRight);
+    if (point) {
+      return point;
+    }
+
+    // right
+    point = vec2.lineIntersectionLine(start, end, topRight, bottomRight);
+    if (point) {
+      return point;
+    }
+
+    return null;
   }
 
   encapsulates(other: Readonly<rect>): boolean {

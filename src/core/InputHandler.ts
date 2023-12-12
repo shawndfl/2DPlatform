@@ -67,7 +67,20 @@ export class InputHandler extends Component {
   constructor(eng: Engine) {
     super(eng);
 
-    this.mappingIndex = { Start: 0, Select: 1, A: 2, B: 3, X: 4, Y: 5, Up: 6, Down: 7, Right: 8, Left: 9, TriggerR: 10, TriggerL: 11 };
+    this.mappingIndex = {
+      Start: 0,
+      Select: 1,
+      A: 2,
+      B: 3,
+      X: 4,
+      Y: 5,
+      Up: 6,
+      Down: 7,
+      Right: 8,
+      Left: 9,
+      TriggerR: 10,
+      TriggerL: 11,
+    };
 
     this.buttonsDown = UserAction.None;
     this.buttonsReleased = UserAction.None;
@@ -76,7 +89,9 @@ export class InputHandler extends Component {
 
     this.touchPoint = [vec2.zero, vec2.zero];
     this.touchCount = 0;
-    this.inputMappings = { gamePadMapping: new Map<string, GamepadInteraction[]>() };
+    this.inputMappings = {
+      gamePadMapping: new Map<string, GamepadInteraction[]>(),
+    };
 
     window.addEventListener('keydown', (e) => {
       this.keydown(e);
@@ -98,7 +113,6 @@ export class InputHandler extends Component {
         this.touchPoint[0].x = e.offsetX;
         this.touchPoint[0].y = e.offsetY;
         this.touchCount = 1;
-
       });
       window.addEventListener('mouseup', (e) => {
         this.inputDown = [false, false];
@@ -111,26 +125,27 @@ export class InputHandler extends Component {
       console.debug(' touch enabled');
       window.addEventListener('touchstart', (e) => {
         if (e.touches.length > 0 && e.touches[0].target === eng.gl.canvas) {
-          this.inputDown = [e.touches.item(0) ? true : false, e.touches.item(1) ? true : false];
+          this.inputDown = [
+            e.touches.item(0) ? true : false,
+            e.touches.item(1) ? true : false,
+          ];
           this.inputReleased = false;
 
           const t = e.touches[0].target as HTMLCanvasElement;
           this.touchPoint[0].x = e.touches[0].pageX - t.clientTop;
           this.touchPoint[0].y = e.touches[0].screenY;
           if (e.touches.length > 1) {
-            this.touchPoint[1].x = e.touches[1].pageX - t.clientTop;;
+            this.touchPoint[1].x = e.touches[1].pageX - t.clientTop;
             this.touchPoint[1].y = e.touches[1].screenY;
           }
           this.touchCount = e.touches.length;
         }
-
       });
     }
 
     this.resetInput();
     this.loadMapping();
   }
-
 
   getInputState(): InputState {
     const state = new InputState();
@@ -174,6 +189,8 @@ export class InputHandler extends Component {
     if (e.key == 'Enter') {
       this.buttonsDown = this.buttonsDown | UserAction.Start;
     }
+
+    console.debug('keyDown ' + this.buttonsDown);
   }
 
   keyup(e: KeyboardEvent) {
@@ -214,7 +231,6 @@ export class InputHandler extends Component {
   }
 
   preUpdate(dt: number) {
-
     this.pollGamePad(dt);
 
     // Always call `navigator.getGamepads()` inside of
@@ -261,7 +277,9 @@ export class InputHandler extends Component {
       console.debug('  B        = ' + this.inputMappings.keyboardMapping[this.mappingIndex.B]);
       */
     } else {
-      this.inputMappings = { gamePadMapping: new Map<string, GamepadInteraction[]>() }
+      this.inputMappings = {
+        gamePadMapping: new Map<string, GamepadInteraction[]>(),
+      };
     }
   }
 
@@ -270,13 +288,18 @@ export class InputHandler extends Component {
     this.gamepadPolling += dt;
 
     if (this.gamepadPolling > 1500) {
-
-      this.hasGamePad = (navigator.getGamepads()[0] != null);
+      this.hasGamePad = navigator.getGamepads()[0] != null;
 
       if (this.hasGamePad && !this._gamepad) {
-        this.connectGamepad(new GamepadEvent('gamepadConnect', { gamepad: navigator.getGamepads()[0] }))
+        this.connectGamepad(
+          new GamepadEvent('gamepadConnect', {
+            gamepad: navigator.getGamepads()[0],
+          })
+        );
       } else if (!this.hasGamePad && this._gamepad) {
-        this.disconnectGamepad(new GamepadEvent('gamepadDisconnect', { gamepad: this._gamepad }));
+        this.disconnectGamepad(
+          new GamepadEvent('gamepadDisconnect', { gamepad: this._gamepad })
+        );
       }
       this.gamepadPolling = 0;
     }
@@ -291,10 +314,16 @@ export class InputHandler extends Component {
       console.debug(' gamepad supported ', navigator.getGamepads());
 
       window.removeEventListener('gamepadconnected', this.boundConnectGamepad);
-      window.removeEventListener('gamepaddisconnected', this.boundDisconnectGamepad);
+      window.removeEventListener(
+        'gamepaddisconnected',
+        this.boundDisconnectGamepad
+      );
 
       window.addEventListener('gamepadconnected', this.boundConnectGamepad);
-      window.addEventListener('gamepaddisconnected', this.boundDisconnectGamepad);
+      window.addEventListener(
+        'gamepaddisconnected',
+        this.boundDisconnectGamepad
+      );
     } else {
       console.warn('gamepad not supported!');
     }

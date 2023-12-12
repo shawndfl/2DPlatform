@@ -317,4 +317,31 @@ export default class vec2 {
   toString() {
     return this.x.toFixed(5) + ', ' + this.y.toFixed(5);
   }
+
+  static lineIntersectionLine(p0: vec2, p1: vec2, p2: vec2, p3: vec2): vec2 {
+    // returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
+    const a = p0.x;
+    const b = p0.y;
+    const c = p1.x;
+    const d = p1.y;
+    const p = p2.x;
+    const q = p2.y;
+    const r = p3.x;
+    const s = p3.y;
+    const det = (c - a) * (s - q) - (r - p) * (d - b);
+
+    if (det === 0) {
+      return null;
+    }
+    const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+    const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+    const intersect = 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
+    const dir = p1.copy().subtract(p0);
+    if (intersect) {
+      const point = p0.copy().add(dir.scale(lambda));
+      return point;
+    } else {
+      return null;
+    }
+  }
 }
