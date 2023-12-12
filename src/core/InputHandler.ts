@@ -190,7 +190,12 @@ export class InputHandler extends Component {
       this.buttonsDown = this.buttonsDown | UserAction.Start;
     }
 
-    console.debug('keyDown ' + this.buttonsDown);
+    console.debug(
+      'keyDown ' +
+        this.buttonsDown +
+        ' ' +
+        this.getInputState().isDown(UserAction.B)
+    );
   }
 
   keyup(e: KeyboardEvent) {

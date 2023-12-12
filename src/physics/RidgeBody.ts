@@ -124,22 +124,9 @@ export class RidgeBody extends Collision2D {
       this.collisionResults
     );
 
-    // show collisions
-    this.collisionResults.collisions.forEach((c) => {
-      this.eng.annotationManager.buildRect(
-        c.id,
-        c.bounds,
-        new vec4([1, 0, 0, 1])
-      );
-
-      // this collision is inside another move it up.
-      if (
-        c.bounds.top > this.bounds.bottom &&
-        c.bounds.bottom < this.bounds.bottom
-      ) {
-        this.newPos.y = c.bounds.top * PixelsToMeters;
-      }
-    });
+    const correction = this.collisionResolution();
+    this.newPos.x += correction.x * PixelsToMeters;
+    this.newPos.y += correction.y * PixelsToMeters;
 
     const height = 0;
     this.eng.annotationManager.buildLine({
@@ -154,5 +141,71 @@ export class RidgeBody extends Collision2D {
       return true;
     }
     return this.collisionResults.collisions.length > 0;
+  }
+
+  /**
+   * Calculate a correction vector
+   * @returns
+   */
+  collisionResolution(): vec2 {
+    const adjustment = this.collisionResults.correctionVector;
+    adjustment.reset();
+    const adjustmentScale = 0.08;
+    const maxRuns = 5;
+
+    for (let counter = 0; counter < maxRuns; counter++) {
+      for (let i = 0; i < this.collisionResults.collisions.length; i++) {
+        const c = this.collisionResults.collisions[i];
+        const other = c.bounds;
+        const mine = this.bounds;
+
+        // show collisions
+        this.eng.annotationManager.buildRect(
+          c.id,
+          other,
+          new vec4([1, 0, 0, 1])
+        );
+
+        // this collision is overlapping on the top of the other.
+        if (
+          mine.top > other.top &&
+          other.top > mine.bottom &&
+          other.bottom < mine.bottom
+        ) {
+          const offset = other.top - mine.bottom;
+          adjustment.y += offset * adjustmentScale;
+        }
+        // this collision is overlapping on the bottom of the other.
+        else if (
+          mine.bottom < other.bottom &&
+          mine.top > other.bottom &&
+          mine.top < other.bottom
+        ) {
+          const offset = mine.top - other.bottom;
+          adjustment.y -= offset * adjustmentScale;
+        }
+
+        // this collision is overlapping on the left of the other
+        else if (
+          mine.left < other.left &&
+          other.left < mine.right &&
+          other.right > mine.right
+        ) {
+          const offset = mine.right - other.left;
+          adjustment.x -= offset * adjustmentScale;
+        }
+        // this collision is overlapping on the right of the other
+        else if (
+          mine.right > other.right &&
+          other.right > mine.left &&
+          other.left < mine.left
+        ) {
+          const offset = other.right - mine.left;
+          adjustment.x += offset * adjustmentScale;
+        }
+      }
+    }
+
+    return adjustment;
   }
 }

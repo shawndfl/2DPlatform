@@ -36,6 +36,7 @@ export class PlayerController extends TileComponent {
   private shootAnimation: ShootAnimation;
   private jumpAnimation: JumpAnimation;
   private jumpReset: boolean;
+  private canJump: boolean;
   private ridgeBody: RidgeBody;
 
   get id(): string {
@@ -123,30 +124,27 @@ export class PlayerController extends TileComponent {
     if (!this.ridgeBody.active) {
       return false;
     }
+
     if (state.isDown(UserAction.Right)) {
       this.walk.start(true);
 
       this.facingDirection = Direction.Right;
       this.movementDirection = Direction.Right;
       this.running = true;
-      return true;
     }
     if (state.isDown(UserAction.Left)) {
       this.walk.start(false);
       this.facingDirection = Direction.Left;
       this.movementDirection = Direction.Left;
       this.running = true;
-      return true;
     }
     if (state.isReleased(UserAction.Right)) {
       this.walk.stop();
       this.running = false;
-      return true;
     }
     if (state.isReleased(UserAction.Left)) {
       this.walk.stop();
       this.running = false;
-      return true;
     }
 
     if (state.isReleased(UserAction.A)) {
@@ -155,12 +153,10 @@ export class PlayerController extends TileComponent {
     if (state.isDown(UserAction.B)) {
       if (!this.jumpReset) {
         this.jumpReset = true;
-        console.debug('jumping...');
         this.jump();
       }
     }
     if (state.isReleased(UserAction.B)) {
-      console.debug('reset jump');
       this.ridgeBody.velocity.y = 0;
       this.jumpReset = false;
     }
