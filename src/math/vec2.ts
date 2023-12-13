@@ -318,7 +318,25 @@ export default class vec2 {
     return this.x.toFixed(5) + ', ' + this.y.toFixed(5);
   }
 
-  static lineIntersectionLine(p0: vec2, p1: vec2, p2: vec2, p3: vec2): vec2 {
+  /**
+   * Where do these two lines intersect.
+   * @param p0
+   * @param p1
+   * @param p2
+   * @param p3
+   * @param intersectionPoint
+   * @returns
+   */
+  static lineIntersectionLine(
+    p0: vec2,
+    p1: vec2,
+    p2: vec2,
+    p3: vec2,
+    intersectionPoint?: vec2
+  ): vec2 {
+    if (!intersectionPoint) {
+      intersectionPoint = new vec2();
+    }
     // returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
     const a = p0.x;
     const b = p0.y;
@@ -336,12 +354,36 @@ export default class vec2 {
     const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
     const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
     const intersect = 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
-    const dir = p1.copy().subtract(p0);
     if (intersect) {
-      const point = p0.copy().add(dir.scale(lambda));
-      return point;
+      intersectionPoint.x = a + (c - a) * lambda;
+      intersectionPoint.y = b + (d - b) * lambda;
+      return intersectionPoint;
     } else {
       return null;
     }
+
+    /*
+    // XNA implementation https://stackoverflow.com/questions/3746274/line-intersection-with-aabb-rectangle
+    Vector2 b = a2 - a1;
+    Vector2 d = b2 - b1;
+    float bDotDPerp = b.X * d.Y - b.Y * d.X;
+
+    // if b dot d == 0, it means the lines are parallel so have infinite intersection points
+    if (bDotDPerp == 0)
+        return false;
+
+    Vector2 c = b1 - a1;
+    float t = (c.X * d.Y - c.Y * d.X) / bDotDPerp;
+    if (t < 0 || t > 1)
+        return false;
+
+    float u = (c.X * b.Y - c.Y * b.X) / bDotDPerp;
+    if (u < 0 || u > 1)
+        return false;
+
+    intersection = a1 + t * b;
+
+    return true;
+    */
   }
 }

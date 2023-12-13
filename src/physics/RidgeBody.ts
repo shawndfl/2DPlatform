@@ -21,8 +21,8 @@ export class RidgeBody extends Collision2D {
 
   public maxVelocity: vec3;
 
-  private newPos: vec3;
-  private newVel: vec3;
+  private nextPosition: vec3;
+  private nextVelocity: vec3;
   private collisionResults: CollisionResults;
 
   onPositionChange: (newPosition: Readonly<vec3>) => void;
@@ -48,32 +48,31 @@ export class RidgeBody extends Collision2D {
     const t = dt * 0.001;
     if (this.active) {
       // get a copy of the position and velocity
-      this.newPos = this.position.copy(this.newPos);
-      this.newVel = this.velocity.copy(this.newVel);
+      this.nextPosition = this.position.copy(this.nextPosition);
+      this.nextVelocity = this.velocity.copy(this.nextVelocity);
 
       // apply acceleration and velocity
       const adjustAcc = this.acceleration
         .copy()
         .add(this.eng.physicsManager.gravity);
 
-      this.newVel.add(adjustAcc.scale(t, this.temp));
-      this.newPos.add(this.newVel.scale(t, this.temp));
+      this.nextVelocity.add(adjustAcc.scale(t, this.temp));
+      this.nextPosition.add(this.nextVelocity.scale(t, this.temp));
 
       let colliding = false;
       // check collision
       // adjust position, acceleration, velocity
-      if (this.collisionCorrection(this.position, this.newPos)) {
-        this.newVel.reset();
+      if (this.collisionCorrection()) {
         this.acceleration.reset();
         colliding = true;
       }
 
       // update position and velocity
-      this.newPos.copy(this.position);
-      this.newVel.copy(this.velocity);
+      this.nextPosition.copy(this.position);
+      this.nextVelocity.copy(this.velocity);
       this.bounds.setPosition(
-        this.newPos.x * MetersToPixels,
-        this.newPos.y * MetersToPixels + this.bounds.height
+        this.nextPosition.x * MetersToPixels,
+        this.nextPosition.y * MetersToPixels + this.bounds.height
       );
 
       if (colliding) {
@@ -91,7 +90,7 @@ export class RidgeBody extends Collision2D {
       }
 
       if (this.onPositionChange) {
-        this.onPositionChange(this.newPos);
+        this.onPositionChange(this.nextPosition);
       }
     }
   }
@@ -102,7 +101,7 @@ export class RidgeBody extends Collision2D {
    * @param nextPosition
    * @returns true if there is a collision and false otherwise
    */
-  collisionCorrection(position: vec3, nextPosition: vec3): boolean {
+  collisionCorrection(): boolean {
     // clear old collision
     if (this.collisionResults) {
       this.collisionResults.collisions.forEach((c) => {
@@ -114,8 +113,8 @@ export class RidgeBody extends Collision2D {
     }
 
     this.bounds.setPosition(
-      nextPosition.x * MetersToPixels,
-      nextPosition.y * MetersToPixels + this.bounds.height
+      this.nextPosition.x * MetersToPixels,
+      this.nextPosition.y * MetersToPixels + this.bounds.height
     );
 
     // check for collisions
@@ -125,9 +124,26 @@ export class RidgeBody extends Collision2D {
     );
 
     const correction = this.collisionResolution();
-    this.newPos.x += correction.x * PixelsToMeters;
-    this.newPos.y += correction.y * PixelsToMeters;
+    this.nextPosition.x += correction.x * PixelsToMeters;
+    this.nextPosition.y += correction.y * PixelsToMeters;
 
+    // adjust the velocity
+    //const scale = vec2.dot(
+    //  correction.normalize(),
+    //  new vec2(this.nextVelocity.x, this.nextVelocity.y).normalize()
+    //);
+    //this.nextVelocity.x += this.velocity.x * scale;
+    //this.nextVelocity.y += this.velocity.y * scale;
+    if (this.collisionResults.collisions.length > 0) {
+      if (correction.x != 0) {
+        this.nextVelocity.x = 0;
+      }
+      if (correction.y != 0) {
+        this.nextVelocity.y = 0;
+      }
+    }
+
+    // draw base line
     const height = 0;
     this.eng.annotationManager.buildLine({
       start: new vec2(0, height),
@@ -136,8 +152,10 @@ export class RidgeBody extends Collision2D {
       id: 'baseline',
     });
 
-    if (nextPosition.y <= height) {
-      nextPosition.y = height;
+    // safety net
+    if (this.nextPosition.y <= height) {
+      this.nextPosition.y = height;
+      this.nextVelocity.reset();
       return true;
     }
     return this.collisionResults.collisions.length > 0;
@@ -150,8 +168,8 @@ export class RidgeBody extends Collision2D {
   collisionResolution(): vec2 {
     const adjustment = this.collisionResults.correctionVector;
     adjustment.reset();
-    const adjustmentScale = 0.08;
-    const maxRuns = 5;
+    const adjustmentScale = 0.05;
+    const maxRuns = 7;
 
     for (let counter = 0; counter < maxRuns; counter++) {
       for (let i = 0; i < this.collisionResults.collisions.length; i++) {
@@ -174,6 +192,7 @@ export class RidgeBody extends Collision2D {
         ) {
           const offset = other.top - mine.bottom;
           adjustment.y += offset * adjustmentScale;
+          this.nextVelocity.y = 0;
         }
         // this collision is overlapping on the bottom of the other.
         else if (
@@ -183,6 +202,7 @@ export class RidgeBody extends Collision2D {
         ) {
           const offset = mine.top - other.bottom;
           adjustment.y -= offset * adjustmentScale;
+          this.nextVelocity.y = 0;
         }
 
         // this collision is overlapping on the left of the other
@@ -193,6 +213,7 @@ export class RidgeBody extends Collision2D {
         ) {
           const offset = mine.right - other.left;
           adjustment.x -= offset * adjustmentScale;
+          this.nextVelocity.y = 0;
         }
         // this collision is overlapping on the right of the other
         else if (
@@ -202,6 +223,7 @@ export class RidgeBody extends Collision2D {
         ) {
           const offset = other.right - mine.left;
           adjustment.x += offset * adjustmentScale;
+          this.nextVelocity.y = 0;
         }
       }
     }
