@@ -202,10 +202,12 @@ export class PlayerController extends TileComponent {
     if (!this.teleportAnimation.running && !this.teleportAnimation.isUp) {
       if (this.running) {
         if (this.facingRight) {
-          this.ridgeBody.position.x += PixelsToMeters * 5;
+          this.ridgeBody.instanceVelocity.x = PixelsToMeters * 500;
         } else {
-          this.ridgeBody.position.x -= PixelsToMeters * 5;
+          this.ridgeBody.instanceVelocity.x = -PixelsToMeters * 500;
         }
+      } else {
+        this.ridgeBody.instanceVelocity.x = 0;
       }
     }
   }

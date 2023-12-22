@@ -1,26 +1,31 @@
-import { TileComponent } from '../_game/tiles/TileComponent';
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import rect from '../math/rect';
-import vec2 from '../math/vec2';
-import vec4 from '../math/vec4';
+
+export enum CollisionLocation {
+  None = 0x0000,
+  TopLeft = 0x0001,
+  TopRight = 0x0002,
+  BottomRight = 0x0004,
+  BottomLeft = 0x0008,
+
+  Edge = 0x0010,
+  Top = Edge | TopLeft | TopRight,
+  Right = Edge | TopRight | BottomRight,
+  Bottom = Edge | BottomLeft | BottomRight,
+  Left = Edge | TopLeft | BottomLeft,
+}
 
 export class Collision2D extends Component {
   private _id: string;
   private _bounds: rect;
-  private _isColliding: boolean;
   public showCollision: boolean;
-  public onCollision: (other: Collision2D) => void;
 
   /**
    * The component this is attached to
    */
   public get tag(): Component {
     return this._tag;
-  }
-
-  public get isCollising(): boolean {
-    return this._isColliding;
   }
 
   public get bounds(): Readonly<rect> {
@@ -59,11 +64,8 @@ export class Collision2D extends Component {
    * @param other
    * @returns
    */
-  public isCollidingRect(
-    other: Readonly<rect>,
-    correctionVector?: vec2
-  ): boolean {
-    return this._bounds.intersects(other, correctionVector);
+  public isCollidingRect(other: Readonly<rect>): boolean {
+    return this._bounds.intersects(other);
   }
 
   /**
@@ -71,13 +73,7 @@ export class Collision2D extends Component {
    * @param other
    * @returns
    */
-  public isColliding(other: Collision2D, correctionVector?: vec2): boolean {
-    this._isColliding = this._bounds.intersects(other.bounds, correctionVector);
-    if (this._isColliding) {
-      if (this.onCollision) {
-        this.onCollision(other);
-      }
-    }
-    return this._isColliding;
+  public isColliding(other: Collision2D): boolean {
+    return this._bounds.intersects(other.bounds);
   }
 }

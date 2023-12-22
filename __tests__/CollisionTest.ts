@@ -82,3 +82,64 @@ test('collisionOverlapMiss', () => {
   r2.set(20, 2, 15, 20);
   expect(r.intersects(r2)).toBe(false);
 });
+
+test('collisionCorners', () => {
+  const r = new rect();
+  r.set(10, 10, 10, 10);
+  const r2 = new rect();
+
+  // top left
+  r2.set(9, 2, 11, 2);
+  expect(r.topLeftCorner(r2)).toBe(1);
+
+  r2.set(11, 2, 11, 2);
+  expect(r.topLeftCorner(r2)).toBe(0);
+
+  r2.set(9, 2, 13, 2);
+  expect(r.topLeftCorner(r2)).toBe(0);
+
+  //top right
+  r2.set(19, 2, 11, 2);
+  expect(r.topRightCorner(r2)).toBe(1);
+
+  r2.set(21, 2, 11, 2);
+  expect(r.topRightCorner(r2)).toBe(0);
+
+  r2.set(19, 2, 13, 2);
+  expect(r.topRightCorner(r2)).toBe(0);
+
+  //bottom right
+  r2.set(19, 2, 1, 2);
+  expect(r.BottomRightCorner(r2)).toBe(1);
+
+  r2.set(21, 2, 1, 2);
+  expect(r.BottomRightCorner(r2)).toBe(0);
+
+  r2.set(19, 2, -1, 2);
+  expect(r.BottomRightCorner(r2)).toBe(0);
+
+  //bottom left
+  r2.set(9, 2, 1, 2);
+  expect(r.BottomLeftCorner(r2)).toBe(1);
+
+  r2.set(11, 2, 1, 2);
+  expect(r.BottomLeftCorner(r2)).toBe(0);
+
+  r2.set(9, 2, -1, 2);
+  expect(r.BottomLeftCorner(r2)).toBe(0);
+});
+
+test('collisionCorners', () => {
+  const r = new rect();
+  r.set(10, 10, 10, 10);
+  const r2 = new rect();
+
+  r2.set(9.5, 2, 1, 2);
+  expect(r.BottomLeftCorner(r2)).toBe(1.5);
+
+  r2.set(10, 4, 1, 2);
+  expect(r.BottomLeftCorner(r2)).toBe(0);
+
+  r2.set(9, 2, 2, 5);
+  expect(r.BottomLeftCorner(r2)).toBe(0.5);
+});

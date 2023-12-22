@@ -140,7 +140,7 @@ export class QuadTreeNode {
         if (analytics) {
           analytics.intersectionTests++;
         }
-        if (c.isColliding(other, results.correctionVector)) {
+        if (c.isColliding(other)) {
           results.collisions.push(c);
         }
       });

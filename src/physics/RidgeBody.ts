@@ -5,7 +5,7 @@ import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
 import { MetersToPixels, PixelsToMeters } from '../systems/PhysicsManager';
-import { Collision2D } from './Collision2D';
+import { Collision2D, CollisionLocation } from './Collision2D';
 import { CollisionResults } from './QuadTree';
 
 export class RidgeBody extends Collision2D {
@@ -15,6 +15,7 @@ export class RidgeBody extends Collision2D {
   public acceleration: vec3;
   /** meters per second */
   public velocity: vec3;
+  public instanceVelocity: vec3;
   public force: vec3;
   public mass: number;
   public active: boolean;
@@ -37,6 +38,7 @@ export class RidgeBody extends Collision2D {
     this.position = new vec3();
     this.velocity = new vec3();
     this.acceleration = new vec3();
+    this.instanceVelocity = new vec3();
     this.maxVelocity = new vec3([1000, 1000, 1000]);
     this.force = new vec3();
     this.mass = 10;
@@ -58,6 +60,7 @@ export class RidgeBody extends Collision2D {
 
       this.nextVelocity.add(adjustAcc.scale(t, this.temp));
       this.nextPosition.add(this.nextVelocity.scale(t, this.temp));
+      this.nextPosition.add(this.instanceVelocity.scale(t, this.temp));
 
       let colliding = false;
       // check collision
@@ -162,6 +165,40 @@ export class RidgeBody extends Collision2D {
   }
 
   /**
+   * correct a vector based on the collisions bounds
+   * @param direction
+   * @param collision
+   * @param result
+   * @returns
+   */
+  calculateAdjustedVector(
+    direction: vec2,
+    collisions: Collision2D[],
+    result?: vec2
+  ): vec2 {
+    if (!result) {
+      result = new vec2();
+    }
+    direction.copy(result);
+
+    let location: CollisionLocation = CollisionLocation.None;
+    for (let i = 0; i < collisions.length; i++) {
+      const c = collisions[i];
+      const b1 = this.bounds;
+      const b2 = c.bounds;
+      const topRightOverlap = b2.topRightCorner(b1);
+      if (topRightOverlap > 0) {
+      }
+    }
+
+    return result;
+  }
+
+  findOtherCorner(collisions: Collision2D[], startIndex: number): void {
+    for (let i = startIndex; i < collisions.length; i++) {}
+  }
+
+  /**
    * Calculate a correction vector
    * @returns
    */
@@ -192,7 +229,6 @@ export class RidgeBody extends Collision2D {
         ) {
           const offset = other.top - mine.bottom;
           adjustment.y += offset * adjustmentScale;
-          this.nextVelocity.y = 0;
         }
         // this collision is overlapping on the bottom of the other.
         else if (
@@ -202,7 +238,6 @@ export class RidgeBody extends Collision2D {
         ) {
           const offset = mine.top - other.bottom;
           adjustment.y -= offset * adjustmentScale;
-          this.nextVelocity.y = 0;
         }
 
         // this collision is overlapping on the left of the other

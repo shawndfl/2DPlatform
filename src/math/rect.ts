@@ -1,5 +1,6 @@
 import { epsilon } from './constants';
 import vec2 from './vec2';
+
 /**
  * The bottom left is 0,0
  */
@@ -43,7 +44,7 @@ export default class rect {
   }
 
   set width(value: number) {
-    this.values[1] = value;
+    this.values[1] = Math.max(value, 0);
   }
 
   set top(value: number) {
@@ -51,7 +52,7 @@ export default class rect {
   }
 
   set height(value: number) {
-    this.values[3] = value;
+    this.values[3] = Math.max(value, 0);
   }
 
   /**
@@ -60,10 +61,7 @@ export default class rect {
    */
   constructor(values?: [number, number, number, number]) {
     if (values !== undefined) {
-      this.values[0] = values[0];
-      this.values[1] = values[1];
-      this.values[2] = values[2];
-      this.values[3] = values[3];
+      this.set(values[0], values[1], values[2], values[3]);
     }
   }
 
@@ -80,9 +78,9 @@ export default class rect {
 
   set(left: number, width: number, top: number, height: number): void {
     this.values[0] = left;
-    this.values[1] = width;
+    this.values[1] = Math.max(width, 0);
     this.values[2] = top;
-    this.values[3] = height;
+    this.values[3] = Math.max(height, 0);
   }
 
   reset(): void {
@@ -114,9 +112,114 @@ export default class rect {
     return false;
   }
 
-  intersects(other: Readonly<rect>, correctionVector?: vec2): boolean {
+  /**
+   * How much does the other rect overlap this rect on our left edge.
+   * @param other
+   * @returns the offset that can be added to this.left to fix the overlap.
+   */
+  edgeOverlapX(other: Readonly<rect>): number {
+    const b1 = this;
+    const b2 = other;
+
+    // if left overlap return a positive value
+    if (b2.right > b1.left && b2.left < b1.left) {
+      return b2.right - b1.left;
+    }
+    // if right overlap return a negative value
+    else if (b2.left < b1.right && b2.right > b1.right) {
+      return b2.left - b1.right;
+    }
+    return 0;
+  }
+
+  /**
+   * How much does the other rect overlap this rect on our top or bottom edge.
+   * @param other
+   * @returns The value that can be added to this.top to correct the overlap
+   */
+  edgeOverlapY(other: Readonly<rect>): number {
+    const b1 = this;
+    const b2 = other;
+    // top
+    if (b2.top > b1.top && b2.bottom < b1.top) {
+      return b1.top - b2.top;
+    }
+    // bottom
+    if (b2.top > b1.bottom && b2.bottom < b1.bottom) {
+      return b2.top - b1.bottom;
+    }
+    return 0;
+  }
+
+  /**
+   * Return the ratio of left edge overlap over the top edge overlap.
+   * @param other
+   * @returns 0 if no overlap or a ratio of x/y if there is an overlap
+   */
+  topLeftCorner(other: Readonly<rect>): number {
+    const x = Math.abs(this.edgeOverlapX(other));
+    const y = Math.abs(this.edgeOverlapY(other));
+    if (y != 0) {
+      return x / y;
+    }
+    return 0;
+  }
+
+  /**
+   * Return the ratio of right edge overlap over the top edge overlap.
+   * @param other
+   * @returns 0 if no overlap or a ratio of x/y if there is an overlap
+   */
+  topRightCorner(other: Readonly<rect>): number {
+    const x = Math.abs(this.edgeOverlapX(other));
+    const y = Math.abs(this.edgeOverlapY(other));
+    if (y > 0) {
+      return x / y;
+    }
+    return 0;
+  }
+
+  /**
+   * Return the ratio of right edge overlap over the bottom edge overlap.
+   * @param other
+   * @returns 0 if no overlap or a ratio of x/y if there is an overlap
+   */
+  BottomRightCorner(other: Readonly<rect>): number {
+    const x = Math.abs(this.edgeOverlapX(other));
+    const y = Math.abs(this.edgeOverlapY(other));
+    if (y > 0) {
+      return x / y;
+    }
+    return 0;
+  }
+
+  /**
+   * Return the ratio of left edge overlap over the top edge overlap.
+   * @param other
+   * @returns 0 if no overlap or a ratio of x/y if there is an overlap
+   */
+  BottomLeftCorner(other: Readonly<rect>): number {
+    const x = Math.abs(this.edgeOverlapX(other));
+    const y = Math.abs(this.edgeOverlapY(other));
+    if (y > 0) {
+      return x / y;
+    }
+    return 0;
+  }
+
+  intersects(other: Readonly<rect>): boolean {
     if (this.right > other.left && this.left < other.right) {
       if (this.top > other.bottom && this.bottom < other.top) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  encapsulates(other: Readonly<rect>): boolean {
+    if (this.left <= other.left && this.right >= other.right) {
+      if (this.top >= other.top && this.bottom <= other.bottom) {
         return true;
       }
     }
@@ -155,38 +258,6 @@ export default class rect {
     }
 
     return null;
-  }
-
-  encapsulates(other: Readonly<rect>): boolean {
-    if (this.left <= other.left && this.right >= other.right) {
-      if (this.top >= other.top && this.bottom <= other.bottom) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  overlap(other: Readonly<rect>): vec2 {
-    const overlap = new vec2();
-    const overlapLeft = Math.max(other.right - this.left, 0);
-    const overlapRight = Math.max(this.right - other.left, 0);
-    const overlapTop = Math.max(this.top - other.bottom, 0);
-    //const overlapBottom = Math.max(other.bottom - this.top, 0);
-
-    //if (overlapLeft > overlapRight) {
-    //  overlap.x = overlapRight;
-    //} else if (overlapLeft < overlapRight) {
-    //  overlap.x = -overlapLeft;
-    //}
-
-    //if (overlapTop > overlapBottom) {
-    // overlap.y = -overlapBottom;
-    //} else if (overlapTop < overlapBottom) {
-    //  overlap.y = overlapTop;
-    //}
-
-    return overlap;
   }
 
   equals(vector: rect, threshold = epsilon): boolean {
