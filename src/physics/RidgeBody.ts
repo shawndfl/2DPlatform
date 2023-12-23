@@ -5,9 +5,8 @@ import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
 import { MetersToPixels, PixelsToMeters } from '../systems/PhysicsManager';
-import { Collision2D, CollisionLocation } from './Collision2D';
+import { Collision2D } from './Collision2D';
 import { CollisionResults } from './QuadTree';
-import { RectUtilities } from './RectUtilities';
 
 export class RidgeBody extends Collision2D {
   /** meters */

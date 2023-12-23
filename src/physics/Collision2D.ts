@@ -2,20 +2,6 @@ import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import rect from '../math/rect';
 
-export enum CollisionLocation {
-  None = 0x0000,
-  TopLeft = 0x0001,
-  TopRight = 0x0002,
-  BottomRight = 0x0004,
-  BottomLeft = 0x0008,
-
-  Edge = 0x0010,
-  Top = Edge | TopLeft | TopRight,
-  Right = Edge | TopRight | BottomRight,
-  Bottom = Edge | BottomLeft | BottomRight,
-  Left = Edge | TopLeft | BottomLeft,
-}
-
 export class Collision2D extends Component {
   private _id: string;
   private _bounds: rect;
