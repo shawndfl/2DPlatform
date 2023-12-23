@@ -288,7 +288,7 @@ export class RidgeBody extends Collision2D {
           }
         }
 
-        // floor is king no x overlap if we are on a floor
+        // y axis is king no x overlap if we are on a floor
         if (yOverLap != 0) {
           xOverLap = 0;
         }
