@@ -140,7 +140,8 @@ export class QuadTreeNode {
         if (analytics) {
           analytics.intersectionTests++;
         }
-        if (c.isColliding(other)) {
+        // must be colliding with the other bounds and not already in the results
+        if (c.isColliding(other) && !results.collisions.find((x) => x == c)) {
           results.collisions.push(c);
         }
       });

@@ -13,6 +13,8 @@ export interface LineArgs {
   start: vec2;
   end: vec2;
   color: vec4;
+  /** range -1 near, 1 far */
+  depth?: number;
   /** in pixels */
   thickness?: number;
   endArrow?: boolean;
@@ -57,7 +59,7 @@ export class AnnotationManager extends Component {
     this._lineSprites.buildQuad(id, {
       translation: args.start,
       offset: new vec2(1, 0),
-      depth: 0.5,
+      depth: args.depth ?? -0.1,
       color: args.color ?? new vec4([0, 0, 0, 1]),
       scaleWidth: distance * 0.5, // because of the offset is half the distance from center
       scaleHeight: args.thickness ?? 1,
@@ -89,30 +91,39 @@ export class AnnotationManager extends Component {
    * @param bounds
    * @param color
    */
-  buildRect(id: string, bounds: Readonly<rect>, color: vec4): void {
+  buildRect(
+    id: string,
+    bounds: Readonly<rect>,
+    color: vec4,
+    depth?: number
+  ): void {
     this.buildLine({
       id: id + '_left',
       start: new vec2(bounds.left, bounds.bottom),
       end: new vec2(bounds.left, bounds.top),
       color,
+      depth,
     });
     this.buildLine({
       id: id + '_top',
       start: new vec2(bounds.left, bounds.top),
       end: new vec2(bounds.right, bounds.top),
       color,
+      depth,
     });
     this.buildLine({
       id: id + '_right',
       start: new vec2(bounds.right, bounds.top),
       end: new vec2(bounds.right, bounds.bottom),
       color,
+      depth,
     });
     this.buildLine({
       id: id + '_bottom',
       start: new vec2(bounds.left, bounds.bottom),
       end: new vec2(bounds.right, bounds.bottom),
       color,
+      depth,
     });
   }
 
