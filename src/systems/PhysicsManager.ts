@@ -1,5 +1,6 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
+import rect from '../math/rect';
 import vec3 from '../math/vec3';
 import { Collision2D } from '../physics/Collision2D';
 import {
@@ -22,14 +23,30 @@ export class PhysicsManager extends Component {
   public gravity: vec3;
   public wind: vec3;
   public quadTree: QuadTree;
+  private _bounds: rect;
   protected ridgeBodies: RidgeBody[];
+
+  public get bounds(): Readonly<rect> {
+    return this._bounds;
+  }
 
   constructor(eng: Engine) {
     super(eng);
     this.gravity = new vec3([0, -9.8, 0]);
     this.wind = new vec3();
+    this._bounds = new rect([0, 10000, 2000, 2000]);
     this.quadTree = new QuadTree(10000, 5);
     this.ridgeBodies = [];
+  }
+
+  initializeBounds(
+    width: number,
+    height: number,
+    quadTreeDepth: number = 5
+  ): void {
+    const size = Math.max(width, height);
+    this._bounds = new rect([0, width, height, height]);
+    this.quadTree = new QuadTree(size, quadTreeDepth);
   }
 
   initialize(): void {}

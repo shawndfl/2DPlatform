@@ -1,4 +1,3 @@
-
 import './css/canvas.scss';
 import { PlatformEngine } from './_game/PlatformEngine';
 import { clamp } from './math/constants';
@@ -21,15 +20,13 @@ function step(timestamp: number) {
   // calculate the elapsed
   const elapsed = timestamp - previousTimeStamp;
 
-  // if the frame tool longer than 100ms through it out
-  if (elapsed < 100) {
+  // if the frame tool longer than 20ms through it out
+  if (elapsed < 50) {
     // update the scene
     engine.update(elapsed);
-
   }
   // request a new frame
   previousTimeStamp = timestamp;
-
 }
 
 /**
@@ -44,4 +41,3 @@ engine
   .catch((e) => {
     console.error('Error initializing ', e);
   });
-

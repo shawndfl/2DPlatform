@@ -124,7 +124,7 @@ export class RidgeBody extends Collision2D {
       this.nextPosition.y * MetersToPixels + this.bounds.height
     );
 
-    this.collisionResolution2();
+    this.collisionResolution();
 
     // set the new position
     this.nextPosition.x = this.bounds.left * PixelsToMeters;
@@ -140,85 +140,45 @@ export class RidgeBody extends Collision2D {
       id: 'baseline',
     });
 
-    // safety net
-    if (this.nextPosition.y <= height) {
-      this.nextPosition.y = height;
+    // bounds of the physics manager
+    const left = this.eng.physicsManager.bounds.left * PixelsToMeters;
+    const right =
+      (this.eng.physicsManager.bounds.right - this.bounds.width) *
+      PixelsToMeters;
+    const top = this.eng.physicsManager.bounds.top * PixelsToMeters;
+    const bottom = this.eng.physicsManager.bounds.bottom * PixelsToMeters;
+    let hitLimit = false;
+    if (this.nextPosition.y <= bottom) {
+      this.nextPosition.y = bottom;
       this.nextVelocity.y = 0;
       this.instanceVelocity.y = 0;
+      hitLimit = true;
+    } else if (this.nextPosition.y >= top) {
+      this.nextPosition.y = top;
+      this.nextVelocity.y = 0;
+      this.instanceVelocity.y = 0;
+      hitLimit = true;
+    }
+    if (this.nextPosition.x <= left) {
+      this.nextPosition.x = left;
+      this.nextVelocity.x = 0;
+      this.instanceVelocity.x = 0;
+      hitLimit = true;
+    } else if (this.nextPosition.x >= right) {
+      this.nextPosition.x = right;
+      this.nextVelocity.x = 0;
+      this.instanceVelocity.x = 0;
+      hitLimit = true;
+    }
+
+    if (hitLimit) {
       return true;
     }
+
     return this.collisionResults.collisions.length > 0;
   }
 
-  /**
-   * Calculate a correction vector
-   * @returns
-   */
-  collisionResolution(): vec2 {
-    const adjustment = this.collisionResults.correctionVector;
-    adjustment.reset();
-    const adjustmentScale = 0.05;
-    const maxRuns = 7;
-
-    for (let counter = 0; counter < maxRuns; counter++) {
-      for (let i = 0; i < this.collisionResults.collisions.length; i++) {
-        const c = this.collisionResults.collisions[i];
-        const other = c.bounds;
-        const mine = this.bounds;
-
-        // show collisions
-        this.eng.annotationManager.buildRect(
-          c.id,
-          other,
-          new vec4([1, 0, 0, 1])
-        );
-
-        // this collision is overlapping on the top of the other.
-        if (
-          mine.top > other.top &&
-          other.top > mine.bottom &&
-          other.bottom < mine.bottom
-        ) {
-          const offset = other.top - mine.bottom;
-          adjustment.y += offset * adjustmentScale;
-        }
-        // this collision is overlapping on the bottom of the other.
-        else if (
-          mine.bottom < other.bottom &&
-          mine.top > other.bottom &&
-          mine.top < other.bottom
-        ) {
-          const offset = mine.top - other.bottom;
-          adjustment.y -= offset * adjustmentScale;
-        }
-
-        // this collision is overlapping on the left of the other
-        else if (
-          mine.left < other.left &&
-          other.left < mine.right &&
-          other.right > mine.right
-        ) {
-          const offset = mine.right - other.left;
-          adjustment.x -= offset * adjustmentScale;
-          this.nextVelocity.y = 0;
-        }
-        // this collision is overlapping on the right of the other
-        else if (
-          mine.right > other.right &&
-          other.right > mine.left &&
-          other.left < mine.left
-        ) {
-          const offset = other.right - mine.left;
-          adjustment.x += offset * adjustmentScale;
-          this.nextVelocity.y = 0;
-        }
-      }
-    }
-
-    return adjustment;
-  }
-
-  collisionResolution2(): void {
+  collisionResolution(): void {
     const step = 0.5;
     const simCount = 4;
     const myRect = this.bounds;
@@ -264,10 +224,6 @@ export class RidgeBody extends Collision2D {
           }
         }
 
-        if (xOverLap != 0) {
-          console.debug('moving x');
-        }
-
         if (yOverLap != 0) {
           // check if there is another collision with the same top or bottom value
           // that will cancel out this
@@ -303,12 +259,14 @@ export class RidgeBody extends Collision2D {
           // if moving in the direction of the right edge stop moving
           // in the x direction
           this.nextVelocity.x = 0;
+          this.velocity.x = 0;
         }
         // left overlap
         else if (xOverLap > 0 && this.nextVelocity.x < 0) {
           // if moving in the direction of the left edge stop moving
           // in the x direction
           this.nextVelocity.x = 0;
+          this.velocity.x = 0;
         }
 
         // bottom
@@ -316,10 +274,12 @@ export class RidgeBody extends Collision2D {
           // if moving in the direction of the bottom edge stop moving
           // in the y direction
           this.nextVelocity.y = 0;
+          this.velocity.y = 0;
         }
         //top
         else if (yOverLap < 0 && this.nextVelocity.y > 0) {
           this.nextVelocity.y = 0;
+          this.velocity.y = 0;
         }
       }
     }
@@ -332,12 +292,5 @@ export class RidgeBody extends Collision2D {
         new vec4([1, 0, 0, 1])
       )
     );
-
-    // adjust the velocity
-    //if (adjustment.y > 0 && this.velocity.y < 0) {
-    //  this.nextVelocity.y = 0;
-    //  this.acceleration.y = 0;
-    //  this.instanceVelocity.y = 0;
-    // }
   }
 }
