@@ -27,7 +27,7 @@ export class CanvasController extends Component {
       this.eng.resize(canvas.width, canvas.height);
     });
 
-    if (true) {
+    if (false) {
       /** @type {WebGL2RenderingContext} render context from this canvas*/
       // @ts-ignore
       this._glContext = (WebGLDebugUtils as any).makeDebugContext(
@@ -40,7 +40,9 @@ export class CanvasController extends Component {
     }
     // Only continue if WebGL is available and working
     if (this.gl === null) {
-      console.error('Unable to initialize WebGL2. Your browser or machine may not support it.');
+      console.error(
+        'Unable to initialize WebGL2. Your browser or machine may not support it.'
+      );
       return;
     }
   }
@@ -52,13 +54,13 @@ export class CanvasController extends Component {
   logGlError(error: string, functionName: string, args: any) {
     console.error(
       'GL error: ' +
-      error +
-      ' in gl.' +
-      functionName +
-      '(' +
-      // @ts-ignore
-      (WebGLDebugUtils as any).glFunctionArgsToString(functionName, args) +
-      ')'
+        error +
+        ' in gl.' +
+        functionName +
+        '(' +
+        // @ts-ignore
+        (WebGLDebugUtils as any).glFunctionArgsToString(functionName, args) +
+        ')'
     );
   }
 
