@@ -57,7 +57,11 @@ export class Curve {
     this._isDone = false;
   }
 
-  start(restart?: boolean, onDone?: (curve: Curve) => void, onUpdate?: (value: number, curve: Curve) => void): Curve {
+  start(
+    restart?: boolean,
+    onDone?: (curve: Curve) => void,
+    onUpdate?: (value: number, curve: Curve) => void
+  ): Curve {
     if (restart) {
       this._time = 0;
       this._position = 0;
@@ -155,7 +159,9 @@ export class Curve {
       const indices = this.findClosetTimeIndices(this._time);
 
       const isDone =
-        (this._reverse && this._time <= 0) || (!this._reverse && this._time >= this._points[this._points.length - 1].t);
+        (this._reverse && this._time <= 0) ||
+        (!this._reverse &&
+          this._time >= this._points[this._points.length - 1].t);
 
       if (isDone) {
         // if there are still more points or are we done
@@ -184,6 +190,7 @@ export class Curve {
         } else {
           // we are done. Set flag.
           this._isDone = true;
+          this._running = false;
 
           // raise event as needed
           if (this._onDone) {

@@ -87,8 +87,6 @@ export abstract class SpritBaseController
 
     // needs to be committed to buffer when update is called
     this._dirty = true;
-
-    //console.debug('Sprite: initialize!!');
   }
 
   /**

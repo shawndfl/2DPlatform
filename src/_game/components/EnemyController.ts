@@ -12,6 +12,7 @@ import { ITileCreationArgs, TileComponent } from '../tiles/TileComponent';
 import { BulletController } from './BulletController';
 import { Direction } from './Direction';
 import { GameComponent } from './GameComponent';
+import { HitAnimation } from './HitAnimation';
 
 import { ShootAnimation } from './ShootAnimation';
 import { TeleportAnimation } from './TeleportAnimation';
@@ -23,6 +24,7 @@ export class EnemyController extends TileComponent {
   private shootAnimation: ShootAnimation;
   private ridgeBody: RidgeBody;
   private teleportAnimation: TeleportAnimation;
+  private hitAnimation: HitAnimation;
 
   // config options
   private readonly bulletSpeed = 3.0;
@@ -40,6 +42,8 @@ export class EnemyController extends TileComponent {
     this.sprite = new SpritBatchController(eng);
     this.teleportAnimation = new TeleportAnimation(this.eng);
     this.shootAnimation = new ShootAnimation(this.eng);
+    this.hitAnimation = new HitAnimation(this.eng);
+
     this.ridgeBody = new RidgeBody(this.eng, this.id, this);
     this.ridgeBody.showCollision = true;
 
@@ -84,6 +88,7 @@ export class EnemyController extends TileComponent {
 
     this.teleportAnimation.initialize(this.sprite);
     this.shootAnimation.initialize(this.sprite);
+    this.hitAnimation.initialize(this.sprite);
 
     // initial enemy
     this.teleport(false);
@@ -109,14 +114,15 @@ export class EnemyController extends TileComponent {
 
   hit(bullet: BulletController): void {
     console.debug('hit ' + bullet.bulletType);
+    this.hitAnimation.start(this.facingDirection == Direction.Right);
   }
 
   update(dt: number) {
     this.run(dt);
 
     this.teleportAnimation.update(dt);
-
     this.shootAnimation.update(dt);
+    this.hitAnimation.update(dt);
 
     this.sprite.update(dt);
   }
