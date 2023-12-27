@@ -1,73 +1,73 @@
-import { SpritBatchController } from "../../graphics/SpriteBatchController";
-import vec3 from "../../math/vec3";
-import { Random } from "../../utilities/Random";
-import { PlatformEngine } from "../PlatformEngine";
-import { BulletController } from "../components/BulletController";
-import { GameComponent } from "../components/GameComponent";
-import { TextureAssets } from "./GameAssetManager";
+import { SpritBatchController } from '../../graphics/SpriteBatchController';
+import vec3 from '../../math/vec3';
+import { Random } from '../../utilities/Random';
+import { PlatformEngine } from '../PlatformEngine';
+import { BulletController } from '../components/BulletController';
+import { GameComponent } from '../components/GameComponent';
+import { TextureAssets } from './GameAssetManager';
 
 export enum BulletType {
-    Normal,
+  Normal,
 }
 
 export class BulletOptions {
-    id?: string;
-    position: vec3;
-    velocity: vec3;
-    bulletType: BulletType;
+  id?: string;
+  /** in meters */
+  position: vec3;
+  /** in meters per second */
+  velocity: vec3;
+  bulletType: BulletType;
 }
 
 export class BulletManager extends GameComponent {
+  readonly MaxBullets: number = 50;
+  private bullets: BulletController[] = [];
+  private inactiveBullets: BulletController[] = [];
+  private sprite: SpritBatchController;
 
-    readonly MaxBullets: number = 50;
-    private bullets: BulletController[] = [];
-    private inactiveBullets: BulletController[] = [];
-    private sprite: SpritBatchController;
+  constructor(eng: PlatformEngine) {
+    super(eng);
+    this.sprite = new SpritBatchController(this.eng);
+  }
 
-    constructor(eng: PlatformEngine) {
-        super(eng);
-        this.sprite = new SpritBatchController(this.eng);
+  /**
+   * Add a bullet
+   * @param options
+   * @returns
+   */
+  addBullet(options: BulletOptions): BulletController {
+    const bullet = this.inactiveBullets.pop();
+    options.id = this.eng.random.getUuid();
+
+    if (bullet) {
+      bullet.initialize(this.sprite, options);
+      this.bullets.push(bullet);
     }
+    return bullet;
+  }
 
-    /**
-     * Add a bullet
-     * @param options 
-     * @returns 
-     */
-    addBullet(options: BulletOptions): BulletController {
-        const bullet = this.inactiveBullets.pop();
-        options.id = this.eng.random.getUuid();
+  initialize(): void {
+    const texture = this.eng.assetManager.getTexture(TextureAssets.player1);
 
-        if (bullet) {
-            bullet.initialize(this.sprite, options);
-            this.bullets.push(bullet);
-        }
-        return bullet;
+    this.sprite.initialize(texture.texture, texture.data);
+
+    for (let i = 0; i < this.MaxBullets; i++) {
+      this.inactiveBullets.push(new BulletController(this.eng, 'bullet_' + i));
     }
+  }
 
-    initialize(): void {
-        const texture = this.eng.assetManager.getTexture(TextureAssets.player1);
+  update(dt: number): void {
+    this.sprite.update(dt);
 
-        this.sprite.initialize(texture.texture, texture.data);
+    this.bullets.forEach((b) => {
+      b.update(dt);
+      if (!b.active) {
+        this.inactiveBullets.push(b);
+      }
+    });
 
-        for (let i = 0; i < this.MaxBullets; i++) {
-            this.inactiveBullets.push(new BulletController(this.eng));
-        }
-    }
+    this.bullets = this.bullets.filter((b) => b.active);
 
-    update(dt: number): void {
-        this.sprite.update(dt);
-
-        this.bullets.forEach(b => {
-            b.update(dt)
-            if (!b.active) {
-                this.inactiveBullets.push(b);
-            }
-        });
-
-        this.bullets = this.bullets.filter((b => b.active));
-
-        //console.debug(' active: ' + this.bullets.length + ' inactive: ' + this.inactiveBullets.length);
-    }
-
+    //console.debug(' active: ' + this.bullets.length + ' inactive: ' + this.inactiveBullets.length);
+  }
 }

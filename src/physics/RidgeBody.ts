@@ -1,7 +1,7 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import rect from '../math/rect';
-import vec2 from '../math/vec2';
+
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
 import { MetersToPixels, PixelsToMeters } from '../systems/PhysicsManager';
@@ -19,6 +19,7 @@ export class RidgeBody extends Collision2D {
   public force: vec3;
   public mass: number;
   public active: boolean;
+  public useGravity: boolean;
 
   public maxVelocity: vec3;
 
@@ -26,7 +27,11 @@ export class RidgeBody extends Collision2D {
   private nextVelocity: vec3;
   private collisionResults: CollisionResults;
 
+  /** events */
   onPositionChange: (newPosition: Readonly<vec3>) => void;
+  onFloor: (body: RidgeBody) => void;
+  /** all collision this body is hitting */
+  onCollision: (collisions: Collision2D[]) => void;
 
   constructor(
     eng: Engine,
@@ -43,42 +48,63 @@ export class RidgeBody extends Collision2D {
     this.force = new vec3();
     this.mass = 10;
     this.active = true;
+    this.useGravity = true;
   }
 
   private temp = new vec3();
-  update(dt: number) {
+  update(dt: number): void {
+    if (!this.active) {
+      this.resetCollision();
+      return;
+    }
     const t = dt * 0.001;
-    if (this.active) {
-      // get a copy of the position and velocity
-      this.nextPosition = this.position.copy(this.nextPosition);
-      this.nextVelocity = this.velocity.copy(this.nextVelocity);
+    // get a copy of the position and velocity
+    this.nextPosition = this.position.copy(this.nextPosition);
+    this.nextVelocity = this.velocity.copy(this.nextVelocity);
 
-      // apply acceleration and velocity
-      const adjustAcc = this.acceleration
-        .copy()
-        .add(this.eng.physicsManager.gravity);
+    // apply acceleration and velocity
+    const adjustAcc = this.acceleration.copy();
+    if (this.useGravity) {
+      adjustAcc.add(this.eng.physicsManager.gravity);
+    }
 
-      this.nextVelocity.add(adjustAcc.scale(t, this.temp));
-      this.nextPosition.add(this.nextVelocity.scale(t, this.temp));
-      this.nextPosition.add(this.instanceVelocity.scale(t, this.temp));
+    this.nextVelocity.add(adjustAcc.scale(t, this.temp));
+    this.nextPosition.add(this.nextVelocity.scale(t, this.temp));
+    this.nextPosition.add(this.instanceVelocity.scale(t, this.temp));
 
-      let colliding = false;
-      // check collision
-      // adjust position, acceleration, velocity
-      if (this.collisionCorrection()) {
-        this.acceleration.reset();
-        colliding = true;
+    let colliding = false;
+    // check collision
+    // adjust position, acceleration, velocity
+    if (this.collisionCorrection()) {
+      this.acceleration.reset();
+      colliding = true;
+    }
+
+    // update position and velocity
+    this.nextPosition.copy(this.position);
+    this.nextVelocity.copy(this.velocity);
+
+    this.renderCollisions();
+
+    if (this.onPositionChange) {
+      this.onPositionChange(this.nextPosition);
+    }
+  }
+
+  private renderCollisions(): void {
+    // show the collision
+    this.collisionResults.collisions.forEach((c) => {
+      if (c.showCollision) {
+        this.eng.annotationManager.buildRect(
+          c.id,
+          c.bounds,
+          new vec4([1, 0, 0, 1])
+        );
       }
+    });
 
-      // update position and velocity
-      this.nextPosition.copy(this.position);
-      this.nextVelocity.copy(this.velocity);
-      //this.bounds.setPosition(
-      //  this.nextPosition.x * MetersToPixels,
-      //  this.nextPosition.y * MetersToPixels + this.bounds.height
-      //);
-
-      if (colliding) {
+    if (this.showCollision) {
+      if (this.collisionResults.collisions.length > 0) {
         this.eng.annotationManager.buildRect(
           this.id + '_collision',
           this.bounds,
@@ -91,21 +117,10 @@ export class RidgeBody extends Collision2D {
           new vec4([0, 1, 0, 1])
         );
       }
-
-      if (this.onPositionChange) {
-        this.onPositionChange(this.nextPosition);
-      }
     }
   }
 
-  /**
-   * Checks all collisions that are overlapping this one and adjusts the nextPosition, nextVelocity, and instanceVelocity.
-   * @param position
-   * @param nextPosition
-   * @returns true if there is a collision and false otherwise
-   */
-  collisionCorrection(): boolean {
-    // clear old collision
+  private resetCollision(): void {
     if (this.collisionResults) {
       // removing highlights
       this.collisionResults.collisions.forEach((c) => {
@@ -116,6 +131,17 @@ export class RidgeBody extends Collision2D {
       this.collisionResults.correctionVector.x = 0;
       this.collisionResults.correctionVector.y = 0;
     }
+    this.eng.annotationManager.removeRect(this.id + '_collision');
+  }
+  /**
+   * Checks all collisions that are overlapping this one and adjusts the nextPosition, nextVelocity, and instanceVelocity.
+   * @param position
+   * @param nextPosition
+   * @returns true if there is a collision and false otherwise
+   */
+  collisionCorrection(): boolean {
+    // clear old collision
+    this.resetCollision();
 
     // the bounds are used for collision detection
     // make sure they are up to date.
@@ -131,15 +157,6 @@ export class RidgeBody extends Collision2D {
     this.nextPosition.y =
       (this.bounds.top - this.bounds.height) * PixelsToMeters;
 
-    // draw base line
-    const height = 0;
-    this.eng.annotationManager.buildLine({
-      start: new vec2(0, height),
-      end: new vec2(1000, height),
-      color: new vec4([1, 0, 0, 1]),
-      id: 'baseline',
-    });
-
     // bounds of the physics manager
     const left = this.eng.physicsManager.bounds.left * PixelsToMeters;
     const right =
@@ -152,6 +169,10 @@ export class RidgeBody extends Collision2D {
       this.nextPosition.y = bottom;
       this.nextVelocity.y = 0;
       this.instanceVelocity.y = 0;
+      // the body is at rest on a floor
+      if (this.onFloor) {
+        this.onFloor(this);
+      }
       hitLimit = true;
     } else if (this.nextPosition.y >= top) {
       this.nextPosition.y = top;
@@ -195,6 +216,11 @@ export class RidgeBody extends Collision2D {
         this,
         this.collisionResults
       );
+
+      // raise onCollision event
+      if (sim == 0 && this.onCollision) {
+        this.onCollision(this.collisionResults.collisions);
+      }
 
       const others = this.collisionResults.collisions;
 
@@ -275,6 +301,11 @@ export class RidgeBody extends Collision2D {
           // in the y direction
           this.nextVelocity.y = 0;
           this.velocity.y = 0;
+
+          // the body is at rest on a floor
+          if (this.onFloor) {
+            this.onFloor(this);
+          }
         }
         //top
         else if (yOverLap < 0 && this.nextVelocity.y > 0) {
@@ -283,14 +314,5 @@ export class RidgeBody extends Collision2D {
         }
       }
     }
-
-    // show the collision
-    this.collisionResults.collisions.forEach((c) =>
-      this.eng.annotationManager.buildRect(
-        c.id,
-        c.bounds,
-        new vec4([1, 0, 0, 1])
-      )
-    );
   }
 }

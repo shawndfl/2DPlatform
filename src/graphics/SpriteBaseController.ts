@@ -12,7 +12,10 @@ import vec2 from '../math/vec2';
  * given a sprite sheet and some json data that holds the
  * sprite offset and size in pixels.
  */
-export abstract class SpritBaseController extends Component implements ISpriteController {
+export abstract class SpritBaseController
+  extends Component
+  implements ISpriteController
+{
   protected _spriteData: ISpriteData;
   private _indexLookup: Map<string, number>;
   protected _spriteTexture: Texture;
@@ -58,7 +61,11 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
    * @param texture
    * @param spriteData
    */
-  initialize(texture: Texture, spriteData: ISpriteData, defaultSprite?: string | number) {
+  initialize(
+    texture: Texture,
+    spriteData: ISpriteData,
+    defaultSprite?: string | number
+  ) {
     // save the data
     this._spriteData = spriteData;
 
@@ -106,11 +113,11 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
     this._dirty = true;
   }
 
-  spriteWidth() {
+  spriteWidth(): number {
     return this.sprite.getSpriteWidth();
   }
 
-  spriteHeight() {
+  spriteHeight(): number {
     return this.sprite.getSpriteHeight();
   }
 
@@ -217,13 +224,14 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
           spriteHeight: sprite.loc[3],
         });
       } else {
-
         // use index
         const s = this._spriteData;
         s.tileOffset = s.tileOffset ?? 0;
         s.tileSpacing = s.tileSpacing ?? 0;
-        const pixelX = s.tileOffset + (s.tileWidth + s.tileSpacing) * sprite.index[0];
-        const pixelY = s.tileOffset + (s.tileHeight + s.tileSpacing) * sprite.index[1];
+        const pixelX =
+          s.tileOffset + (s.tileWidth + s.tileSpacing) * sprite.index[0];
+        const pixelY =
+          s.tileOffset + (s.tileHeight + s.tileSpacing) * sprite.index[1];
 
         this.sprite.setSprite({
           pixelXOffset: pixelX,
@@ -233,7 +241,6 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
         });
       }
       this._dirty = true;
-      //console.debug('Sprite: set sprite');
     } else {
       console.error('cannot find sprite ' + id);
     }
@@ -250,7 +257,7 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
    */
   update(dt: number) {
     if (!this._buffer) {
-      console.error('Call Initialize()')
+      console.error('Call Initialize()');
       return;
     }
 
@@ -271,7 +278,10 @@ export abstract class SpritBaseController extends Component implements ISpriteCo
 
       let projection = view.projection;
       if (this._viewOffset && this._viewScale) {
-        projection = view.calculateProjection(this._viewOffset, this._viewScale);
+        projection = view.calculateProjection(
+          this._viewOffset,
+          this._viewScale
+        );
       }
 
       // set the project

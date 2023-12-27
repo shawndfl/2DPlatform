@@ -1,6 +1,7 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import rect from '../math/rect';
+import { PixelsToMeters } from '../systems/PhysicsManager';
 
 export class Collision2D extends Component {
   private _id: string;
@@ -30,7 +31,11 @@ export class Collision2D extends Component {
   ) {
     super(eng);
     this._id = id;
-    this.setBounds(bounds);
+    this.setBounds(bounds ?? new rect());
+  }
+
+  setId(id: string): void {
+    this._id = id;
   }
 
   set(left: number, width: number, top: number, height: number): void {
@@ -42,7 +47,7 @@ export class Collision2D extends Component {
   }
 
   public setBounds(bounds?: Readonly<rect>): void {
-    this._bounds = bounds.copy() ?? new rect();
+    this._bounds = bounds?.copy() ?? new rect();
   }
 
   /**

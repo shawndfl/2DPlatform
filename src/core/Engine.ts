@@ -1,19 +1,19 @@
-import { FpsController } from "./FpsController";
-import { SpritePerspectiveShader } from "../shaders/SpritePerspectiveShader";
-import { AssetManager } from "../systems/AssetManager";
-import { GameManager } from "../systems/GameManager";
-import { TextManager } from "../systems/TextManager";
-import { ViewManager } from "../systems/ViewManager";
-import { Random } from "../utilities/Random";
-import { CanvasController } from "./CanvasController";
-import { InputHandler } from "./InputHandler";
+import { FpsController } from './FpsController';
+import { SpritePerspectiveShader } from '../shaders/SpritePerspectiveShader';
+import { AssetManager } from '../systems/AssetManager';
+import { GameManager } from '../systems/GameManager';
+import { TextManager } from '../systems/TextManager';
+import { ViewManager } from '../systems/ViewManager';
+import { Random } from '../utilities/Random';
+import { CanvasController } from './CanvasController';
+import { InputHandler } from './InputHandler';
 import { InputState } from './InputState';
-import { SoundManager } from "../systems/SoundManager";
-import { DialogManager } from "../systems/DialogManager";
-import { ISceneManager } from "../interfaces/ISceneManager";
-import { ParticleManager } from "../systems/ParticleManager";
-import { PhysicsManager } from "../systems/PhysicsManager";
-import { AnnotationManager } from "../systems/AnnotationManager";
+import { SoundManager } from '../systems/SoundManager';
+import { DialogManager } from '../systems/DialogManager';
+import { ISceneManager } from '../interfaces/ISceneManager';
+import { ParticleManager } from '../systems/ParticleManager';
+import { PhysicsManager } from '../systems/PhysicsManager';
+import { AnnotationManager } from '../systems/AnnotationManager';
 
 /**
  * The engine for this game. There is one instance of this
@@ -64,7 +64,10 @@ export abstract class Engine {
     this.textManager = new TextManager(this);
     this.fps = new FpsController(this);
     this.assetManager = this.createAssetManager();
-    this.spritePerspectiveShader = new SpritePerspectiveShader(this.gl, "spritePerspectiveShader");
+    this.spritePerspectiveShader = new SpritePerspectiveShader(
+      this.gl,
+      'spritePerspectiveShader'
+    );
     this.particleManager = new ParticleManager(this);
     this.physicsManager = new PhysicsManager(this);
     this.annotationManager = new AnnotationManager(this);
@@ -76,7 +79,7 @@ export abstract class Engine {
 
   async initialize(root?: HTMLElement): Promise<void> {
     if (!root) {
-      console.error("cannot find root element");
+      console.error('cannot find root element');
     }
     this.canvasController.initialize(root);
 
@@ -105,14 +108,21 @@ export abstract class Engine {
 
     this.gl.enable(this.gl.BLEND);
 
-    this.gl.blendFuncSeparate(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA, this.gl.ONE, this.gl.ZERO);
-    this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA);
+    this.gl.blendFuncSeparate(
+      this.gl.SRC_ALPHA,
+      this.gl.ONE_MINUS_SRC_ALPHA,
+      this.gl.ONE,
+      this.gl.ONE_MINUS_SRC_ALPHA
+    );
     this.gl.enable(this.gl.DEPTH_TEST); // Enable depth testing
     this.gl.depthFunc(this.gl.LEQUAL); // Near things obscure far things
   }
 
   handleUserAction(state: InputState): boolean {
-    return this.dialogManager.handleUserAction(state) || this.sceneManager.scene.handleUserAction(state);
+    return (
+      this.dialogManager.handleUserAction(state) ||
+      this.sceneManager.scene.handleUserAction(state)
+    );
   }
 
   gameUpdate(dt: number) {
@@ -138,7 +148,6 @@ export abstract class Engine {
     // handle dialog input first
     this.handleUserAction(inputState);
 
-
     // clear the buffers
     this.gl.clearColor(0.3, 0.3, 0.3, 1.0); // Clear to black, fully opaque
     this.gl.clearDepth(1.0); // Clear everything
@@ -150,7 +159,7 @@ export abstract class Engine {
     this.input.postUpdate(dt);
   }
 
-  resize(width: number, height: number): void { }
+  resize(width: number, height: number): void {}
 
-  dispose() { }
+  dispose() {}
 }

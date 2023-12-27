@@ -12,6 +12,7 @@ export class GroundManager extends GameComponent {
   private _tileFactory: TileFactory;
   protected _levelData: ILevelData;
   private tiles: TileComponent[][];
+  private tilesToUpdate: TileComponent[];
 
   public get staticSprite() {
     return this._staticSprite;
@@ -52,6 +53,7 @@ export class GroundManager extends GameComponent {
     this.eng.viewManager.maxY = levelPixelHeight;
 
     const columnCount = level.encode[0].length;
+    this.tilesToUpdate = [];
 
     for (let j = 0; j < level.encode.length; j++) {
       this.tiles.push([]);
@@ -71,7 +73,14 @@ export class GroundManager extends GameComponent {
         }
         const index = parseInt(element, 16);
         const type = level.tiles[index];
-        const tile = this.tileFactory.create(type, i, j, 0);
+        const tile = this.tileFactory.create(type, i, j);
+        tile.initialize();
+
+        // add tiles to update list
+        if (tile.requiresUpdate) {
+          this.tilesToUpdate.push(tile);
+        }
+
         this.tiles[j].push(tile);
       }
     }
@@ -105,6 +114,8 @@ export class GroundManager extends GameComponent {
 
   update(dt: number): void {
     this._staticSprite.update(dt);
+
+    this.tilesToUpdate.forEach((t) => t.update(dt));
   }
 
   dispose(): void {

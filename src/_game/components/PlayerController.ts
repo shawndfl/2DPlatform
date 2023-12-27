@@ -16,28 +16,31 @@ import vec2 from '../../math/vec2';
 import { InputState } from '../../core/InputState';
 import { RidgeBody } from '../../physics/RidgeBody';
 import { MetersToPixels, PixelsToMeters } from '../../systems/PhysicsManager';
-
-export enum Direction {
-  Right,
-  Left,
-  Up,
-  Down,
-}
+import { Direction } from './Direction';
 
 export class PlayerController extends TileComponent {
   private sprite: SpritBatchController;
-  private tempPosition: vec3;
   private running: boolean;
   private facingDirection: Direction;
   private movementDirection: Direction;
-  private movementVector: vec3;
   private teleportAnimation: TeleportAnimation;
   private walk: WalkAnimation;
   private shootAnimation: ShootAnimation;
   private jumpAnimation: JumpAnimation;
+
+  /** a new jump can start after the jump button is released */
   private jumpReset: boolean;
-  private canJump: boolean;
+  /** Must be on a floor to start a jump */
+  private touchingFloor: boolean;
+
+  /** How many mid air jumps can we do */
+  private midAirJump: number;
+
   private ridgeBody: RidgeBody;
+
+  // config options
+  private readonly bulletSpeed = 3.0;
+  private readonly jumpVelocity = 3.0;
 
   get id(): string {
     return SpriteId.Player;
@@ -59,7 +62,6 @@ export class PlayerController extends TileComponent {
     super(eng.groundManager, {
       i: 0,
       j: 0,
-      k: 0,
       options: [],
       spriteName: 'default',
       tileClass: 'PlayerController',
@@ -71,9 +73,10 @@ export class PlayerController extends TileComponent {
 
     this.facingDirection = Direction.Right;
     this.movementDirection = Direction.Right;
-    this.movementVector = new vec3();
     this.running = false;
     this.jumpAnimation = new JumpAnimation(eng);
+    this.touchingFloor = false;
+    this.midAirJump = 0;
 
     this.ridgeBody = new RidgeBody(
       this.eng,
@@ -82,6 +85,7 @@ export class PlayerController extends TileComponent {
       new rect([0, 64, 0, 64])
     );
     this.ridgeBody.onPositionChange = this.setPosition.bind(this);
+    this.ridgeBody.onFloor = this.onFloor.bind(this);
     this.eng.physicsManager.addBody(this.ridgeBody);
   }
 
@@ -90,7 +94,7 @@ export class PlayerController extends TileComponent {
 
     this.sprite.initialize(spriteData.texture, spriteData.data);
     // initial the player's position
-    this.setTilePosition(2, 10, 0);
+    this.setTilePosition(2, 10);
     this.ridgeBody.position = this.screenPosition.copy().scale(PixelsToMeters);
     this.setPosition(this.ridgeBody.position);
 
@@ -110,7 +114,6 @@ export class PlayerController extends TileComponent {
     // setup the teleport animation
 
     this.teleport(false);
-    this.tempPosition = this.screenPosition.copy();
   }
 
   handleUserAction(state: InputState): boolean {
@@ -176,18 +179,35 @@ export class PlayerController extends TileComponent {
     });
   }
 
+  private onFloor(body: RidgeBody): void {
+    this.touchingFloor = true;
+    this.midAirJump = 1;
+  }
+
   private jump(): void {
-    this.ridgeBody.velocity.y = 4;
-    this.jumpAnimation.start(false);
+    if (this.touchingFloor || this.midAirJump > 0) {
+      // use your mid air jumps if we are not touching the floor
+      if (!this.touchingFloor) {
+        this.midAirJump--;
+      }
+      this.ridgeBody.velocity.y = this.jumpVelocity;
+      this.jumpAnimation.start(false);
+      this.touchingFloor = false;
+    }
   }
 
   private shoot(): void {
     const facingRight = this.facingRight;
     this.shootAnimation.start(facingRight);
+
+    // get the start position of the bullet
     const startPos = this._screenPosition.copy();
-    startPos.y += 30;
-    startPos.x += facingRight ? 50 : -5;
-    const speed = 500;
+    startPos.y += 25;
+    startPos.x += facingRight ? 35 : -5;
+    // must be in meters
+    startPos.scale(PixelsToMeters);
+
+    const speed = this.bulletSpeed; // m/second
     const velocity = new vec3(facingRight ? speed : -speed, 0, 0);
     this.eng.bullets.addBullet({
       bulletType: BulletType.Normal,
@@ -197,8 +217,6 @@ export class PlayerController extends TileComponent {
   }
 
   run(dt: number): void {
-    this.screenPosition.copy(this.tempPosition);
-
     if (!this.teleportAnimation.running && !this.teleportAnimation.isUp) {
       if (this.running) {
         if (this.facingRight) {
