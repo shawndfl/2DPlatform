@@ -10,7 +10,6 @@ import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
 import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
-import { ISprite } from './ISprite';
 import { TileData } from './ISpriteData';
 import { Texture } from './Texture';
 
@@ -19,11 +18,6 @@ export interface QuadBuildArgs {
   translation?: vec2;
 
   depth?: number;
-
-  /** pixel offset on the sprite sheet texture */
-  spritePosition?: vec2;
-  /** pixel offset on the sprite sheet texture */
-  spriteSize?: vec2;
 
   /** Color that is multiplied by the final color */
   color?: vec4;
@@ -60,7 +54,7 @@ export interface QuadBuildArgs {
 /**
  * Manages a collection of quads that all get rendered at once.s
  */
-export class SpriteInstanceController extends Component {
+export class SpriteInstanceCollection extends Component {
   private shader: SpriteInstanceShader;
   private buffer: GlBufferQuadInstance;
   private spriteTexture: Texture;
@@ -164,6 +158,7 @@ export class SpriteInstanceController extends Component {
     if (args.color) {
       quad.color = args.color;
     }
+    /*
     if (args.spritePosition && args.spriteSize) {
       this.pixelsToUv(
         args.spritePosition,
@@ -182,6 +177,7 @@ export class SpriteInstanceController extends Component {
         quad.maxTex.y = tmp;
       }
     }
+    */
 
     if (args.offset) {
       quad.offset.x = args.offset.x;

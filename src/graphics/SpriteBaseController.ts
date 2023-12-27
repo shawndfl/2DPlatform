@@ -4,7 +4,6 @@ import { GlBuffer, IQuadModel } from '../geometry/GlBuffer';
 import { ISpriteData } from './ISpriteData';
 import { Sprite, SpriteFlip } from './Sprite';
 import { Texture } from './Texture';
-import { ISpriteController } from './ISprintController';
 import vec2 from '../math/vec2';
 
 /**
@@ -12,10 +11,7 @@ import vec2 from '../math/vec2';
  * given a sprite sheet and some json data that holds the
  * sprite offset and size in pixels.
  */
-export abstract class SpritBaseController
-  extends Component
-  implements ISpriteController
-{
+export abstract class SpritBaseController extends Component {
   protected _spriteData: ISpriteData;
   private _indexLookup: Map<string, number>;
   protected _spriteTexture: Texture;
@@ -220,22 +216,6 @@ export abstract class SpritBaseController
           pixelYOffset: sprite.loc[1],
           spriteWidth: sprite.loc[2],
           spriteHeight: sprite.loc[3],
-        });
-      } else {
-        // use index
-        const s = this._spriteData;
-        s.tileOffset = s.tileOffset ?? 0;
-        s.tileSpacing = s.tileSpacing ?? 0;
-        const pixelX =
-          s.tileOffset + (s.tileWidth + s.tileSpacing) * sprite.index[0];
-        const pixelY =
-          s.tileOffset + (s.tileHeight + s.tileSpacing) * sprite.index[1];
-
-        this.sprite.setSprite({
-          pixelXOffset: pixelX,
-          pixelYOffset: pixelY,
-          spriteWidth: this._spriteData.tileWidth,
-          spriteHeight: this._spriteData.tileHeight,
         });
       }
       this._dirty = true;

@@ -3,7 +3,6 @@ import { IQuadModel } from '../geometry/GlBuffer';
 import { ISpriteData } from '../graphics/ISpriteData';
 import { Sprite } from '../graphics/Sprite';
 import { Texture } from './Texture';
-import { ISpriteController } from './ISprintController';
 import { SpritBaseController } from './SpriteBaseController';
 
 /**
@@ -11,7 +10,7 @@ import { SpritBaseController } from './SpriteBaseController';
  * given a sprite sheet and some json data that holds the
  * sprite offset and size in pixels.
  */
-export class SpritBatchController extends SpritBaseController implements ISpriteController {
+export class SpritBatchController extends SpritBaseController {
   private _sprites: Map<string, Sprite>;
   private _activeSprite: string;
   private _quads: IQuadModel[];
@@ -38,7 +37,11 @@ export class SpritBatchController extends SpritBaseController implements ISprite
    * @param texture
    * @param spriteData
    */
-  initialize(texture: Texture, spriteData: ISpriteData, defaultSprite?: string | number) {
+  initialize(
+    texture: Texture,
+    spriteData: ISpriteData,
+    defaultSprite?: string | number
+  ) {
     super.initialize(texture, spriteData, defaultSprite);
     // set active sprite to the first  key
     for (let key of this._sprites.keys()) {
@@ -54,7 +57,7 @@ export class SpritBatchController extends SpritBaseController implements ISprite
    */
   private getSprite(id: string): Sprite {
     if (!this._spriteTexture) {
-      console.error('call initialize first.')
+      console.error('call initialize first.');
       return null;
     }
     let sprite = this._sprites.get(id);

@@ -1,7 +1,7 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import { TileData } from '../graphics/ISpriteData';
-import { SpriteInstanceController } from '../graphics/SpriteInstanceController';
+import { SpriteInstanceCollection } from '../graphics/SpriteInstanceCollection';
 import { toDegrees, toRadian } from '../math/constants';
 import rect from '../math/rect';
 import vec2 from '../math/vec2';
@@ -21,13 +21,13 @@ export interface LineArgs {
 }
 
 export class AnnotationManager extends Component {
-  private _lineSprites: SpriteInstanceController;
+  private _lineSprites: SpriteInstanceCollection;
 
   private tileData: TileData;
 
   constructor(eng: Engine) {
     super(eng);
-    this._lineSprites = new SpriteInstanceController(eng);
+    this._lineSprites = new SpriteInstanceCollection(eng);
     //this._boundSprites = new SpriteInstanceController(eng);
   }
 

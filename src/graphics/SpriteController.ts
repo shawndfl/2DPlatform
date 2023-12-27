@@ -2,7 +2,6 @@ import { Engine } from '../core/Engine';
 import { ISpriteData } from '../graphics/ISpriteData';
 import { Sprite } from '../graphics/Sprite';
 import { Texture } from './Texture';
-import { ISpriteController } from './ISprintController';
 import { SpritBaseController } from './SpriteBaseController';
 
 /**
@@ -10,7 +9,7 @@ import { SpritBaseController } from './SpriteBaseController';
  * given a sprite sheet and some json data that holds the
  * sprite offset and size in pixels.
  */
-export class SpritController extends SpritBaseController implements ISpriteController {
+export class SpritController extends SpritBaseController {
   private _sprite: Sprite;
 
   get sprite(): Sprite {
@@ -27,7 +26,11 @@ export class SpritController extends SpritBaseController implements ISpriteContr
    * @param texture
    * @param spriteData
    */
-  initialize(texture: Texture, spriteData: ISpriteData, defaultSprite?: string | number) {
+  initialize(
+    texture: Texture,
+    spriteData: ISpriteData,
+    defaultSprite?: string | number
+  ) {
     super.initialize(texture, spriteData);
 
     // set up the sprite

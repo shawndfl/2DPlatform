@@ -42,9 +42,6 @@ export class Sprite {
   /** The scale image and keep the aspect ratio  */
   private _scale: vec2;
 
-  /** Screen size */
-  private _screenSize: { width: number; height: number };
-
   /** this is used to offset a sprites position so it can be centered on a tile */
   private _positionOffset: vec2;
 
@@ -99,13 +96,12 @@ export class Sprite {
     screenWidth: number,
     screenHeight: number
   ) {
-
     this._quad = {
       min: new vec3([-1, -1, -1]),
       max: new vec3([1, 1, 1]),
       minTex: new vec2([0, 0]),
       maxTex: new vec2([1, 1]),
-      transform: new mat4()
+      transform: new mat4(),
     };
 
     this._position = new vec2();
@@ -115,7 +111,6 @@ export class Sprite {
       width: spriteSheetSize.width,
       height: spriteSheetSize.height,
     };
-    this._screenSize = { width: screenWidth, height: screenHeight };
     this._spriteFlip = SpriteFlip.None;
     this._spriteRotate = 0;
     this._scale = new vec2([1.0, 1.0]);

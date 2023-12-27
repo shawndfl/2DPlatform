@@ -3,11 +3,6 @@ export interface TileData {
    *  the id of the sprite data
    */
   id: string;
-  /**
-   * the location of the sprite data in the sprite sheet.
-   * [cols, rows]
-   */
-  index?: [number, number];
 
   /**
    * Rotation in degrees 0, 90, 180, 270
@@ -36,22 +31,6 @@ export interface TileData {
  * This interface is used to describe a sprite in a sprite sheet
  */
 export interface ISpriteData {
-  /**
-   * The pixel height of a tile. Mostly 24 or 32
-   */
-  tileHeight?: number;
-  /**
-   * The pixel width of a tile. Mostly 16 or 32
-   */
-  tileWidth?: number;
-  /**
-  * Space inbetween tiles
-  */
-  tileSpacing?: number;
-
-  /** Offset in pixels */
-  tileOffset?: number;
-
   /**
    * Tile data
    */
