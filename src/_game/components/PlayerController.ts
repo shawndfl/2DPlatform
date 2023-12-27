@@ -8,7 +8,6 @@ import { PlatformEngine } from '../PlatformEngine';
 import { TileComponent } from '../tiles/TileComponent';
 import vec3 from '../../math/vec3';
 import { SpriteId } from '../data/SpriteId';
-import { BulletType } from '../system/BulletManager';
 import { ShootAnimation } from './ShootAnimation';
 import rect from '../../math/rect';
 import { JumpAnimation } from './JumpAnimation';
@@ -17,6 +16,7 @@ import { InputState } from '../../core/InputState';
 import { RidgeBody } from '../../physics/RidgeBody';
 import { MetersToPixels, PixelsToMeters } from '../../systems/PhysicsManager';
 import { Direction } from './Direction';
+import { BulletType } from './BulletType';
 
 export class PlayerController extends TileComponent {
   private sprite: SpritBatchController;
@@ -210,7 +210,7 @@ export class PlayerController extends TileComponent {
     const speed = this.bulletSpeed; // m/second
     const velocity = new vec3(facingRight ? speed : -speed, 0, 0);
     this.eng.bullets.addBullet({
-      bulletType: BulletType.Normal,
+      bulletType: BulletType.PlayerBullet,
       position: startPos,
       velocity,
     });

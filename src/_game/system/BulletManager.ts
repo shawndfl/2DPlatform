@@ -3,12 +3,9 @@ import vec3 from '../../math/vec3';
 import { Random } from '../../utilities/Random';
 import { PlatformEngine } from '../PlatformEngine';
 import { BulletController } from '../components/BulletController';
+import { BulletType } from '../components/BulletType';
 import { GameComponent } from '../components/GameComponent';
 import { TextureAssets } from './GameAssetManager';
-
-export enum BulletType {
-  Normal,
-}
 
 export class BulletOptions {
   id?: string;

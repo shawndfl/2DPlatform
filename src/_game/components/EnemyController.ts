@@ -2,11 +2,14 @@ import { Engine } from '../../core/Engine';
 import { SpriteFlip } from '../../graphics/Sprite';
 import { SpritBaseController } from '../../graphics/SpriteBaseController';
 import { SpritBatchController } from '../../graphics/SpriteBatchController';
+import rect from '../../math/rect';
+import { Collision2D } from '../../physics/Collision2D';
 import { RidgeBody } from '../../physics/RidgeBody';
 import { PixelsToMeters } from '../../systems/PhysicsManager';
 import { PlatformEngine } from '../PlatformEngine';
 import { TextureAssets } from '../system/GameAssetManager';
 import { ITileCreationArgs, TileComponent } from '../tiles/TileComponent';
+import { BulletController } from './BulletController';
 import { Direction } from './Direction';
 import { GameComponent } from './GameComponent';
 
@@ -38,6 +41,7 @@ export class EnemyController extends TileComponent {
     this.teleportAnimation = new TeleportAnimation(this.eng);
     this.shootAnimation = new ShootAnimation(this.eng);
     this.ridgeBody = new RidgeBody(this.eng, this.id, this);
+    this.ridgeBody.showCollision = true;
 
     // we need this tile to call update(dt)
     this._requiresUpdate = true;
@@ -55,9 +59,28 @@ export class EnemyController extends TileComponent {
 
     // set the position of the tile and the ridge body
     this.setTilePosition(this._tileData.i, this._tileData.j);
-    this.ridgeBody.setBounds(this.screenBounds);
+
+    // set the position in meters
     this.ridgeBody.position = this.screenPosition.copy().scale(PixelsToMeters);
-    this.eng.physicsManager.addBody(this.ridgeBody);
+
+    const collisionHeight = 80;
+    const collisionWidth = 64;
+    // set the bounds for collision in pixels
+    this.ridgeBody.setBounds(
+      new rect([
+        this.screenPosition.x,
+        collisionWidth,
+        this.screenPosition.y + collisionHeight,
+        collisionHeight,
+      ])
+    );
+    this.ridgeBody.onCollision = (others) => {
+      others.forEach((c) => {
+        console.debug('colliding with ', c);
+      });
+    };
+    // make this something you can collide with
+    this.eng.physicsManager.setCollision(this.ridgeBody);
 
     this.teleportAnimation.initialize(this.sprite);
     this.shootAnimation.initialize(this.sprite);
@@ -82,6 +105,10 @@ export class EnemyController extends TileComponent {
         this.ridgeBody.active = true;
       }
     });
+  }
+
+  hit(bullet: BulletController): void {
+    console.debug('hit ' + bullet.bulletType);
   }
 
   update(dt: number) {

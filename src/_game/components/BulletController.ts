@@ -6,13 +6,21 @@ import { RidgeBody } from '../../physics/RidgeBody';
 import { MetersToPixels } from '../../systems/PhysicsManager';
 import { PlatformEngine } from '../PlatformEngine';
 import { BulletOptions } from '../system/BulletManager';
+import { BulletType } from './BulletType';
+import { EnemyController } from './EnemyController';
 import { GameComponent } from './GameComponent';
+import { PlayerController } from './PlayerController';
 
 export class BulletController extends GameComponent {
   private _active: boolean;
   private sprite: SpritBatchController;
   private _options: BulletOptions;
   private _ridgeBody: RidgeBody;
+  private _bulletType: BulletType;
+
+  public get bulletType(): BulletType {
+    return this._bulletType;
+  }
 
   constructor(eng: PlatformEngine, id: string) {
     super(eng);
@@ -38,6 +46,7 @@ export class BulletController extends GameComponent {
     this._options = options;
     this._options.position.copy(this._ridgeBody.position);
     this._options.velocity.copy(this._ridgeBody.instanceVelocity);
+    this._bulletType = this._options.bulletType;
 
     this.sprite.activeSprite(options.id);
     this._ridgeBody.setId(options.id);
@@ -107,7 +116,20 @@ export class BulletController extends GameComponent {
       this.sprite.removeSprite(this._options.id);
       this.sprite.commitToBuffer();
 
-      //TODO damage all collisions
+      // check collisions
+      collisions.forEach((c) => {
+        // if we hit an enemy
+        if (c.tag instanceof EnemyController) {
+          const enemy = c.tag as EnemyController;
+          enemy.hit(this);
+          console.debug('hitting ', c);
+        }
+
+        // hit a player
+        if (c.tag instanceof PlayerController) {
+          //TODO
+        }
+      });
     }
   }
 
