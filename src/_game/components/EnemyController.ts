@@ -1,5 +1,4 @@
-import { Engine } from '../../core/Engine';
-import { SpriteFlip } from '../../graphics/Sprite';
+import { SpriteFlip } from '../../graphics/ISprite';
 import { SpritBaseController } from '../../graphics/SpriteBaseController';
 import { SpritBatchController } from '../../graphics/SpriteBatchController';
 import rect from '../../math/rect';

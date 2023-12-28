@@ -1,4 +1,3 @@
-import { SpriteFlip } from '../../graphics/Sprite';
 import { SpritBatchController } from '../../graphics/SpriteBatchController';
 import vec3 from '../../math/vec3';
 import { Collision2D } from '../../physics/Collision2D';

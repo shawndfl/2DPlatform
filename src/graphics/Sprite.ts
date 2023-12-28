@@ -5,13 +5,7 @@ import { Texture } from './Texture';
 import * as MathConst from '../math/constants';
 import vec3 from '../math/vec3';
 import mat4 from '../math/mat4';
-
-export enum SpriteFlip {
-  None,
-  XFlip,
-  YFlip,
-  Both,
-}
+import { SpriteFlip } from './ISprite';
 
 /**
  * This is a utility class that is used to create a IQuadModel that

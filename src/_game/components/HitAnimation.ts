@@ -1,4 +1,4 @@
-import { SpriteFlip } from '../../graphics/Sprite';
+import { SpriteFlip } from '../../graphics/ISprite';
 import { SpritBatchController } from '../../graphics/SpriteBatchController';
 import { Curve, CurveType } from '../../math/Curve';
 import { AnimationComponent } from './AnimationComponent';

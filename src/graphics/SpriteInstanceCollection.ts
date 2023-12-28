@@ -57,9 +57,13 @@ export interface QuadBuildArgs {
 export class SpriteInstanceCollection extends Component {
   private shader: SpriteInstanceShader;
   private buffer: GlBufferQuadInstance;
-  private spriteTexture: Texture;
+  private _spriteTexture: Texture;
   private quads: Map<string, IQuadModelInstance>;
   private dirty: boolean;
+
+  public get spriteTexture(): Texture {
+    return this._spriteTexture;
+  }
 
   constructor(eng: Engine) {
     super(eng);
@@ -72,7 +76,7 @@ export class SpriteInstanceCollection extends Component {
    * Initialize a texture
    */
   initialize(): void {
-    this.spriteTexture = this.eng.assetManager.menu.texture;
+    this._spriteTexture = this.eng.assetManager.menu.texture;
   }
 
   /**
@@ -80,7 +84,7 @@ export class SpriteInstanceCollection extends Component {
    * @param texture
    */
   setTexture(texture: Texture): void {
-    this.spriteTexture = texture;
+    this._spriteTexture = texture;
   }
 
   /**

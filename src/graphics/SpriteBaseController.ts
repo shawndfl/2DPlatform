@@ -2,9 +2,10 @@ import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import { GlBuffer, IQuadModel } from '../geometry/GlBuffer';
 import { ISpriteData } from './ISpriteData';
-import { Sprite, SpriteFlip } from './Sprite';
+import { Sprite } from './Sprite';
 import { Texture } from './Texture';
 import vec2 from '../math/vec2';
+import { SpriteFlip } from './ISprite';
 
 /**
  * This class controls a sprite's position and scale

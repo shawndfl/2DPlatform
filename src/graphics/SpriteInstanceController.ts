@@ -1,196 +1,161 @@
 import { Component } from '../components/Component';
-import { Engine } from '../core/Engine';
-import {
-  GlBufferQuadInstance,
-  IQuadModelInstance,
-} from '../geometry/GlBufferQuadInstance';
+
+import { IQuadModelInstance } from '../geometry/GlBufferQuadInstance';
 import { toRadian } from '../math/constants';
 import mat2 from '../math/mat2';
 import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
-import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
-import { ISprite } from './ISprite';
-import { TileData } from './ISpriteData';
-import { Texture } from './Texture';
 
-export interface QuadBuildArgs {
-  /** Translation in pixel space */
-  translation?: vec2;
-
-  depth?: number;
-
-  /** pixel offset on the sprite sheet texture */
-  spritePosition?: vec2;
-  /** pixel offset on the sprite sheet texture */
-  spriteSize?: vec2;
-
-  /** Color that is multiplied by the final color */
-  color?: vec4;
-
-  /**
-   * Applied before the rotation and scale.
-   * 0,0 is the center of the quad.
-   * min (-1,-1) max(1,1)
-   * To offset to bottom left corner offset(1,1)
-   * To offset to top center offset (0, -1)
-   */
-  offset?: vec2;
-
-  /** Rotation in degrees around the offset */
-  rotation?: number;
-
-  /** image scale */
-  scale?: number;
-
-  scaleWidth?: number;
-
-  scaleHeight?: number;
-
-  /** fip the image on the x axis */
-  flipX?: boolean;
-
-  /** fip the image on the y axis */
-  flipY?: boolean;
-
-  /** tile data for the sprite. This will be overridden by the above properties */
-  tileData?: TileData;
-}
+import { ISprite, SpriteFlip } from './ISprite';
+import { SpriteInstanceCollection } from './SpriteInstanceCollection';
 
 /**
- * Manages a collection of quads that all get rendered at once.s
+ * Manages a single sprite
  */
-export class SpriteInstanceController extends Component {
-  private shader: SpriteInstanceShader;
-  private buffer: GlBufferQuadInstance;
-  private spriteTexture: Texture;
-  private quads: Map<string, IQuadModelInstance>;
-  private dirty: boolean;
+export class SpriteInstanceController extends Component implements ISprite {
+  protected quad: IQuadModelInstance;
+  protected _angle: number;
+  protected _scale: vec2;
+  protected _flip: SpriteFlip;
 
-  constructor(eng: Engine) {
-    super(eng);
-    this.shader = new SpriteInstanceShader(eng.gl, 'instancing');
-    this.buffer = new GlBufferQuadInstance(eng.gl);
-    this.quads = new Map<string, IQuadModelInstance>();
+  constructor(
+    protected _id: string,
+    protected _collection: SpriteInstanceCollection
+  ) {
+    super(_collection.eng);
+    this._angle = 0;
+    this._scale = new vec2([1, 1]);
+    this._flip = SpriteFlip.None;
+    this.quad = {
+      id: 'quad',
+      translation: new vec3(0, 0, 0),
+      offset: new vec2(0, 0),
+      color: new vec4([1, 1, 1, 1]),
+      rotScale: mat2.identity.copy(),
+      maxTex: new vec2([1, 1]),
+      minTex: new vec2([0, 0]),
+    };
   }
 
-  /**
-   * Initialize a texture
-   */
-  initialize(): void {
-    this.spriteTexture = this.eng.assetManager.menu.texture;
+  get id(): string {
+    return this.quad.id;
+  }
+  set id(value: string) {
+    this.quad.id = value;
+  }
+  set left(value: number) {
+    this.quad.translation.x = value;
+  }
+  set top(value: number) {
+    this.quad.translation.y = value;
   }
 
-  /**
-   * Sets the texture
-   * @param texture
-   */
-  setTexture(texture: Texture): void {
-    this.spriteTexture = texture;
+  spriteLocation(position: vec2, size: vec2): void {
+    this._collection.pixelsToUv(
+      position,
+      size,
+      this.quad.minTex,
+      this.quad.maxTex
+    );
   }
 
-  /**
-   * build a quad
-   * @param id
-   * @param args
-   * @returns
-   */
-  buildQuad(id: string, args: QuadBuildArgs): IQuadModelInstance {
-    let quad = this.getQuad(id);
-    if (!quad) {
-      // create a default
-      quad = {
-        id: id,
-        translation: new vec3(0, 0, 0),
-        offset: new vec2(0, 0),
-        color: new vec4([1, 1, 1, 1]),
-        rotScale: mat2.identity.copy(),
-        maxTex: new vec2([1, 1]),
-        minTex: new vec2([0, 0]),
-      };
+  get depth(): number {
+    return this.quad.translation.z;
+  }
+  set depth(depth: number) {
+    this.quad.translation.z = depth;
+  }
+  set leftOffset(value: number) {
+    this.quad.offset.x = value;
+  }
+  set topOffset(value: number) {
+    this.quad.offset.y = value;
+  }
+  get width(): number {
+    if (this._collection.spriteTexture) {
+      const scale = this.quad.maxTex.x - this.quad.minTex.x;
+      return scale * this._collection.spriteTexture.width;
+    } else {
+      return 0;
+    }
+  }
+  get height(): number {
+    if (this._collection.spriteTexture) {
+      const scale = this.quad.maxTex.y - this.quad.minTex.y;
+      return scale * this._collection.spriteTexture.height;
+    } else {
+      return 0;
+    }
+  }
+  get angle(): number {
+    return this._angle;
+  }
+  set angle(degrees: number) {
+    this._angle = degrees;
+    this.calculateMat();
+  }
+  get xScale(): number {
+    return this._scale.x;
+  }
+  set xScale(value: number) {
+    this._scale.x = value;
+    this.calculateMat();
+  }
+  get yScale(): number {
+    return this._scale.y;
+  }
+  set yScale(value: number) {
+    this._scale.y = value;
+    this.calculateMat();
+  }
+
+  get colorScale(): Readonly<vec4> {
+    return this.quad.color;
+  }
+  set colorScale(color: Readonly<vec4>) {
+    color.copy(this.quad.color);
+  }
+  get alpha(): number {
+    return this.colorScale.a;
+  }
+  set alpha(alpha: number) {
+    this.quad.color.a = alpha;
+  }
+  get flipDirection(): SpriteFlip {
+    return this._flip;
+  }
+  set flipDirection(flip: SpriteFlip) {
+    if (this._flip == SpriteFlip.Both || this._flip == SpriteFlip.XFlip) {
+      const tmp = this.quad.minTex.x;
+      this.quad.minTex.x = this.quad.maxTex.x;
+      this.quad.maxTex.x = tmp;
+    }
+    if (this._flip == SpriteFlip.Both || this._flip == SpriteFlip.YFlip) {
+      const tmp = this.quad.minTex.y;
+      this.quad.minTex.y = this.quad.maxTex.y;
+      this.quad.maxTex.y = tmp;
     }
 
-    // tileData comes from the sprite sheet. This must be set first then the other properties
-    // can choose to override it.
-    if (args.tileData) {
-      const pos = new vec2(args.tileData.loc[0], args.tileData.loc[1]);
-      const size = new vec2(args.tileData.loc[2], args.tileData.loc[3]);
-      this.pixelsToUv(pos, size, quad.minTex, quad.maxTex);
+    this._flip =
+      this.quad.minTex.x > this.quad.maxTex.x
+        ? SpriteFlip.XFlip
+        : SpriteFlip.None;
+    this._flip =
+      this._flip |
+      (this.quad.minTex.y < this.quad.maxTex.y
+        ? SpriteFlip.YFlip
+        : SpriteFlip.None);
+  }
 
-      // rotate
-      if (args.tileData.rotate) {
-        quad.rotScale.rotate(args.tileData.rotate);
-      }
-      // flip
-      if (args.tileData.flip) {
-        const tmp = quad.minTex.x;
-        quad.minTex.x = quad.maxTex.x;
-        quad.maxTex.x = tmp;
-        // set offset
-        if (args.tileData.offset) {
-          quad.offset = new vec2(
-            args.tileData.offset[2],
-            args.tileData.offset[3]
-          );
-        }
-      } else {
-        // set offset
-        if (args.tileData.offset) {
-          quad.offset = new vec2(
-            args.tileData.offset[0],
-            args.tileData.offset[1]
-          );
-        }
-      }
-    }
+  protected calculateMat(): void {
+    this.quad.rotScale.setIdentity();
 
-    if (args.translation) {
-      quad.translation.x = args.translation.x;
-      quad.translation.y = args.translation.y;
-    }
-    if (args.depth != undefined) {
-      quad.translation.z = args.depth;
-    }
+    this.quad.rotScale.rotate(toRadian(this._angle));
 
-    quad.rotScale.setIdentity();
-    if (args.rotation != undefined) {
-      quad.rotScale.rotate(toRadian(args.rotation));
-    }
-    if (args.scale || args.scaleHeight || args.scaleWidth) {
-      const w = args.scaleWidth ?? args.scale ?? 1.0;
-      const h = args.scaleHeight ?? args.scale ?? 1.0;
-      quad.rotScale.scaleNumber(w, h);
-    }
-    if (args.color) {
-      quad.color = args.color;
-    }
-    if (args.spritePosition && args.spriteSize) {
-      this.pixelsToUv(
-        args.spritePosition,
-        args.spriteSize,
-        quad.minTex,
-        quad.maxTex
-      );
-      if (args.flipX) {
-        const tmp = quad.minTex.x;
-        quad.minTex.x = quad.maxTex.x;
-        quad.maxTex.x = tmp;
-      }
-      if (args.flipY) {
-        const tmp = quad.minTex.y;
-        quad.minTex.y = quad.maxTex.y;
-        quad.maxTex.y = tmp;
-      }
-    }
-
-    if (args.offset) {
-      quad.offset.x = args.offset.x;
-      quad.offset.y = args.offset.y;
-    }
-
-    this.addQuad(quad);
-
-    return quad;
+    const w = this._scale.x;
+    const h = this._scale.y;
+    this.quad.rotScale.scaleNumber(w, h);
   }
 
   /**
@@ -198,96 +163,15 @@ export class SpriteInstanceController extends Component {
    * @param id
    * @returns
    */
-  getQuad(id: string): IQuadModelInstance {
-    return this.quads.get(id);
+  getQuad(): IQuadModelInstance {
+    return this.quad;
   }
 
   /**
    * Removes a quad
    * @param id
    */
-  removeQuad(id: string): void {
-    this.quads.delete(id);
-    this.dirty = true;
-  }
-
-  /**
-   * Add or update a quad.
-   * @param quad
-   */
-  addQuad(quad: IQuadModelInstance): void {
-    this.quads.set(quad.id, quad);
-    this.dirty = true;
-  }
-
-  /**
-   * Commit the quads to the vertex buffers
-   * @param force
-   */
-  commitToBuffer(force?: boolean): void {
-    if (this.dirty || force) {
-      const array = Array.from(this.quads.values());
-      this.buffer.setBuffers(array);
-    }
-    this.dirty = false;
-  }
-
-  /**
-   * Converts textures from pixels to uv space
-   * @param spriteX
-   * @param spriteY
-   * @param spriteW
-   * @param spriteH
-   * @returns
-   */
-  pixelsToUv(
-    spritePos: vec2,
-    spriteSize: vec2,
-    resultsMin: vec2,
-    resultsMax: vec2
-  ): void {
-    const sheetW = this.spriteTexture.width;
-    const sheetH = this.spriteTexture.height;
-    let minX = spritePos.x / sheetW;
-    let minY = 1.0 - spritePos.y / sheetH;
-    let maxX = (spritePos.x + spriteSize.x) / sheetW;
-    let maxY = 1.0 - (spritePos.y + spriteSize.y) / sheetH;
-
-    resultsMin.x = minX;
-    resultsMin.y = minY;
-    resultsMax.x = maxX;
-    resultsMax.y = maxY;
-  }
-
-  /**
-   * For testing
-   * @param dt
-   */
-  update(dt: number): void {
-    if (this.quads.size == 0) {
-      return;
-    }
-
-    this.commitToBuffer();
-
-    const view = this.eng.viewManager;
-    let projection = view.projection;
-
-    this.shader.setSpriteSheet(this.spriteTexture);
-    this.shader.enable();
-
-    // set the project
-    this.shader.setProj(projection);
-
-    this.buffer.enable();
-    const type = this.gl.UNSIGNED_SHORT;
-
-    this.gl.drawElementsInstanced(
-      this.gl.TRIANGLES,
-      this.buffer.indexCount,
-      type,
-      0,
-      this.buffer.instanceCount
-    );
+  removeQuad(): void {
+    this._collection.removeQuad(this._id);
   }
 }

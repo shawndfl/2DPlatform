@@ -1,10 +1,24 @@
 import { Direction } from '../_game/components/Direction';
 import vec2 from '../math/vec2';
 import vec4 from '../math/vec4';
-import { SpriteFlip } from './Sprite';
 
+export enum SpriteFlip {
+  None = 0x0,
+  XFlip = 0x1,
+  YFlip = 0x2,
+  Both = XFlip | YFlip,
+}
+
+/**
+ * This is the main interface into a sprite
+ */
 export interface ISprite {
+  get id(): string;
+  set id(value: string);
+
+  /** x position in pixels */
   set left(value: number);
+  /** y position in pixels */
   set top(value: number);
 
   /**
@@ -28,9 +42,6 @@ export interface ISprite {
   /** the height with the scale applied in pixels */
   get height(): number;
 
-  get id(): string;
-  set id(value: string);
-
   /** Get the angle in degrees */
   get angle(): number;
   set angle(degrees: number);
@@ -41,11 +52,11 @@ export interface ISprite {
   get yScale(): number;
   set yScale(value: number);
 
-  get colorScale(): vec4;
-  set colorScale(color: vec4);
+  get colorScale(): Readonly<vec4>;
+  set colorScale(color: Readonly<vec4>);
 
   get alpha(): number;
-  set alpha(color: number);
+  set alpha(alpha: number);
 
   get flipDirection(): SpriteFlip;
   set flipDirection(flip: SpriteFlip);
