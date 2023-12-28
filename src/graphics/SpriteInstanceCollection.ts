@@ -1,9 +1,7 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
-import {
-  GlBufferQuadInstance,
-  IQuadModelInstance,
-} from '../geometry/GlBufferQuadInstance';
+import { GlBufferQuadInstance } from '../geometry/GlBufferQuadInstance';
+import { IQuadModel } from '../geometry/IQuadMode';
 import { toRadian } from '../math/constants';
 import mat2 from '../math/mat2';
 import vec2 from '../math/vec2';
@@ -58,7 +56,7 @@ export class SpriteInstanceCollection extends Component {
   private shader: SpriteInstanceShader;
   private buffer: GlBufferQuadInstance;
   private _spriteTexture: Texture;
-  private quads: Map<string, IQuadModelInstance>;
+  private quads: Map<string, IQuadModel>;
   private dirty: boolean;
 
   public get spriteTexture(): Texture {
@@ -69,7 +67,7 @@ export class SpriteInstanceCollection extends Component {
     super(eng);
     this.shader = new SpriteInstanceShader(eng.gl, 'instancing');
     this.buffer = new GlBufferQuadInstance(eng.gl);
-    this.quads = new Map<string, IQuadModelInstance>();
+    this.quads = new Map<string, IQuadModel>();
   }
 
   /**
@@ -93,7 +91,7 @@ export class SpriteInstanceCollection extends Component {
    * @param args
    * @returns
    */
-  buildQuad(id: string, args: QuadBuildArgs): IQuadModelInstance {
+  buildQuad(id: string, args: QuadBuildArgs): IQuadModel {
     let quad = this.getQuad(id);
     if (!quad) {
       // create a default
@@ -198,7 +196,7 @@ export class SpriteInstanceCollection extends Component {
    * @param id
    * @returns
    */
-  getQuad(id: string): IQuadModelInstance {
+  getQuad(id: string): IQuadModel {
     return this.quads.get(id);
   }
 
@@ -215,7 +213,7 @@ export class SpriteInstanceCollection extends Component {
    * Add or update a quad.
    * @param quad
    */
-  addQuad(quad: IQuadModelInstance): void {
+  addQuad(quad: IQuadModel): void {
     this.quads.set(quad.id, quad);
     this.dirty = true;
   }

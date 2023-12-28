@@ -1,6 +1,6 @@
 import { Component } from '../components/Component';
+import { IQuadModel } from '../geometry/IQuadMode';
 
-import { IQuadModelInstance } from '../geometry/GlBufferQuadInstance';
 import { toRadian } from '../math/constants';
 import mat2 from '../math/mat2';
 import vec2 from '../math/vec2';
@@ -14,7 +14,7 @@ import { SpriteInstanceCollection } from './SpriteInstanceCollection';
  * Manages a single sprite
  */
 export class SpriteInstanceController extends Component implements ISprite {
-  protected quad: IQuadModelInstance;
+  protected quad: IQuadModel;
   protected _angle: number;
   protected _scale: vec2;
   protected _flip: SpriteFlip;
@@ -163,7 +163,7 @@ export class SpriteInstanceController extends Component implements ISprite {
    * @param id
    * @returns
    */
-  getQuad(): IQuadModelInstance {
+  getQuad(): IQuadModel {
     return this.quad;
   }
 

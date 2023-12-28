@@ -47,7 +47,11 @@ export default class vec3 {
     this.values[2] = values[2];
   }
 
-  constructor(values?: [number, number, number] | number, y?: number, z?: number) {
+  constructor(
+    values?: [number, number, number] | number,
+    y?: number,
+    z?: number
+  ) {
     if (values !== undefined) {
       if (typeof values === 'number') {
         this.values[0] = values;
@@ -393,6 +397,8 @@ export default class vec3 {
   }
 
   toString() {
-    return this.x.toFixed(5) + ', ' + this.y.toFixed(5) + ', ' + this.z.toFixed(5);
+    return (
+      this.x.toFixed(5) + ', ' + this.y.toFixed(5) + ', ' + this.z.toFixed(5)
+    );
   }
 }

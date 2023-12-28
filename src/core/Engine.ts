@@ -14,6 +14,8 @@ import { ISceneManager } from '../interfaces/ISceneManager';
 import { ParticleManager } from '../systems/ParticleManager';
 import { PhysicsManager } from '../systems/PhysicsManager';
 import { AnnotationManager } from '../systems/AnnotationManager';
+import { SpriteShader } from '../shaders/SpriteShader';
+import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
 
 /**
  * The engine for this game. There is one instance of this
@@ -22,7 +24,11 @@ import { AnnotationManager } from '../systems/AnnotationManager';
  */
 export abstract class Engine {
   readonly input: InputHandler;
+
   readonly spritePerspectiveShader: SpritePerspectiveShader;
+  readonly spriteShader: SpriteShader;
+  readonly spriteInstanceShader: SpriteInstanceShader;
+
   readonly soundManager: SoundManager;
   readonly canvasController: CanvasController;
   readonly viewManager: ViewManager;
@@ -68,6 +74,13 @@ export abstract class Engine {
       this.gl,
       'spritePerspectiveShader'
     );
+
+    this.spriteShader = new SpriteShader(this.gl, 'spriteShader');
+    this.spriteInstanceShader = new SpriteInstanceShader(
+      this.gl,
+      'spriteInstanceShader'
+    );
+
     this.particleManager = new ParticleManager(this);
     this.physicsManager = new PhysicsManager(this);
     this.annotationManager = new AnnotationManager(this);

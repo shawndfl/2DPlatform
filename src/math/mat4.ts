@@ -71,7 +71,12 @@ export default class mat4 {
   }
 
   col(index: number): number[] {
-    return [this.values[index], this.values[index + 4], this.values[index + 8], this.values[index + 12]];
+    return [
+      this.values[index],
+      this.values[index + 4],
+      this.values[index + 8],
+      this.values[index + 12],
+    ];
   }
 
   equals(matrix: mat4, threshold = epsilon): boolean {
@@ -115,7 +120,14 @@ export default class mat4 {
     const det10 = a21 * a33 - a23 * a31;
     const det11 = a22 * a33 - a23 * a32;
 
-    return det00 * det11 - det01 * det10 + det02 * det09 + det03 * det08 - det04 * det07 + det05 * det06;
+    return (
+      det00 * det11 -
+      det01 * det10 +
+      det02 * det09 +
+      det03 * det08 -
+      det04 * det07 +
+      det05 * det06
+    );
   }
 
   setIdentity(): mat4 {
@@ -194,7 +206,13 @@ export default class mat4 {
     const det10 = a21 * a33 - a23 * a31;
     const det11 = a22 * a33 - a23 * a32;
 
-    let det = det00 * det11 - det01 * det10 + det02 * det09 + det03 * det08 - det04 * det07 + det05 * det06;
+    let det =
+      det00 * det11 -
+      det01 * det10 +
+      det02 * det09 +
+      det03 * det08 -
+      det04 * det07 +
+      det05 * det06;
 
     if (!det) {
       return null;
@@ -292,9 +310,21 @@ export default class mat4 {
       dest = new vec3();
     }
 
-    dest.x = this.values[0] * x + this.values[4] * y + this.values[8] * z + this.values[12];
-    dest.y = this.values[1] * x + this.values[5] * y + this.values[9] * z + this.values[13];
-    dest.z = this.values[2] * x + this.values[6] * y + this.values[10] * z + this.values[14];
+    dest.x =
+      this.values[0] * x +
+      this.values[4] * y +
+      this.values[8] * z +
+      this.values[12];
+    dest.y =
+      this.values[1] * x +
+      this.values[5] * y +
+      this.values[9] * z +
+      this.values[13];
+    dest.z =
+      this.values[2] * x +
+      this.values[6] * y +
+      this.values[10] * z +
+      this.values[14];
 
     return dest;
   }
@@ -309,10 +339,26 @@ export default class mat4 {
     const z = vector.z;
     const w = vector.w;
 
-    dest.x = this.values[0] * x + this.values[4] * y + this.values[8] * z + this.values[12] * w;
-    dest.y = this.values[1] * x + this.values[5] * y + this.values[9] * z + this.values[13] * w;
-    dest.z = this.values[2] * x + this.values[6] * y + this.values[10] * z + this.values[14] * w;
-    dest.w = this.values[3] * x + this.values[7] * y + this.values[11] * z + this.values[15] * w;
+    dest.x =
+      this.values[0] * x +
+      this.values[4] * y +
+      this.values[8] * z +
+      this.values[12] * w;
+    dest.y =
+      this.values[1] * x +
+      this.values[5] * y +
+      this.values[9] * z +
+      this.values[13] * w;
+    dest.z =
+      this.values[2] * x +
+      this.values[6] * y +
+      this.values[10] * z +
+      this.values[14] * w;
+    dest.w =
+      this.values[3] * x +
+      this.values[7] * y +
+      this.values[11] * z +
+      this.values[15] * w;
 
     return dest;
   }
@@ -372,10 +418,14 @@ export default class mat4 {
     const y = vector.y;
     const z = (vector as vec3).z === undefined ? 0 : (vector as vec3).z;
 
-    this.values[12] += this.values[0] * x + this.values[4] * y + this.values[8] * z;
-    this.values[13] += this.values[1] * x + this.values[5] * y + this.values[9] * z;
-    this.values[14] += this.values[2] * x + this.values[6] * y + this.values[10] * z;
-    this.values[15] += this.values[3] * x + this.values[7] * y + this.values[11] * z;
+    this.values[12] +=
+      this.values[0] * x + this.values[4] * y + this.values[8] * z;
+    this.values[13] +=
+      this.values[1] * x + this.values[5] * y + this.values[9] * z;
+    this.values[14] +=
+      this.values[2] * x + this.values[6] * y + this.values[10] * z;
+    this.values[15] +=
+      this.values[3] * x + this.values[7] * y + this.values[11] * z;
 
     return this;
   }
@@ -392,11 +442,7 @@ export default class mat4 {
     return this;
   }
 
-  scale(vector: vec3 | vec2): mat4 {
-    const x = vector.x;
-    const y = vector.y;
-    const z = (vector as vec3).z === undefined ? 1 : (vector as vec3).z;
-
+  scaleComp(x: number, y: number, z: number): mat4 {
     this.values[0] *= x;
     this.values[1] *= x;
     this.values[2] *= x;
@@ -413,6 +459,13 @@ export default class mat4 {
     this.values[11] *= z;
 
     return this;
+  }
+
+  scale(vector: vec3 | vec2): mat4 {
+    const x = vector.x;
+    const y = vector.y;
+    const z = (vector as vec3).z === undefined ? 1 : (vector as vec3).z;
+    return this.scaleComp(x, y, z);
   }
 
   rotate(angle: number, axis: vec3): mat4 {
@@ -483,7 +536,14 @@ export default class mat4 {
     return this;
   }
 
-  static frustum(left: number, right: number, bottom: number, top: number, near: number, far: number): mat4 {
+  static frustum(
+    left: number,
+    right: number,
+    bottom: number,
+    top: number,
+    near: number,
+    far: number
+  ): mat4 {
     const rl = right - left;
     const tb = top - bottom;
     const fn = far - near;
@@ -511,14 +571,26 @@ export default class mat4 {
     ]);
   }
 
-  static perspective(fov: number, aspect: number, near: number, far: number): mat4 {
+  static perspective(
+    fov: number,
+    aspect: number,
+    near: number,
+    far: number
+  ): mat4 {
     const top = near * Math.tan((fov * Math.PI) / 360.0);
     const right = top * aspect;
 
     return mat4.frustum(-right, right, -top, top, near, far);
   }
 
-  static orthographic(left: number, right: number, bottom: number, top: number, near: number, far: number): mat4 {
+  static orthographic(
+    left: number,
+    right: number,
+    bottom: number,
+    top: number,
+    near: number,
+    far: number
+  ): mat4 {
     const rl = right - left;
     const tb = top - bottom;
     const fn = far - near;

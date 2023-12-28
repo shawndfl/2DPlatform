@@ -1,4 +1,5 @@
 import mat4 from '../math/mat4';
+import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
 
@@ -111,6 +112,10 @@ export class ShaderController {
    */
   setVec3(loc: number, value: vec3) {
     this.gl.uniform3f(loc, value.x, value.y, value.z);
+  }
+
+  setVec2(loc: number, value: vec2) {
+    this.gl.uniform2f(loc, value.x, value.y);
   }
 
   /**
