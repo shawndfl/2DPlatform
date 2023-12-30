@@ -90,7 +90,7 @@ export class PlayerController extends TileComponent {
   }
 
   initialize(): void {
-    const spriteData = this.eng.assetManager.getTexture(TextureAssets.player1);
+    const spriteData = this.eng.assetManager.getTexture(TextureAssets.edge);
 
     this.sprite.initialize(spriteData.texture, spriteData.data);
     // initial the player's position

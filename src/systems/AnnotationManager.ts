@@ -132,10 +132,7 @@ export class AnnotationManager extends Component {
 
     // setup texture and tile data
     this._lineSprites.setTexture(this.eng.assetManager.menu.texture);
-    this.tileData = this.eng.assetManager.getSpriteInfo(
-      BuiltInTextureAssets.Menu,
-      'block'
-    );
+    this.tileData = this.eng.assetManager.getSprite('menu.block').tile;
   }
 
   update(dt: number) {

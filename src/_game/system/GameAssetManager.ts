@@ -1,22 +1,22 @@
 import { Texture } from '../../graphics/Texture';
 import { AssetManager, BuiltInTextureAssets } from '../../systems/AssetManager';
 import { PlatformEngine } from '../PlatformEngine';
-import Player1 from '../assets/man2.png';
-import Player1Data from '../assets/man2.json';
-import Player2 from '../assets/zero.png';
-import Player2Data from '../assets/zero.json';
-import Enemies from '../assets/enemies.png';
-import EnemiesData from '../assets/enemies.json';
-import { ISpriteData } from '../../graphics/ISpriteData';
+import { TileData } from '../../graphics/ISpriteData';
 
+import edge from '../assets/edge.png';
+import edgeData from '../assets/edge.json';
+import zero from '../assets/zero.png';
+import zeroData from '../assets/zero.json';
+import enemies from '../assets/enemies.png';
+import enemiesData from '../assets/enemies.json';
 import level1Tile from '../assets/Level1Tiles.png';
 import level1TileData from '../assets/Level1Tiles.json';
 
 export class TextureAssets extends BuiltInTextureAssets {
-  static readonly player1 = 'Player1';
-  static readonly enemies = 'Enemies';
-  static readonly player2 = 'Player2';
-  static readonly level1 = 'level1';
+  static readonly edge = 'edge';
+  static readonly enemies = 'enemies';
+  static readonly zero = 'zero';
+  static readonly level1Tile = 'level1Tile';
 }
 
 /**
@@ -27,31 +27,28 @@ export class GameAssetManager extends AssetManager {
     super(eng);
   }
 
-  getTexture(name: string): { texture: Texture; data: ISpriteData } {
-    return this.textures.get(name);
-  }
-
   async initialize() {
-    super.initialize();
-
-    this.textures.set(TextureAssets.player1, {
-      texture: await new Texture(this.gl).loadImage(Player1),
-      data: Player1Data,
+    this.textures.set(TextureAssets.edge, {
+      texture: await new Texture(this.gl).loadImage(edge),
+      data: edgeData,
     });
 
-    this.textures.set(TextureAssets.player2, {
-      texture: await new Texture(this.gl).loadImage(Player2),
-      data: Player2Data,
+    this.textures.set(TextureAssets.zero, {
+      texture: await new Texture(this.gl).loadImage(zero),
+      data: zeroData,
     });
 
-    this.textures.set(TextureAssets.level1, {
+    this.textures.set(TextureAssets.level1Tile, {
       texture: await new Texture(this.gl).loadImage(level1Tile),
       data: level1TileData,
     });
 
     this.textures.set(TextureAssets.enemies, {
-      texture: await new Texture(this.gl).loadImage(Enemies),
-      data: EnemiesData,
+      texture: await new Texture(this.gl).loadImage(enemies),
+      data: enemiesData,
     });
+
+    // this must be last
+    await super.initialize();
   }
 }

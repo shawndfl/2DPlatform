@@ -109,9 +109,7 @@ export class SpriteInstanceCollection extends Component {
     // tileData comes from the sprite sheet. This must be set first then the other properties
     // can choose to override it.
     if (args.tileData) {
-      const pos = new vec2(args.tileData.loc[0], args.tileData.loc[1]);
-      const size = new vec2(args.tileData.loc[2], args.tileData.loc[3]);
-      this.pixelsToUv(pos, size, quad.minTex, quad.maxTex);
+      this.pixelsToUv(args.tileData.loc, quad.minTex, quad.maxTex);
 
       // rotate
       if (args.tileData.rotate) {
@@ -232,24 +230,22 @@ export class SpriteInstanceCollection extends Component {
 
   /**
    * Converts textures from pixels to uv space
-   * @param spriteX
-   * @param spriteY
+   * @param loc - [x, y, width, height]
    * @param spriteW
    * @param spriteH
    * @returns
    */
   pixelsToUv(
-    spritePos: vec2,
-    spriteSize: vec2,
+    loc: [number, number, number, number],
     resultsMin: vec2,
     resultsMax: vec2
   ): void {
     const sheetW = this.spriteTexture.width;
     const sheetH = this.spriteTexture.height;
-    let minX = spritePos.x / sheetW;
-    let minY = 1.0 - spritePos.y / sheetH;
-    let maxX = (spritePos.x + spriteSize.x) / sheetW;
-    let maxY = 1.0 - (spritePos.y + spriteSize.y) / sheetH;
+    let minX = loc[0] / sheetW;
+    let minY = 1.0 - loc[1] / sheetH;
+    let maxX = (loc[0] + loc[2]) / sheetW;
+    let maxY = 1.0 - (loc[1] + loc[3]) / sheetH;
 
     resultsMin.x = minX;
     resultsMin.y = minY;

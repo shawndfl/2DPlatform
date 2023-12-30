@@ -34,7 +34,7 @@ export class TestAnimationController extends TileComponent {
   }
 
   initialize(): void {
-    const spriteData = this.eng.assetManager.getTexture(TextureAssets.player1);
+    const spriteData = this.eng.assetManager.getTexture(TextureAssets.edge);
     this.sprite.initialize(spriteData.texture, spriteData.data);
     this.setTilePosition(3, 9);
 

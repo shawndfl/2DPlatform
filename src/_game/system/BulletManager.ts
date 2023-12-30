@@ -44,7 +44,7 @@ export class BulletManager extends GameComponent {
   }
 
   initialize(): void {
-    const texture = this.eng.assetManager.getTexture(TextureAssets.player1);
+    const texture = this.eng.assetManager.getTexture(TextureAssets.edge);
 
     this.sprite.initialize(texture.texture, texture.data);
 

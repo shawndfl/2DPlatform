@@ -24,17 +24,18 @@ export interface ISprite {
   /**
    * pixel position and size on the sprite sheet texture
    * If it is the full texture this will be 0,0, texture width, texture height
+   * @param loc - array [x, y, width, height]
    */
-  spriteLocation(position: vec2, size: vec2): void;
+  spriteLocation(loc: [number, number, number, number]): void;
 
   /* dept -1 is near, 1 is far */
   get depth(): number;
   /* dept -1 is near, 1 is far */
   set depth(depth: number);
 
-  /** offset on the quad -1 left, 1 right */
+  /** offset on the quad -1 right, 1 left */
   set leftOffset(value: number);
-  /** offset on the quad */
+  /** offset on the quad -1 top, 1 bottom  */
   set topOffset(value: number);
 
   /** the width with the scale applied in pixels */

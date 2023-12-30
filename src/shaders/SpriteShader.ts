@@ -39,13 +39,10 @@ varying mediump vec4 vColorScale;
 
 void main() {
   mediump vec4 color = texture2D(uSampler, vTex);
-    if(color.a < .001) {
-      discard;
-    } 
-
-    // uncomment to show depth
-    //gl_FragColor = vec4(depth.xyz, 1.0);
-    gl_FragColor = color * vColorScale;
+    
+  // uncomment to show depth
+  //gl_FragColor = vec4(1,1,1, 1.0);
+  gl_FragColor = color * vColorScale;
   
 }
 `;

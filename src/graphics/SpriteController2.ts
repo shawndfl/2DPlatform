@@ -1,11 +1,10 @@
 import { Component } from '../components/Component';
-import { Engine } from '../core/Engine';
-import { GlBuffer } from '../geometry/GlBuffer';
 import { GlBuffer2 } from '../geometry/GlBuffer2';
 import { IQuadModel } from '../geometry/IQuadMode';
 import { toRadian } from '../math/constants';
+import mat2 from '../math/mat2';
 import mat4 from '../math/mat4';
-import rect from '../math/rect';
+
 import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
@@ -17,17 +16,19 @@ export class SpriteController2 extends Component implements ISprite {
   protected _buffer: GlBuffer2;
   protected _dirty: boolean;
   protected _world: mat4 = new mat4();
-  protected quad: IQuadModel;
+  protected quad: IQuadModel = {
+    color: vec4.one.copy(),
+    id: '',
+    maxTex: new vec2(),
+    minTex: new vec2(),
+    offset: new vec2(),
+    rotScale: new mat2(),
+    translation: new vec3(),
+  };
 
   private _id: string;
-  private _translate: vec3 = new vec3();
-  private _depth: number;
-  private _color: vec4 = new vec4();
-  private _offset: vec2 = new vec2();
-  private _angle: number;
+  private _angle: number = 0;
   private _scale: vec2 = new vec2(1, 1);
-  private _spriteLocationPosition: vec2 = new vec2();
-  private _spriteLocationSize: vec2 = new vec2();
   private _flip: SpriteFlip;
 
   get id(): string {
@@ -37,62 +38,87 @@ export class SpriteController2 extends Component implements ISprite {
     this._id = value;
   }
   set left(value: number) {
-    this._translate.x = value;
+    this.quad.translation.x = value;
+    this.calculateMat();
   }
+  get left(): number {
+    return this.quad.translation.x;
+  }
+
   set top(value: number) {
-    this._translate.y = value;
+    this.quad.translation.y = value;
+    this.calculateMat();
   }
-  spriteLocation(position: vec2, size: vec2): void {
-    this._spriteLocationPosition = position;
-    this._spriteLocationSize = size;
+  get top(): number {
+    return this.quad.translation.y;
+  }
+
+  spriteLocation(loc: [number, number, number, number]): void {
+    this.pixelsToUv(loc, this.quad.minTex, this.quad.maxTex);
   }
   get depth(): number {
-    return this._depth;
+    return this.quad.translation.z;
   }
   set depth(depth: number) {
-    this._depth = depth;
+    this.quad.translation.z = depth;
+    this.calculateMat();
   }
   set leftOffset(value: number) {
-    this._offset.x = value;
+    this.quad.offset.x = value;
   }
   set topOffset(value: number) {
-    this._offset.y = value;
+    this.quad.offset.y = value;
   }
   get width(): number {
-    return this._spriteLocationSize.x * this._scale.x;
+    if (this._spriteTexture) {
+      const scale =
+        Math.abs(this.quad.maxTex.x - this.quad.minTex.x) * this._scale.x;
+      return scale * this._spriteTexture.width;
+    } else {
+      return 0;
+    }
   }
   get height(): number {
-    return this._spriteLocationSize.y * this._scale.y;
+    if (this._spriteTexture) {
+      const scale =
+        Math.abs(this.quad.maxTex.y - this.quad.minTex.y) * this._scale.y;
+      return scale * this._spriteTexture.height;
+    } else {
+      return 0;
+    }
   }
   get angle(): number {
     return this._angle;
   }
   set angle(degrees: number) {
     this._angle = degrees;
+    this.calculateMat();
   }
   get xScale(): number {
     return this._scale.x;
   }
   set xScale(value: number) {
     this._scale.x = value;
+    this.calculateMat();
   }
   get yScale(): number {
     return this._scale.y;
   }
   set yScale(value: number) {
     this._scale.y = value;
+    this.calculateMat();
   }
   get colorScale(): vec4 {
-    return this._color;
+    return this.quad.color;
   }
   set colorScale(color: vec4) {
-    this._color = color;
+    this.quad.color = color;
   }
   get alpha(): number {
-    return this._color.a;
+    return this.quad.color.a;
   }
   set alpha(alpha: number) {
-    this._color.a = alpha;
+    this.quad.color.a = alpha;
   }
   get flipDirection(): SpriteFlip {
     return this._flip;
@@ -119,8 +145,20 @@ export class SpriteController2 extends Component implements ISprite {
   protected calculateMat(): void {
     this._world.setIdentity();
     this._world.rotate(toRadian(this._angle), vec3.forward);
-    this._world.scaleComp(this._scale.x, this._scale.y, 1.0);
-    this._world.translate(this._translate);
+    let pixelWidth = 1;
+    let pixelHeight = 1;
+    if (this._spriteTexture) {
+      const scaleWidth = Math.abs(this.quad.maxTex.x - this.quad.minTex.x);
+      pixelWidth = scaleWidth * this._spriteTexture.width * 0.5;
+      const scaleHeight = Math.abs(this.quad.maxTex.y - this.quad.minTex.y);
+      pixelHeight = scaleHeight * this._spriteTexture.height * 0.5;
+    }
+    this._world.scaleComp(
+      this._scale.x * pixelWidth,
+      this._scale.y * pixelHeight,
+      1.0
+    );
+    this._world.translate(this.quad.translation);
   }
 
   protected commitToBuffer(): void {
@@ -151,12 +189,38 @@ export class SpriteController2 extends Component implements ISprite {
       let projection = view.projection;
       this.eng.spriteShader.setProj(projection);
       this.eng.spriteShader.setWorld(this._world);
-      this.eng.spriteShader.setColorScale(this._color);
+      this.eng.spriteShader.setOffset(this.quad.offset);
+      this.eng.spriteShader.setColorScale(this.quad.color);
 
       const vertexCount = this._buffer.indexCount;
       const type = this.gl.UNSIGNED_SHORT;
       const offset = 0;
       this.gl.drawElements(this.gl.TRIANGLES, vertexCount, type, offset);
     }
+  }
+
+  /**
+   * Converts textures from pixels to uv space
+   * @param loc - [x, y, width, height]
+   * @param spriteW
+   * @param spriteH
+   * @returns
+   */
+  pixelsToUv(
+    loc: [number, number, number, number],
+    resultsMin: vec2,
+    resultsMax: vec2
+  ): void {
+    const sheetW = this._spriteTexture.width;
+    const sheetH = this._spriteTexture.height;
+    let minX = loc[0] / sheetW;
+    let minY = 1.0 - loc[1] / sheetH;
+    let maxX = (loc[0] + loc[2]) / sheetW;
+    let maxY = 1.0 - (loc[1] + loc[3]) / sheetH;
+
+    resultsMin.x = minX;
+    resultsMin.y = minY;
+    resultsMax.x = maxX;
+    resultsMax.y = maxY;
   }
 }

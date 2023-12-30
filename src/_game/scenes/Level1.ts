@@ -10,9 +10,11 @@ import rect from '../../math/rect';
 import vec2 from '../../math/vec2';
 import vec4 from '../../math/vec4';
 import { Curve, CurveType } from '../../math/Curve';
+import { SpriteController2 } from '../../graphics/SpriteController2';
 
 export class Level1 extends SceneComponent {
   private inputCal: InputCalibration;
+  private sprite: SpriteController2;
 
   get eng(): PlatformEngine {
     return super.eng as PlatformEngine;
@@ -24,6 +26,7 @@ export class Level1 extends SceneComponent {
     this.eng.viewManager.maxX = 1000;
 
     this.inputCal = new InputCalibration(eng);
+    this.sprite = new SpriteController2(eng);
   }
 
   lineAnimationSetup(): void {
@@ -86,6 +89,31 @@ export class Level1 extends SceneComponent {
     this.eng.groundManager.loadLevel(Level1Data);
 
     this.lineAnimationSetup();
+    const sprite = this.eng.assetManager.getSprite('enemies.default');
+    this.sprite.initialize(sprite.texture);
+    this.sprite.spriteLocation(sprite.tile.loc);
+    this.sprite.left = 600;
+    this.sprite.top = 600;
+    this.sprite.angle = 0;
+    this.sprite.colorScale = new vec4([0, 1, 0, 1]);
+    this.sprite.alpha = 0.5;
+    this.sprite.topOffset = 1;
+    this.sprite.leftOffset = 1;
+    this.sprite.depth = -0.8;
+    this.sprite.xScale = 2.0;
+    this.sprite.yScale = 2;
+
+    this.eng.annotationManager.buildRect(
+      'enemyTest',
+      new rect([
+        this.sprite.left,
+        this.sprite.width,
+        this.sprite.top + this.sprite.height,
+        this.sprite.height,
+      ]),
+      new vec4([0.5, 0.9, 0.1, 1])
+    );
+
     // set the texture for the particle manager
     this.eng.particleManager.setTexture(this.eng.assetManager.menu.texture);
     /*
@@ -157,5 +185,6 @@ export class Level1 extends SceneComponent {
   update(dt: number): void {
     this.inputCal.update(dt);
     this.lineAnimation(dt);
+    this.sprite.update(dt);
   }
 }

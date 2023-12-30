@@ -18,6 +18,8 @@ export class SpriteInstanceController extends Component implements ISprite {
   protected _angle: number;
   protected _scale: vec2;
   protected _flip: SpriteFlip;
+  private _spriteLocationPosition: vec2 = new vec2();
+  private _spriteLocationSize: vec2 = new vec2();
 
   constructor(
     protected _id: string,
@@ -51,13 +53,8 @@ export class SpriteInstanceController extends Component implements ISprite {
     this.quad.translation.y = value;
   }
 
-  spriteLocation(position: vec2, size: vec2): void {
-    this._collection.pixelsToUv(
-      position,
-      size,
-      this.quad.minTex,
-      this.quad.maxTex
-    );
+  spriteLocation(loc: [number, number, number, number]): void {
+    this._collection.pixelsToUv(loc, this.quad.minTex, this.quad.maxTex);
   }
 
   get depth(): number {

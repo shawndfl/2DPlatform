@@ -90,7 +90,7 @@ export class GroundManager extends GameComponent {
    * Initial the sprites
    */
   initialize(): void {
-    const assets = this.eng.assetManager.getTexture(TextureAssets.level1);
+    const assets = this.eng.assetManager.getTexture(TextureAssets.level1Tile);
     this._staticSprite.initialize(assets.texture, assets.data);
   }
 
