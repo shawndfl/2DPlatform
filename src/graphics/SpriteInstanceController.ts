@@ -14,47 +14,60 @@ import { SpriteInstanceCollection } from './SpriteInstanceCollection';
  * Manages a single sprite
  */
 export class SpriteInstanceController extends Component implements ISprite {
-  protected quad: IQuadModel;
-  protected _angle: number;
-  protected _scale: vec2;
+  protected _quad: IQuadModel = {
+    color: vec4.one.copy(),
+    id: '',
+    maxTex: new vec2(),
+    minTex: new vec2(),
+    offset: new vec2(),
+    rotScale: new mat2(),
+    translation: new vec3(),
+  };
+  protected _angle: number = 0;
+  protected _scale: vec2 = new vec2(1, 1);
   protected _flip: SpriteFlip;
-  private _spriteLocationPosition: vec2 = new vec2();
-  private _spriteLocationSize: vec2 = new vec2();
+  protected _loc: [number, number, number, number] = [0, 0, 0, 0];
 
-  constructor(
-    protected _id: string,
-    protected _collection: SpriteInstanceCollection
-  ) {
-    super(_collection.eng);
-    this._angle = 0;
-    this._scale = new vec2([1, 1]);
-    this._flip = SpriteFlip.None;
-    this.quad = {
-      id: 'quad',
-      translation: new vec3(0, 0, 0),
-      offset: new vec2(0, 0),
-      color: new vec4([1, 1, 1, 1]),
-      rotScale: mat2.identity.copy(),
-      maxTex: new vec2([1, 1]),
-      minTex: new vec2([0, 0]),
-    };
+  get quad(): IQuadModel {
+    return this._quad;
   }
 
   get id(): string {
-    return this.quad.id;
+    return this._quad.id;
   }
   set id(value: string) {
-    this.quad.id = value;
+    this._quad.id = value;
   }
   set left(value: number) {
     this.quad.translation.x = value;
+    this.calculateMat();
+    this._collection.setDirty();
   }
+  get left(): number {
+    return this.quad.translation.x;
+  }
+
   set top(value: number) {
     this.quad.translation.y = value;
+    this.calculateMat();
+    this._collection.setDirty();
+  }
+  get top(): number {
+    return this.quad.translation.y;
   }
 
   spriteLocation(loc: [number, number, number, number]): void {
-    this._collection.pixelsToUv(loc, this.quad.minTex, this.quad.maxTex);
+    this._loc[0] = loc[0];
+    this._loc[1] = loc[1];
+    this._loc[2] = loc[2];
+    this._loc[3] = loc[3];
+    this._collection.pixelsToUv(
+      this._loc,
+      this._flip,
+      this.quad.minTex,
+      this.quad.maxTex
+    );
+    this._collection.setDirty();
   }
 
   get depth(): number {
@@ -62,16 +75,21 @@ export class SpriteInstanceController extends Component implements ISprite {
   }
   set depth(depth: number) {
     this.quad.translation.z = depth;
+    this.calculateMat();
+    this._collection.setDirty();
   }
   set leftOffset(value: number) {
     this.quad.offset.x = value;
+    this._collection.setDirty();
   }
   set topOffset(value: number) {
     this.quad.offset.y = value;
+    this._collection.setDirty();
   }
   get width(): number {
     if (this._collection.spriteTexture) {
-      const scale = this.quad.maxTex.x - this.quad.minTex.x;
+      const scale =
+        Math.abs(this.quad.maxTex.x - this.quad.minTex.x) * this._scale.x;
       return scale * this._collection.spriteTexture.width;
     } else {
       return 0;
@@ -79,7 +97,8 @@ export class SpriteInstanceController extends Component implements ISprite {
   }
   get height(): number {
     if (this._collection.spriteTexture) {
-      const scale = this.quad.maxTex.y - this.quad.minTex.y;
+      const scale =
+        Math.abs(this.quad.maxTex.y - this.quad.minTex.y) * this._scale.y;
       return scale * this._collection.spriteTexture.height;
     } else {
       return 0;
@@ -91,6 +110,7 @@ export class SpriteInstanceController extends Component implements ISprite {
   set angle(degrees: number) {
     this._angle = degrees;
     this.calculateMat();
+    this._collection.setDirty();
   }
   get xScale(): number {
     return this._scale.x;
@@ -98,6 +118,7 @@ export class SpriteInstanceController extends Component implements ISprite {
   set xScale(value: number) {
     this._scale.x = value;
     this.calculateMat();
+    this._collection.setDirty();
   }
   get yScale(): number {
     return this._scale.y;
@@ -105,70 +126,73 @@ export class SpriteInstanceController extends Component implements ISprite {
   set yScale(value: number) {
     this._scale.y = value;
     this.calculateMat();
+    this._collection.setDirty();
   }
-
-  get colorScale(): Readonly<vec4> {
+  get colorScale(): vec4 {
     return this.quad.color;
   }
-  set colorScale(color: Readonly<vec4>) {
-    color.copy(this.quad.color);
+  set colorScale(color: vec4) {
+    this.quad.color = color;
+    this._collection.setDirty();
   }
   get alpha(): number {
-    return this.colorScale.a;
+    return this.quad.color.a;
   }
   set alpha(alpha: number) {
     this.quad.color.a = alpha;
+    this._collection.setDirty();
   }
   get flipDirection(): SpriteFlip {
     return this._flip;
   }
   set flipDirection(flip: SpriteFlip) {
-    if (this._flip == SpriteFlip.Both || this._flip == SpriteFlip.XFlip) {
-      const tmp = this.quad.minTex.x;
-      this.quad.minTex.x = this.quad.maxTex.x;
-      this.quad.maxTex.x = tmp;
-    }
-    if (this._flip == SpriteFlip.Both || this._flip == SpriteFlip.YFlip) {
-      const tmp = this.quad.minTex.y;
-      this.quad.minTex.y = this.quad.maxTex.y;
-      this.quad.maxTex.y = tmp;
-    }
+    this._flip = flip;
+    this._collection.pixelsToUv(
+      this._loc,
+      this._flip,
+      this.quad.minTex,
+      this.quad.maxTex
+    );
+    this._collection.setDirty();
+  }
 
-    this._flip =
-      this.quad.minTex.x > this.quad.maxTex.x
-        ? SpriteFlip.XFlip
-        : SpriteFlip.None;
-    this._flip =
-      this._flip |
-      (this.quad.minTex.y < this.quad.maxTex.y
-        ? SpriteFlip.YFlip
-        : SpriteFlip.None);
+  constructor(
+    id: string,
+    protected _collection: SpriteInstanceCollection,
+    quad?: IQuadModel
+  ) {
+    super(_collection.eng);
+
+    if (quad) {
+      this._quad = quad;
+    }
+    this._quad.id = id;
+    this._collection.addQuad(this._quad);
   }
 
   protected calculateMat(): void {
     this.quad.rotScale.setIdentity();
+    if (this._angle != undefined) {
+      this.quad.rotScale.rotate(toRadian(this._angle));
+    }
 
-    this.quad.rotScale.rotate(toRadian(this._angle));
+    let pixelWidth = 1;
+    let pixelHeight = 1;
+    if (this._collection.spriteTexture) {
+      const scaleWidth = Math.abs(this.quad.maxTex.x - this.quad.minTex.x);
+      pixelWidth = scaleWidth * this._collection.spriteTexture.width;
+      const scaleHeight = Math.abs(this.quad.maxTex.y - this.quad.minTex.y);
+      pixelHeight = scaleHeight * this._collection.spriteTexture.height;
+    }
 
-    const w = this._scale.x;
-    const h = this._scale.y;
+    const w = pixelWidth * this.xScale;
+    const h = pixelWidth * this.yScale;
     this.quad.rotScale.scaleNumber(w, h);
-  }
-
-  /**
-   * Get a quad from an id
-   * @param id
-   * @returns
-   */
-  getQuad(): IQuadModel {
-    return this.quad;
   }
 
   /**
    * Removes a quad
    * @param id
    */
-  removeQuad(): void {
-    this._collection.removeQuad(this._id);
-  }
+  removeSprite(): void {}
 }

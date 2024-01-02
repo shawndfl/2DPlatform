@@ -4,7 +4,6 @@ import { IQuadModel } from '../geometry/IQuadMode';
 import { toRadian } from '../math/constants';
 import mat2 from '../math/mat2';
 import mat4 from '../math/mat4';
-
 import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
@@ -16,6 +15,7 @@ export class SpriteController2 extends Component implements ISprite {
   protected _buffer: GlBuffer2;
   protected _dirty: boolean;
   protected _world: mat4 = new mat4();
+  protected _loc: [number, number, number, number] = [0, 0, 0, 0];
   protected quad: IQuadModel = {
     color: vec4.one.copy(),
     id: '',
@@ -25,21 +25,20 @@ export class SpriteController2 extends Component implements ISprite {
     rotScale: new mat2(),
     translation: new vec3(),
   };
-
-  private _id: string;
-  private _angle: number = 0;
-  private _scale: vec2 = new vec2(1, 1);
-  private _flip: SpriteFlip;
+  protected _angle: number = 0;
+  protected _scale: vec2 = new vec2(1, 1);
+  protected _flip: SpriteFlip;
 
   get id(): string {
-    return this._id;
+    return this.quad.id;
   }
   set id(value: string) {
-    this._id = value;
+    this.quad.id = value;
   }
   set left(value: number) {
     this.quad.translation.x = value;
     this.calculateMat();
+    this._dirty = true;
   }
   get left(): number {
     return this.quad.translation.x;
@@ -48,26 +47,36 @@ export class SpriteController2 extends Component implements ISprite {
   set top(value: number) {
     this.quad.translation.y = value;
     this.calculateMat();
+    this._dirty = true;
   }
   get top(): number {
     return this.quad.translation.y;
   }
 
   spriteLocation(loc: [number, number, number, number]): void {
-    this.pixelsToUv(loc, this.quad.minTex, this.quad.maxTex);
+    this._loc[0] = loc[0];
+    this._loc[1] = loc[1];
+    this._loc[2] = loc[2];
+    this._loc[3] = loc[3];
+    this.pixelsToUv(this._loc, this._flip, this.quad.minTex, this.quad.maxTex);
+    this._dirty = true;
   }
+
   get depth(): number {
     return this.quad.translation.z;
   }
   set depth(depth: number) {
     this.quad.translation.z = depth;
     this.calculateMat();
+    this._dirty = true;
   }
   set leftOffset(value: number) {
     this.quad.offset.x = value;
+    this._dirty = true;
   }
   set topOffset(value: number) {
     this.quad.offset.y = value;
+    this._dirty = true;
   }
   get width(): number {
     if (this._spriteTexture) {
@@ -93,6 +102,7 @@ export class SpriteController2 extends Component implements ISprite {
   set angle(degrees: number) {
     this._angle = degrees;
     this.calculateMat();
+    this._dirty = true;
   }
   get xScale(): number {
     return this._scale.x;
@@ -100,6 +110,7 @@ export class SpriteController2 extends Component implements ISprite {
   set xScale(value: number) {
     this._scale.x = value;
     this.calculateMat();
+    this._dirty = true;
   }
   get yScale(): number {
     return this._scale.y;
@@ -107,24 +118,29 @@ export class SpriteController2 extends Component implements ISprite {
   set yScale(value: number) {
     this._scale.y = value;
     this.calculateMat();
+    this._dirty = true;
   }
   get colorScale(): vec4 {
     return this.quad.color;
   }
   set colorScale(color: vec4) {
     this.quad.color = color;
+    this._dirty = true;
   }
   get alpha(): number {
     return this.quad.color.a;
   }
   set alpha(alpha: number) {
     this.quad.color.a = alpha;
+    this._dirty = true;
   }
   get flipDirection(): SpriteFlip {
     return this._flip;
   }
   set flipDirection(flip: SpriteFlip) {
     this._flip = flip;
+    this.pixelsToUv(this._loc, this._flip, this.quad.minTex, this.quad.maxTex);
+    this._dirty = true;
   }
 
   initialize(texture: Texture): void {
@@ -161,8 +177,11 @@ export class SpriteController2 extends Component implements ISprite {
     this._world.translate(this.quad.translation);
   }
 
-  protected commitToBuffer(): void {
-    this._buffer.setBuffers(this.quad, false);
+  protected commitToBuffer(force?: boolean): void {
+    if (this._dirty) {
+      this._buffer.setBuffers(this.quad, false);
+      this._dirty = false;
+    }
   }
 
   update(dt: number): void {
@@ -171,11 +190,7 @@ export class SpriteController2 extends Component implements ISprite {
       return;
     }
 
-    // only commit to buffer if something changed
-    if (this._dirty) {
-      this.commitToBuffer();
-      this._dirty = false;
-    }
+    this.commitToBuffer();
 
     if (!this._buffer.buffersCreated) {
       console.error('buffers are not created. Call commitToBuffers() first.');
@@ -208,6 +223,7 @@ export class SpriteController2 extends Component implements ISprite {
    */
   pixelsToUv(
     loc: [number, number, number, number],
+    flip: SpriteFlip,
     resultsMin: vec2,
     resultsMax: vec2
   ): void {
@@ -218,9 +234,20 @@ export class SpriteController2 extends Component implements ISprite {
     let maxX = (loc[0] + loc[2]) / sheetW;
     let maxY = 1.0 - (loc[1] + loc[3]) / sheetH;
 
-    resultsMin.x = minX;
-    resultsMin.y = minY;
-    resultsMax.x = maxX;
-    resultsMax.y = maxY;
+    if (flip == SpriteFlip.Both || flip == SpriteFlip.XFlip) {
+      resultsMin.x = maxX;
+      resultsMax.x = minX;
+    } else {
+      resultsMin.x = minX;
+      resultsMax.x = maxX;
+    }
+
+    if (flip == SpriteFlip.Both || flip == SpriteFlip.YFlip) {
+      resultsMin.y = maxY;
+      resultsMax.y = minY;
+    } else {
+      resultsMin.y = minY;
+      resultsMax.y = maxY;
+    }
   }
 }

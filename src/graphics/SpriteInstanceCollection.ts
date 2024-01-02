@@ -8,6 +8,7 @@ import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
 import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
+import { SpriteFlip } from './ISprite';
 import { TileData } from './ISpriteData';
 import { Texture } from './Texture';
 
@@ -46,7 +47,7 @@ export interface QuadBuildArgs {
   flipY?: boolean;
 
   /** tile data for the sprite. This will be overridden by the above properties */
-  tileData?: TileData;
+  tileData: TileData;
 }
 
 /**
@@ -73,8 +74,8 @@ export class SpriteInstanceCollection extends Component {
   /**
    * Initialize a texture
    */
-  initialize(): void {
-    this._spriteTexture = this.eng.assetManager.menu.texture;
+  initialize(texture: Texture): void {
+    this.setTexture(texture);
   }
 
   /**
@@ -83,110 +84,6 @@ export class SpriteInstanceCollection extends Component {
    */
   setTexture(texture: Texture): void {
     this._spriteTexture = texture;
-  }
-
-  /**
-   * build a quad
-   * @param id
-   * @param args
-   * @returns
-   */
-  buildQuad(id: string, args: QuadBuildArgs): IQuadModel {
-    let quad = this.getQuad(id);
-    if (!quad) {
-      // create a default
-      quad = {
-        id: id,
-        translation: new vec3(0, 0, 0),
-        offset: new vec2(0, 0),
-        color: new vec4([1, 1, 1, 1]),
-        rotScale: mat2.identity.copy(),
-        maxTex: new vec2([1, 1]),
-        minTex: new vec2([0, 0]),
-      };
-    }
-
-    // tileData comes from the sprite sheet. This must be set first then the other properties
-    // can choose to override it.
-    if (args.tileData) {
-      this.pixelsToUv(args.tileData.loc, quad.minTex, quad.maxTex);
-
-      // rotate
-      if (args.tileData.rotate) {
-        quad.rotScale.rotate(args.tileData.rotate);
-      }
-      // flip
-      if (args.tileData.flip) {
-        const tmp = quad.minTex.x;
-        quad.minTex.x = quad.maxTex.x;
-        quad.maxTex.x = tmp;
-        // set offset
-        if (args.tileData.offset) {
-          quad.offset = new vec2(
-            args.tileData.offset[2],
-            args.tileData.offset[3]
-          );
-        }
-      } else {
-        // set offset
-        if (args.tileData.offset) {
-          quad.offset = new vec2(
-            args.tileData.offset[0],
-            args.tileData.offset[1]
-          );
-        }
-      }
-    }
-
-    if (args.translation) {
-      quad.translation.x = args.translation.x;
-      quad.translation.y = args.translation.y;
-    }
-    if (args.depth != undefined) {
-      quad.translation.z = args.depth;
-    }
-
-    quad.rotScale.setIdentity();
-    if (args.rotation != undefined) {
-      quad.rotScale.rotate(toRadian(args.rotation));
-    }
-    if (args.scale || args.scaleHeight || args.scaleWidth) {
-      const w = args.scaleWidth ?? args.scale ?? 1.0;
-      const h = args.scaleHeight ?? args.scale ?? 1.0;
-      quad.rotScale.scaleNumber(w, h);
-    }
-    if (args.color) {
-      quad.color = args.color;
-    }
-    /*
-    if (args.spritePosition && args.spriteSize) {
-      this.pixelsToUv(
-        args.spritePosition,
-        args.spriteSize,
-        quad.minTex,
-        quad.maxTex
-      );
-      if (args.flipX) {
-        const tmp = quad.minTex.x;
-        quad.minTex.x = quad.maxTex.x;
-        quad.maxTex.x = tmp;
-      }
-      if (args.flipY) {
-        const tmp = quad.minTex.y;
-        quad.minTex.y = quad.maxTex.y;
-        quad.maxTex.y = tmp;
-      }
-    }
-    */
-
-    if (args.offset) {
-      quad.offset.x = args.offset.x;
-      quad.offset.y = args.offset.y;
-    }
-
-    this.addQuad(quad);
-
-    return quad;
   }
 
   /**
@@ -217,10 +114,17 @@ export class SpriteInstanceCollection extends Component {
   }
 
   /**
+   * Set the flag to update the buffer
+   */
+  public setDirty(): void {
+    this.dirty = true;
+  }
+
+  /**
    * Commit the quads to the vertex buffers
    * @param force
    */
-  commitToBuffer(force?: boolean): void {
+  protected commitToBuffer(force?: boolean): void {
     if (this.dirty || force) {
       const array = Array.from(this.quads.values());
       this.buffer.setBuffers(array);
@@ -228,29 +132,48 @@ export class SpriteInstanceCollection extends Component {
     this.dirty = false;
   }
 
-  /**
-   * Converts textures from pixels to uv space
-   * @param loc - [x, y, width, height]
-   * @param spriteW
-   * @param spriteH
-   * @returns
-   */
   pixelsToUv(
     loc: [number, number, number, number],
+    flip: SpriteFlip,
     resultsMin: vec2,
     resultsMax: vec2
   ): void {
-    const sheetW = this.spriteTexture.width;
-    const sheetH = this.spriteTexture.height;
+    const sheetW = this._spriteTexture.width;
+    const sheetH = this._spriteTexture.height;
+    /*
+    let minX = loc[0] / sheetW;
+    let minY = 1.0 - loc[1] / sheetH;
+    let maxX = (loc[0] + loc[2]) / sheetW;
+    let maxY = 1.0 - (loc[1] + loc[3]) / sheetH;
+    */
     let minX = loc[0] / sheetW;
     let minY = 1.0 - loc[1] / sheetH;
     let maxX = (loc[0] + loc[2]) / sheetW;
     let maxY = 1.0 - (loc[1] + loc[3]) / sheetH;
 
-    resultsMin.x = minX;
-    resultsMin.y = minY;
-    resultsMax.x = maxX;
-    resultsMax.y = maxY;
+    if (flip == SpriteFlip.Both || flip == SpriteFlip.XFlip) {
+      resultsMin.x = maxX;
+      resultsMax.x = minX;
+    } else {
+      resultsMin.x = minX;
+      resultsMax.x = maxX;
+    }
+
+    if (flip == SpriteFlip.Both || flip == SpriteFlip.YFlip) {
+      resultsMin.y = maxY;
+      resultsMax.y = minY;
+    } else {
+      resultsMin.y = minY;
+      resultsMax.y = maxY;
+    }
+  }
+
+  /**
+   * clear out the sprites
+   */
+  clear(): void {
+    this.quads.clear();
+    this.setDirty();
   }
 
   /**

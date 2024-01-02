@@ -2,6 +2,7 @@ import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import { TileData } from '../graphics/ISpriteData';
 import { SpriteInstanceCollection } from '../graphics/SpriteInstanceCollection';
+import { SpriteInstanceController } from '../graphics/SpriteInstanceController';
 import { toDegrees, toRadian } from '../math/constants';
 import rect from '../math/rect';
 import vec2 from '../math/vec2';
@@ -56,16 +57,17 @@ export class AnnotationManager extends Component {
       Math.atan2(args.end.y - args.start.y, args.end.x - args.start.x)
     );
     const distance = args.end.copy().subtract(args.start).length();
-    this._lineSprites.buildQuad(id, {
-      translation: args.start,
-      offset: new vec2(1, 0),
-      depth: args.depth ?? -0.1,
-      color: args.color ?? new vec4([0, 0, 0, 1]),
-      scaleWidth: distance * 0.5, // because of the offset is half the distance from center
-      scaleHeight: args.thickness ?? 1,
-      rotation: rotation,
-      tileData: this.tileData,
-    });
+    const controller = new SpriteInstanceController(id, this._lineSprites);
+    controller.left = args.start.x;
+    controller.top = args.start.y;
+    controller.spriteLocation(this.tileData.loc);
+    controller.leftOffset = 1;
+    controller.topOffset = -0.5;
+    controller.depth = args.depth ?? -0.4;
+    controller.colorScale = args.color ?? new vec4([0, 0, 0, 1]);
+    controller.xScale = distance * 0.5;
+    controller.yScale = args.thickness ?? 1;
+    controller.angle = rotation;
   }
 
   buildCrossHair(id: string, bounds: Readonly<rect>, color: vec4): void {
@@ -128,7 +130,7 @@ export class AnnotationManager extends Component {
   }
 
   initialize() {
-    this._lineSprites.initialize();
+    this._lineSprites.initialize(this.eng.assetManager.menu.texture);
 
     // setup texture and tile data
     this._lineSprites.setTexture(this.eng.assetManager.menu.texture);

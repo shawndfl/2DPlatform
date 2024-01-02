@@ -1,15 +1,13 @@
-
 import { InputState } from '../core/InputState';
-import { Component } from "../components/Component";
-import { PlayerController } from "../_game/components/PlayerController";
-import { ILevelData } from "../_game/data/ILevelData";
-import { Engine } from "../core/Engine";
+import { Component } from '../components/Component';
+import { PlayerController } from '../_game/components/PlayerController';
+import { ILevelData } from '../_game/data/ILevelData';
+import { Engine } from '../core/Engine';
 
 /**
  * This is a base class for a scene
  */
 export abstract class SceneComponent extends Component {
-
   /**
    * constructor
    * @param eng
@@ -34,6 +32,12 @@ export abstract class SceneComponent extends Component {
   abstract update(dt: number): void;
 
   /**
+   * Call after other systems were updated
+   * @param dt
+   */
+  abstract postUpdate(dt: number): void;
+
+  /**
    * Show scene is called when a SceneManager changes to a new scene.
    */
   abstract initialize(): void;
@@ -41,10 +45,10 @@ export abstract class SceneComponent extends Component {
   /**
    * When the window is resized
    */
-  resize(width: number, height: number): void { }
+  resize(width: number, height: number): void {}
 
   /**
    * Dispose the scene
    */
-  dispose(): void { }
+  dispose(): void {}
 }

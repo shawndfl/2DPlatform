@@ -1,10 +1,10 @@
-import { Component } from "../../components/Component";
-import { SceneComponent } from "../../components/SceneComponent";
-import { SceneFactory } from "../scenes/SceneFactory";
-import { ISceneManager } from "../../interfaces/ISceneManager";
-import { Engine } from "../../core/Engine";
-import { GameComponent } from "../components/GameComponent";
-import { PlatformEngine } from "../PlatformEngine";
+import { Component } from '../../components/Component';
+import { SceneComponent } from '../../components/SceneComponent';
+import { SceneFactory } from '../scenes/SceneFactory';
+import { ISceneManager } from '../../interfaces/ISceneManager';
+import { Engine } from '../../core/Engine';
+import { GameComponent } from '../components/GameComponent';
+import { PlatformEngine } from '../PlatformEngine';
 
 export class GameSceneManager extends GameComponent implements ISceneManager {
   private _activeScene: SceneComponent;
@@ -20,9 +20,8 @@ export class GameSceneManager extends GameComponent implements ISceneManager {
   }
 
   async initialize() {
-    //NOP    
+    //NOP
   }
-
 
   /**
    * Switch to a different scene.
@@ -31,7 +30,7 @@ export class GameSceneManager extends GameComponent implements ISceneManager {
   async changeScene(type: string): Promise<boolean> {
     const scene = this._sceneFactory.createScene(type);
     if (!scene) {
-      console.error("failed to change scene to " + type);
+      console.error('failed to change scene to ' + type);
       return false;
     }
 
@@ -52,13 +51,17 @@ export class GameSceneManager extends GameComponent implements ISceneManager {
     this._activeScene.update(dt);
   }
 
+  postUpdate(dt: number): void {
+    this._activeScene.postUpdate(dt);
+  }
+
   /**
    * When the window is resized
    */
-  resize(width: number, height: number) { }
+  resize(width: number, height: number) {}
 
   /**
    * Dispose the scene
    */
-  dispose() { }
+  dispose() {}
 }

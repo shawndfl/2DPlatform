@@ -1,20 +1,20 @@
 import { SceneComponent } from '../../components/SceneComponent';
 import Level1Data from '../assets/levels/level1.json';
 import { PlatformEngine } from '../PlatformEngine';
-import { LineComponent } from '../../components/LineComponent';
+
 import { InputState } from '../../core/InputState';
 import { InputCalibration } from '../../core/InputCalibration';
-import { QuadTree, QuadTreeAnalytics } from '../../physics/QuadTree';
-import { Collision2D } from '../../physics/Collision2D';
 import rect from '../../math/rect';
 import vec2 from '../../math/vec2';
 import vec4 from '../../math/vec4';
 import { Curve, CurveType } from '../../math/Curve';
-import { SpriteController2 } from '../../graphics/SpriteController2';
+import { SpriteTest } from '../samples/SpriteTest';
+import { ParticleTest } from '../samples/ParticleTest';
 
 export class Level1 extends SceneComponent {
   private inputCal: InputCalibration;
-  private sprite: SpriteController2;
+  private spriteTest: SpriteTest;
+  private particleTest: ParticleTest;
 
   get eng(): PlatformEngine {
     return super.eng as PlatformEngine;
@@ -26,7 +26,8 @@ export class Level1 extends SceneComponent {
     this.eng.viewManager.maxX = 1000;
 
     this.inputCal = new InputCalibration(eng);
-    this.sprite = new SpriteController2(eng);
+    this.spriteTest = new SpriteTest(eng);
+    this.particleTest = new ParticleTest(eng);
   }
 
   lineAnimationSetup(): void {
@@ -89,30 +90,10 @@ export class Level1 extends SceneComponent {
     this.eng.groundManager.loadLevel(Level1Data);
 
     this.lineAnimationSetup();
-    const sprite = this.eng.assetManager.getSprite('enemies.default');
-    this.sprite.initialize(sprite.texture);
-    this.sprite.spriteLocation(sprite.tile.loc);
-    this.sprite.left = 600;
-    this.sprite.top = 600;
-    this.sprite.angle = 0;
-    this.sprite.colorScale = new vec4([0, 1, 0, 1]);
-    this.sprite.alpha = 0.5;
-    this.sprite.topOffset = 1;
-    this.sprite.leftOffset = 1;
-    this.sprite.depth = -0.8;
-    this.sprite.xScale = 2.0;
-    this.sprite.yScale = 2;
 
-    this.eng.annotationManager.buildRect(
-      'enemyTest',
-      new rect([
-        this.sprite.left,
-        this.sprite.width,
-        this.sprite.top + this.sprite.height,
-        this.sprite.height,
-      ]),
-      new vec4([0.5, 0.9, 0.1, 1])
-    );
+    this.spriteTest.initialize();
+
+    this.particleTest.initialize();
 
     // set the texture for the particle manager
     this.eng.particleManager.setTexture(this.eng.assetManager.menu.texture);
@@ -126,33 +107,6 @@ export class Level1 extends SceneComponent {
     
         }, ["Start", "Input Mapping"], undefined, -.5);
         */
-
-    //Test
-    ///
-    /*
-    const tree = new QuadTree(300, 3);
-    
-        // create a 10 x 10 grid of 2x2 colliders
-        const step = 2;
-        const maxCollision = 100;
-        for (let i = 0; i < maxCollision; i++) {
-          for (let j = 0; j < maxCollision; j++) {
-            const id = 'test_' + i + ',' + j;
-            const collision = new Collision2D(null, id, null, new rect([i * step, step, (maxCollision - j) * step, step]));
-            tree.addCollision(collision);
-          }
-        }
-        const testBlock = new Collision2D(null, 'test', null, new rect([0, 1, 1, 1]));
-    
-        var t0 = performance.now();
-        let analytics: QuadTreeAnalytics = { intersectionTests: 0, nodesTested: 0 };
-        let results = tree.checkForCollision(testBlock, undefined, analytics);
-        var t1 = performance.now();
-    
-        console.debug(' analytics ', analytics, results);
-        console.debug(' time quad tree: ', (t1 - t0));
-        console.debug('quadTree ', tree);
-    */
   }
 
   private startCalibration(): void {
@@ -185,6 +139,10 @@ export class Level1 extends SceneComponent {
   update(dt: number): void {
     this.inputCal.update(dt);
     this.lineAnimation(dt);
-    this.sprite.update(dt);
+  }
+
+  postUpdate(dt: number): void {
+    this.spriteTest.update(dt);
+    this.particleTest.update(dt);
   }
 }

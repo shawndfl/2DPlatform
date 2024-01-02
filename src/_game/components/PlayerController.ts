@@ -98,10 +98,6 @@ export class PlayerController extends TileComponent {
     this.ridgeBody.position = this.screenPosition.copy().scale(PixelsToMeters);
     this.setPosition(this.ridgeBody.position);
 
-    this.eng.particleManager.setEmitter('player', {
-      position: new vec2(20, 100),
-    });
-
     this.sprite.activeSprite(this.id);
     this.sprite.setSprite('teleport.1');
     this.sprite.scale(2.0);

@@ -95,6 +95,8 @@ export class PlatformEngine extends Engine {
     this.dialogManager.update(dt);
     this.textManager.update(dt);
     this.annotationManager.update(dt);
+
+    this.sceneManager.postUpdate(dt);
   }
 
   // Used for isolated feature debugger
