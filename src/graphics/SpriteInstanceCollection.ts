@@ -108,8 +108,8 @@ export class SpriteInstanceCollection extends Component {
    * Add or update a quad.
    * @param quad
    */
-  addQuad(quad: IQuadModel): void {
-    this.quads.set(quad.id, quad);
+  addQuad(id: string, quad: IQuadModel): void {
+    this.quads.set(id, quad);
     this.dirty = true;
   }
 

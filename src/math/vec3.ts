@@ -62,7 +62,7 @@ export default class vec3 {
       if (y !== undefined) {
         this.values[1] = y;
       }
-      if (y !== undefined) {
+      if (z !== undefined) {
         this.values[2] = z;
       }
     } else {

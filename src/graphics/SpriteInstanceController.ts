@@ -16,13 +16,13 @@ import { SpriteInstanceCollection } from './SpriteInstanceCollection';
 export class SpriteInstanceController extends Component implements ISprite {
   protected _quad: IQuadModel = {
     color: vec4.one.copy(),
-    id: '',
     maxTex: new vec2(),
     minTex: new vec2(),
     offset: new vec2(),
     rotScale: new mat2(),
     translation: new vec3(),
   };
+  private _id: string;
   protected _angle: number = 0;
   protected _scale: vec2 = new vec2(1, 1);
   protected _flip: SpriteFlip;
@@ -33,11 +33,9 @@ export class SpriteInstanceController extends Component implements ISprite {
   }
 
   get id(): string {
-    return this._quad.id;
+    return this._id;
   }
-  set id(value: string) {
-    this._quad.id = value;
-  }
+
   set left(value: number) {
     this.quad.translation.x = value;
     this.calculateMat();
@@ -164,10 +162,15 @@ export class SpriteInstanceController extends Component implements ISprite {
     super(_collection.eng);
 
     if (quad) {
-      this._quad = quad;
+      quad.color.copy(this._quad.color);
+      quad.maxTex.copy(this._quad.maxTex);
+      quad.minTex.copy(this._quad.minTex);
+      quad.offset.copy(this._quad.offset);
+      quad.rotScale.copy(this._quad.rotScale);
+      quad.translation.copy(this._quad.translation);
     }
-    this._quad.id = id;
-    this._collection.addQuad(this._quad);
+    this._id = id;
+    this._collection.addQuad(this._id, this._quad);
   }
 
   protected calculateMat(): void {
@@ -186,7 +189,7 @@ export class SpriteInstanceController extends Component implements ISprite {
     }
 
     const w = pixelWidth * this.xScale;
-    const h = pixelWidth * this.yScale;
+    const h = pixelHeight * this.yScale;
     this.quad.rotScale.scaleNumber(w, h);
   }
 
@@ -194,5 +197,15 @@ export class SpriteInstanceController extends Component implements ISprite {
    * Removes a quad
    * @param id
    */
-  removeSprite(): void {}
+  removeSprite(): void {
+    this._collection.removeQuad(this.id);
+  }
+
+  addSprite(): void {
+    this._collection.addQuad(this.id, this.quad);
+  }
+
+  getSprite(id: string): IQuadModel {
+    return this._collection.getQuad(id);
+  }
 }

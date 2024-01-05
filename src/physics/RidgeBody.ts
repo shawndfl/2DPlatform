@@ -19,7 +19,7 @@ export class RidgeBody extends Collision2D {
   public force: vec3;
   public mass: number;
   public active: boolean;
-  public useGravity: boolean;
+  public customGravity: vec3;
 
   public maxVelocity: vec3;
 
@@ -28,10 +28,10 @@ export class RidgeBody extends Collision2D {
   private collisionResults: CollisionResults;
 
   /** events */
-  onPositionChange: (newPosition: Readonly<vec3>) => void;
+  onPositionChange: (newPosition: Readonly<vec3>, body: RidgeBody) => void;
   onFloor: (body: RidgeBody) => void;
   /** all collision this body is hitting */
-  onCollision: (collisions: Collision2D[]) => void;
+  onCollision: (collisions: Collision2D[], body: RidgeBody) => void;
 
   constructor(
     eng: Engine,
@@ -48,7 +48,6 @@ export class RidgeBody extends Collision2D {
     this.force = new vec3();
     this.mass = 10;
     this.active = true;
-    this.useGravity = true;
   }
 
   private temp = new vec3();
@@ -64,8 +63,10 @@ export class RidgeBody extends Collision2D {
 
     // apply acceleration and velocity
     const adjustAcc = this.acceleration.copy();
-    if (this.useGravity) {
+    if (this.customGravity == null) {
       adjustAcc.add(this.eng.physicsManager.gravity);
+    } else {
+      adjustAcc.add(this.customGravity);
     }
 
     this.nextVelocity.add(adjustAcc.scale(t, this.temp));
@@ -87,7 +88,7 @@ export class RidgeBody extends Collision2D {
     this.renderCollisions();
 
     if (this.onPositionChange) {
-      this.onPositionChange(this.nextPosition);
+      this.onPositionChange(this.nextPosition, this);
     }
   }
 
@@ -219,7 +220,7 @@ export class RidgeBody extends Collision2D {
 
       // raise onCollision event
       if (sim == 0 && this.onCollision) {
-        this.onCollision(this.collisionResults.collisions);
+        this.onCollision(this.collisionResults.collisions, this);
       }
 
       const others = this.collisionResults.collisions;

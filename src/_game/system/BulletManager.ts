@@ -8,7 +8,6 @@ import { GameComponent } from '../components/GameComponent';
 import { TextureAssets } from './GameAssetManager';
 
 export class BulletOptions {
-  id?: string;
   /** in meters */
   position: vec3;
   /** in meters per second */
@@ -34,7 +33,6 @@ export class BulletManager extends GameComponent {
    */
   addBullet(options: BulletOptions): BulletController {
     const bullet = this.inactiveBullets.pop();
-    options.id = this.eng.random.getUuid();
 
     if (bullet) {
       bullet.initialize(this.sprite, options);

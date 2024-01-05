@@ -9,7 +9,7 @@ export class ParticleTest extends Component {
   initialize() {
     this.emitter = new Emitter(this.eng);
     this.emitter.initialize({
-      position: new vec2(600, 600),
+      position: new vec2(550, 600),
     });
   }
 

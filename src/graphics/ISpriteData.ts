@@ -24,7 +24,7 @@ export interface TileData {
    * override what ever is in the index field. This is in pixels of
    * the sprite sheet [x,y, width, height]
    */
-  loc?: [number, number, number, number];
+  loc: [number, number, number, number];
 }
 
 /**

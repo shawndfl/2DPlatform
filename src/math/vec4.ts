@@ -127,9 +127,30 @@ export default class vec4 {
     this.values[3] = values[3];
   }
 
-  constructor(values?: [number, number, number, number]) {
+  constructor(
+    values?: [number, number, number, number] | number,
+    y?: number,
+    z?: number,
+    w?: number
+  ) {
     if (values !== undefined) {
-      this.xyzw = values;
+      if (typeof values === 'number') {
+        this.values[0] = values;
+      } else if (Array.isArray(values)) {
+        this.xyzw = values;
+      }
+
+      if (y !== undefined) {
+        this.values[1] = y;
+      }
+      if (z !== undefined) {
+        this.values[2] = z;
+      }
+      if (w !== undefined) {
+        this.values[3] = w;
+      }
+    } else {
+      this.xyzw = [0, 0, 0, 0];
     }
   }
 
@@ -248,6 +269,18 @@ export default class vec4 {
     this.w /= vector.w;
 
     return this;
+  }
+
+  leap(t: number, other: vec4, dest?: vec4): vec4 {
+    if (!dest) {
+      dest = new vec4();
+    }
+
+    dest.x = this.x * t + (1 - t) * other.x;
+    dest.y = this.y * t + (1 - t) * other.y;
+    dest.z = this.z * t + (1 - t) * other.z;
+    dest.w = this.w * t + (1 - t) * other.w;
+    return dest;
   }
 
   scale(value: number, dest?: vec4): vec4 {

@@ -59,6 +59,10 @@ export class PhysicsManager extends Component {
     this.ridgeBodies.push(body);
   }
 
+  removeBody(body: RidgeBody): void {
+    this.ridgeBodies = this.ridgeBodies.filter((r) => r.id != body.id);
+  }
+
   update(dt: number): void {
     for (let i = 0; i < this.ridgeBodies.length; i++) {
       this.ridgeBodies[i].update(dt);

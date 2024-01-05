@@ -16,18 +16,24 @@ export class BulletController extends GameComponent {
   private _options: BulletOptions;
   private _ridgeBody: RidgeBody;
   private _bulletType: BulletType;
+  private _id: string;
 
+  public get id(): string {
+    return this._id;
+  }
   public get bulletType(): BulletType {
     return this._bulletType;
   }
 
   constructor(eng: PlatformEngine, id: string) {
     super(eng);
+    this._id = id;
     this._ridgeBody = new RidgeBody(eng, id, this);
     this._ridgeBody.onPositionChange = this.onPositionChange.bind(this);
     this._ridgeBody.onCollision = this.onCollision.bind(this);
     this._ridgeBody.active = false;
-    this._ridgeBody.useGravity = false;
+    // no gravity
+    this._ridgeBody.customGravity = vec3.zero.copy();
 
     this.eng.physicsManager.addBody(this._ridgeBody);
   }
@@ -47,8 +53,8 @@ export class BulletController extends GameComponent {
     this._options.velocity.copy(this._ridgeBody.instanceVelocity);
     this._bulletType = this._options.bulletType;
 
-    this.sprite.activeSprite(options.id);
-    this._ridgeBody.setId(options.id);
+    this.sprite.activeSprite(this._id);
+    this._ridgeBody.setId(this._id);
 
     this.sprite.setSprite('bullet.normal.1');
     this.sprite.scale(2.0);
@@ -95,10 +101,10 @@ export class BulletController extends GameComponent {
       // destroy bullet
       this._active = false;
       this._ridgeBody.active = false;
-      this.sprite.removeSprite(this._options.id);
+      this.sprite.removeSprite(this._id);
       this.sprite.commitToBuffer();
     }
-    this.sprite.activeSprite(this._options.id);
+    this.sprite.activeSprite(this._id);
     this.sprite.setSpritePosition(
       newPosition.x * MetersToPixels,
       newPosition.y * MetersToPixels,
@@ -112,7 +118,7 @@ export class BulletController extends GameComponent {
       // destroy bullet
       this._active = false;
       this._ridgeBody.active = false;
-      this.sprite.removeSprite(this._options.id);
+      this.sprite.removeSprite(this.id);
       this.sprite.commitToBuffer();
 
       // check collisions
@@ -134,6 +140,6 @@ export class BulletController extends GameComponent {
 
   update(dt: number): void {
     // make sure the correct sprite is active
-    this.sprite.activeSprite(this._options.id);
+    this.sprite.activeSprite(this.id);
   }
 }

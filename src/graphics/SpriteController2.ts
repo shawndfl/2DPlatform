@@ -16,9 +16,9 @@ export class SpriteController2 extends Component implements ISprite {
   protected _dirty: boolean;
   protected _world: mat4 = new mat4();
   protected _loc: [number, number, number, number] = [0, 0, 0, 0];
+  private _id: string;
   protected quad: IQuadModel = {
     color: vec4.one.copy(),
-    id: '',
     maxTex: new vec2(),
     minTex: new vec2(),
     offset: new vec2(),
@@ -30,11 +30,9 @@ export class SpriteController2 extends Component implements ISprite {
   protected _flip: SpriteFlip;
 
   get id(): string {
-    return this.quad.id;
+    return this._id;
   }
-  set id(value: string) {
-    this.quad.id = value;
-  }
+
   set left(value: number) {
     this.quad.translation.x = value;
     this.calculateMat();
