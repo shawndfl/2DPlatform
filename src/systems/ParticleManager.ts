@@ -32,7 +32,7 @@ export class ParticleManager extends Component {
   setEmitter(name: string, options: EmitterArgs): Emitter {
     let emitter = this.emitter.get(name);
     if (!emitter) {
-      emitter = new Emitter(this.eng);
+      emitter = new Emitter(this.eng, name);
       this.emitter.set(name, emitter);
     }
     emitter.initialize(options);

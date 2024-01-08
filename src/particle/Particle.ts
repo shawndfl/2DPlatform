@@ -3,6 +3,7 @@ import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import { SpriteInstanceCollection } from '../graphics/SpriteInstanceCollection';
 import { SpriteInstanceController } from '../graphics/SpriteInstanceController';
+import { toRadian } from '../math/constants';
 import rect from '../math/rect';
 import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
@@ -13,11 +14,28 @@ import { MetersToPixels, PixelsToMeters } from '../systems/PhysicsManager';
 export interface ParticleCreationArgs {
   positionMin: vec2;
   positionMax: vec2;
-  velocityMin: vec3;
-  velocityMax: vec3;
+  angleMin: number;
+  angleMax: number;
+
+  speedMin: number;
+  speedMax: number;
+
+  /** delay in ms between particle creation */
+  creationDelay: number;
 
   scaleMin: number;
   scaleMax: number;
+
+  /** add to scale over the life time of the particle */
+  scaleGrowth: number;
+  /** width over height for the scale value */
+  scaleAspectRatio: number;
+
+  /** in degrees */
+  rotation: number;
+  /** degrees per second */
+  angularVelocity: number;
+
   colorStart: vec4;
   colorEnd: vec4;
 
@@ -37,6 +55,18 @@ export class Particle extends Component {
   private _maxLifeTime: number;
   private _colorStart: vec4;
   private _colorEnd: vec4;
+  private _initialScale: number;
+  private _scaleGrowth: number;
+  private _scaleAspectRatio: number;
+  private _speedMin: number;
+  private _speedMax: number;
+  private _angleMin: number;
+  private _angleMax: number;
+
+  /** in degrees */
+  private rotation: number;
+  /** degrees per second */
+  private angularVelocity: number;
 
   get active(): boolean {
     return this._active;
@@ -82,11 +112,30 @@ export class Particle extends Component {
     this._colorStart.leap(t, this._colorEnd, this.spriteController.colorScale);
   }
 
+  updateScale(): void {
+    const t = 1 - (this._maxLifeTime - this._lifeTime) / this._maxLifeTime;
+    const scale = this._initialScale * t + (1 - t) * this._scaleGrowth;
+
+    this.spriteController.xScale = scale;
+    this.spriteController.yScale = scale / this._scaleAspectRatio;
+
+    this._colorStart.leap(t, this._colorEnd);
+  }
+
   initialize(opts: ParticleCreationArgs) {
     const startPosition = this.getValueVec2(opts.positionMin, opts.positionMax);
     this._maxLifeTime = this.getValue(opts.lifeTimeMin, opts.lifeTimeMax);
     this._lifeTime = this._maxLifeTime;
-    const scale = this.getValue(opts.scaleMin, opts.scaleMax);
+    this._initialScale = this.getValue(opts.scaleMin, opts.scaleMax);
+
+    this._scaleGrowth = opts.scaleGrowth;
+    this._scaleAspectRatio = opts.scaleAspectRatio;
+    this.rotation = opts.rotation;
+    this._angleMin = opts.angleMin;
+    this._angleMax = opts.angleMax;
+    this._speedMin = opts.speedMin;
+    this._speedMax = opts.speedMax;
+    this.angularVelocity = opts.angularVelocity;
 
     opts.colorStart.copy(this._colorStart);
     opts.colorEnd.copy(this._colorEnd);
@@ -97,25 +146,27 @@ export class Particle extends Component {
     this.spriteController.topOffset = 0.5;
     this.spriteController.leftOffset = 0.5;
     this.spriteController.depth = -0.8;
-    this.spriteController.xScale = scale;
-    this.spriteController.yScale = scale;
+    this.spriteController.xScale = this._initialScale;
+    this.spriteController.yScale = this._initialScale / this._scaleAspectRatio;
 
     this.spriteController.left = startPosition.x;
     this.spriteController.top = startPosition.y;
 
-    const bounds = new rect([
+    this.ridgeBody.set(
       this.spriteController.left,
       this.spriteController.width,
       this.spriteController.top + this.spriteController.height,
-      this.spriteController.height,
-    ]);
-
-    this.ridgeBody.setBounds(bounds);
+      this.spriteController.height
+    );
 
     // initialize ridge body
-    this.ridgeBody.instanceVelocity = this.getValueVec3(
-      opts.velocityMin,
-      opts.velocityMax
+    const a = toRadian(this.getValue(this._angleMin, this._angleMax));
+    const l = this.getValue(this._speedMin, this._speedMax);
+
+    this.ridgeBody.instanceVelocity = new vec3(
+      Math.cos(a) * l,
+      Math.sin(a) * l,
+      0
     );
     this.ridgeBody.customGravity = opts.gravity.copy(
       this.ridgeBody.customGravity
@@ -133,6 +184,13 @@ export class Particle extends Component {
     this.ridgeBody.onPositionChange = (pos, body) => {
       this.spriteController.left = pos.x * MetersToPixels;
       this.spriteController.top = pos.y * MetersToPixels;
+
+      body.set(
+        this.spriteController.left,
+        this.spriteController.width,
+        this.spriteController.top + this.spriteController.height,
+        this.spriteController.height
+      );
     };
 
     // on collision kill it.
@@ -159,11 +217,14 @@ export class Particle extends Component {
   }
 
   update(dt: number): void {
-    this._lifeTime -= dt;
-    this.updateColor();
+    if (this.active) {
+      this._lifeTime -= dt;
+      this.updateColor();
+      this.updateScale();
 
-    if (this._lifeTime <= 0) {
-      this.kill();
+      if (this._lifeTime <= 0) {
+        this.kill();
+      }
     }
   }
 }

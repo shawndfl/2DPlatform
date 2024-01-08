@@ -1,23 +1,17 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
-import { GlBufferQuadInstance } from '../geometry/GlBufferQuadInstance';
-import { IQuadModel } from '../geometry/IQuadMode';
 import { SpriteInstanceCollection } from '../graphics/SpriteInstanceCollection';
-import { SpriteInstanceController } from '../graphics/SpriteInstanceController';
-import { Texture } from '../graphics/Texture';
-import rect from '../math/rect';
 import vec2 from '../math/vec2';
-import vec3 from '../math/vec3';
-import vec4 from '../math/vec4';
-import { RidgeBody } from '../physics/RidgeBody';
 import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
 import { ISpriteTexture } from '../systems/AssetManager';
-import { MetersToPixels, PixelsToMeters } from '../systems/PhysicsManager';
 import { Particle, ParticleCreationArgs } from './Particle';
 
-export interface EmitterArgs {
+export interface EmitterArgs extends ParticleCreationArgs {
   /** in pixels */
   position: vec2;
+  maxParticles: number;
+  /** wait for all particles to die before they are created again */
+  waitForAll: boolean;
 }
 
 export class Emitter extends Component {
@@ -25,9 +19,11 @@ export class Emitter extends Component {
   private _sprites: SpriteInstanceCollection;
   private active: Particle[] = [];
   private inactive: Particle[] = [];
-  private particleCreationArgs: ParticleCreationArgs;
   private _running: boolean;
   private _spriteTexture: ISpriteTexture;
+  private _creationDelay: number;
+  private _creationTimer: number;
+  private _id: string;
 
   /** emitter's position in pixels */
   position: vec2 = new vec2();
@@ -35,31 +31,26 @@ export class Emitter extends Component {
   /** the number of particles that are emitted */
   maxParticles: number = 20;
 
+  get id(): string {
+    return this._id;
+  }
+
   get shader(): SpriteInstanceShader {
     return this.eng.particleManager.shader;
   }
 
-  constructor(eng: Engine) {
+  constructor(eng: Engine, id: string) {
     super(eng);
+    this._id = id;
     this._sprites = new SpriteInstanceCollection(this.eng);
-    this.particleCreationArgs = {
-      positionMin: new vec2(0, 0),
-      positionMax: new vec2(0, 0),
-      scaleMin: 0.7,
-      scaleMax: 1.8,
-      colorStart: new vec4(0.0, 0.0, 0.0, 1),
-      colorEnd: new vec4(0, 0, 0, 0.1),
-      gravity: new vec3(0, -0.2, 0),
-      lifeTimeMin: 3000,
-      lifeTimeMax: 2000,
-      loc: [0, 0, 0, 0],
-      velocityMin: new vec3(0.5, 0.6, 0),
-      velocityMax: new vec3(0.4, 0.5, 0),
-    };
   }
 
   initialize(options: EmitterArgs): void {
     this.emitter = options;
+    this._creationDelay = options.creationDelay;
+    this._creationTimer = 0;
+    this.position = options.position;
+    this.maxParticles = options.maxParticles;
 
     // set the texture
     this._spriteTexture = this.eng.assetManager.getSprite('enemies.particle.1');
@@ -74,27 +65,51 @@ export class Emitter extends Component {
 
     // add all particles
     for (let i = 0; i < this.maxParticles; i++) {
-      this.inactive.push(new Particle(this.eng, 'p_' + i, this._sprites));
+      this.inactive.push(
+        new Particle(this.eng, this._id + '_p_' + i, this._sprites)
+      );
     }
-
-    this.position = options.position;
 
     this.start();
   }
 
   private createParticle(): void {
     // update args creation args
-    this.particleCreationArgs.positionMin.x = this.position.x;
-    this.particleCreationArgs.positionMin.y = this.position.y;
-    this.particleCreationArgs.positionMax.x = this.position.x + 20;
-    this.particleCreationArgs.positionMax.y = this.position.y + 5;
-    this.particleCreationArgs.loc = this._spriteTexture.tile.loc;
+    this.emitter.positionMin.x = this.position.x;
+    this.emitter.positionMin.y = this.position.y;
+    this.emitter.positionMax.x = this.position.x + 10;
+    this.emitter.positionMax.y = this.position.y + 10;
+    this.emitter.loc = this._spriteTexture.tile.loc;
 
-    // get the next particle and initialize it
-    const particle = this.inactive.pop();
-    if (particle) {
-      particle.initialize(this.particleCreationArgs);
-      this.active.push(particle);
+    // spit them all out at once if there is no delay
+    if (this.emitter.creationDelay == 0) {
+      // do we need to wait for all
+      if (
+        (this.emitter.waitForAll && this.active.length == 0) ||
+        !this.emitter.waitForAll
+      ) {
+        this.inactive.forEach((p) => {
+          p.initialize(this.emitter);
+          this.active.push(p);
+        });
+        this.inactive = [];
+      }
+    }
+    // delay creation
+    else if (this._creationTimer >= this._creationDelay) {
+      // do we need to wait for all
+      if (
+        (this.emitter.waitForAll && this.active.length == 0) ||
+        !this.emitter.waitForAll
+      ) {
+        // get the next particle and initialize it
+        const particle = this.inactive.pop();
+        if (particle) {
+          particle.initialize(this.emitter);
+          this.active.push(particle);
+        }
+      }
+      this._creationTimer = 0;
     }
   }
 
@@ -104,6 +119,7 @@ export class Emitter extends Component {
 
   update(dt: number): void {
     if (this._running) {
+      this._creationTimer += dt;
       // create a new particle
       this.createParticle();
 

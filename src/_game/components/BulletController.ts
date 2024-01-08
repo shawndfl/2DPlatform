@@ -32,6 +32,7 @@ export class BulletController extends GameComponent {
     this._ridgeBody.onPositionChange = this.onPositionChange.bind(this);
     this._ridgeBody.onCollision = this.onCollision.bind(this);
     this._ridgeBody.active = false;
+
     // no gravity
     this._ridgeBody.customGravity = vec3.zero.copy();
 
