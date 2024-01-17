@@ -58,10 +58,7 @@ export class GameSceneManager extends GameComponent implements ISceneManager {
   /**
    * When the window is resized
    */
-  resize(width: number, height: number) {}
-
-  /**
-   * Dispose the scene
-   */
-  dispose() {}
+  resize(width: number, height: number) {
+    this._activeScene.resize(width, height);
+  }
 }

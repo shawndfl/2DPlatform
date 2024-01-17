@@ -48,7 +48,7 @@ def create_spritesheet(image, columns, filename, outputFolder):
     json = '' 
     # Determine new image size, based on the number of rows and columns
     newImgWidth = sourceWidth * columns
-    newImgHeight = int(sourceHeight * (math.ceil(float(columns) /float(numLayers)) + 1))
+    newImgHeight = int(sourceHeight * (math.ceil(float(numLayers) /float(columns))))
 
     # Create a new image with a single layer
     newImage = gimp.Image(newImgWidth, newImgHeight, RGB)
@@ -63,13 +63,16 @@ def create_spritesheet(image, columns, filename, outputFolder):
         pdb.gimp_edit_copy(layers[i])
         floating = pdb.gimp_edit_paste(newLayer, TRUE)
         offsetX, offsetY = floating.offsets
+        layerX, layerY = layers[i].offsets
         pixelX = (i % columns) * image.width
         pixelY = (i / columns * image.height)
-        x = pixelX - offsetX
-        y = pixelY - offsetY
+        x = pixelX - offsetX + layerX
+        y = pixelY - offsetY + layerY
+        w = layers[i].width
+        h = layers[i].height
          
         name = layers[i].name
-        json = jsonAddImage(json, name, pixelX, pixelY, sourceWidth, sourceHeight, i == numLayers -1)
+        json = jsonAddImage(json, name, x + offsetX, y + offsetY, w, h, i == numLayers -1)
         pdb.gimp_layer_translate(floating, x, y)
         pdb.gimp_floating_sel_anchor(floating)
 

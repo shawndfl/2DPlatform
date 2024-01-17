@@ -113,9 +113,8 @@ export class GroundManager extends GameComponent {
   }
 
   update(dt: number): void {
-    this._staticSprite.update(dt);
-
-    this.tilesToUpdate.forEach((t) => t.update(dt));
+    //this._staticSprite.update(dt);
+    //this.tilesToUpdate.forEach((t) => t.update(dt));
   }
 
   dispose(): void {

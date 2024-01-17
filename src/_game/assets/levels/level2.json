@@ -1,0 +1,22 @@
+
+{
+    "spriteSheet": "level1Tiles",
+    "entities":[
+        {
+            "type":"enemy",
+            "pos": [100, 10]
+        },
+        {
+            "type": "player",
+            "pos": [0, 10]
+        }
+    ],
+    "edges": [
+        {
+            "points": [10, 10, 800, 10],
+            "type": "solid"
+        }
+
+    ]
+    
+}
