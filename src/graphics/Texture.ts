@@ -7,7 +7,11 @@ export class Texture {
   width: number;
   height: number;
 
-  constructor(private gl: WebGL2RenderingContext) {
+  public get id(): string {
+    return this.id;
+  }
+
+  constructor(private _id: string, private gl: WebGL2RenderingContext) {
     this.glTexture = 0;
   }
 

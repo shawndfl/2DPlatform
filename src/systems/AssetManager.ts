@@ -6,100 +6,78 @@ import MenuImage from '../assets/menu.png';
 import MenuData from '../assets/menu.json';
 import { Texture } from '../graphics/Texture';
 import { IFontData } from '../graphics/IFontData';
-import { ISpriteData, TileData } from '../graphics/ISpriteData';
+import { ISpriteData, SpriteData, TileData } from '../graphics/ISpriteData';
 
 export class BuiltInTextureAssets {
   static readonly menu: string = 'menu';
 }
 
-export interface ISpriteTexture {
-  tile: TileData;
+export interface ITextureAsset {
   texture: Texture;
+  data: SpriteData;
 }
 
 /**
- * Manages texture assets
+ * Manages texture assets. This only has two that it manages. One is the font
+ * the other is the menu.
  */
 export class AssetManager extends Component {
   protected _font: Texture;
-  protected textures: Map<string, { texture: Texture; data: ISpriteData }>;
-  protected spriteTextures: Map<string, ISpriteTexture>;
+  protected textures: Map<string, ITextureAsset>;
 
   get font(): { texture: Texture; data: IFontData[] } {
     return { texture: this._font, data: FontData };
   }
 
-  get menu(): { texture: Texture; data: ISpriteData } {
+  get menu(): ITextureAsset {
     return this.textures.get(BuiltInTextureAssets.menu);
   }
 
   /**
    * For implementation
-   * @deprecated use getSprite()
    * @param id
    * @returns
    */
-  getTexture(id: string): { texture: Texture; data: ISpriteData } {
+  getTexture(id: string): ITextureAsset {
     return this.textures.get(id);
   }
 
-  /**
-   * This is used to get the sprite location, in a sprite sheet texture
-   * @param name
-   * @returns
-   */
-  getSprite(name: string): ISpriteTexture {
-    const sprite = this.spriteTextures.get(name);
-    if (!sprite) {
-      console.error('cannot find sprite ' + name);
-    }
-    return sprite;
-  }
   /**
    * Create a map of textures
    * @param eng
    */
   constructor(eng: Engine) {
     super(eng);
-    this.textures = new Map<string, { texture: Texture; data: ISpriteData }>();
-    this.spriteTextures = new Map<string, ISpriteTexture>();
+    this.textures = new Map<string, ITextureAsset>();
   }
 
   /**
    * Initialize built in textures
    */
   async initialize() {
-    this._font = new Texture(this.gl);
+    this._font = new Texture('font', this.gl);
     await this._font.loadImage(FontImage);
-
-    this.textures.set(BuiltInTextureAssets.menu, {
-      texture: await this.loadTexture(MenuImage),
-      data: MenuData,
-    });
-
-    this.textures.forEach((t, key) => {
-      t.data.tiles.forEach((d) => {
-        const newKey = key + '.' + d.id;
-        if (!this.spriteTextures.has(newKey)) {
-          this.spriteTextures.set(newKey, {
-            texture: t.texture,
-            tile: d,
-          });
-        } else {
-          console.error("sprite with id '" + newKey + "' already exists!");
-        }
-      });
-    });
+    await this.loadTexture(BuiltInTextureAssets.menu, MenuImage, MenuData);
   }
 
   /**
-   * Loads a texture
+   * Loads a texture and saves it in the texture map
    * @param imageFile
    * @returns
    */
-  protected async loadTexture(imageFile: string): Promise<Texture> {
-    const texture = new Texture(this.gl);
+  protected async loadTexture(
+    id: string,
+    imageFile: string,
+    data: ISpriteData
+  ): Promise<Texture> {
+    // create the texture
+    const texture = new Texture(id, this.gl);
+
+    // load the texture
     await texture.loadImage(imageFile);
+
+    // store the texture
+    this.textures.set(id, { texture, data: new SpriteData(data) });
     return texture;
   }
 }

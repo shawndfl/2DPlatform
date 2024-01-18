@@ -7,7 +7,6 @@ import { DialogBuilder } from './DialogBuilder';
 import { IDialogParams } from './IDialogParams';
 import { Component } from '../components/Component';
 
-
 export class PanelComponent extends Component {
   protected _id: string;
   protected _spriteController: SpritBatchController;
@@ -95,7 +94,10 @@ export class PanelComponent extends Component {
       };
       this._dialogBuild.buildDialog(this.id, p);
 
-      const textPos = new vec2(this._pos.x + this._textOffset.x, p.y + this._textOffset.y);
+      const textPos = new vec2(
+        this._pos.x + this._textOffset.x,
+        p.y + this._textOffset.y
+      );
       this.eng.textManager.setTextBlock({
         id: this.id,
         text: this._text,

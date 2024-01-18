@@ -11,6 +11,8 @@ export class ParticleTest extends Component {
   initialize() {
     this.water = new Emitter(this.eng, 'water.1');
     this.water.initialize({
+      textureAsset: this.eng.assetManager.getTexture('enemies'),
+      sprite: 'particle.1',
       waitForAll: false,
       position: new vec2(250, 700),
       maxParticles: 150,
@@ -37,6 +39,8 @@ export class ParticleTest extends Component {
 
     this.explode = new Emitter(this.eng, 'explode.1');
     this.explode.initialize({
+      textureAsset: this.eng.assetManager.getTexture('enemies'),
+      sprite: 'particle.1',
       waitForAll: true,
       position: new vec2(650, 700),
       maxParticles: 200,

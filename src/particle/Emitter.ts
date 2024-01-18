@@ -1,15 +1,20 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import { SpriteInstanceCollection } from '../graphics/SpriteInstanceCollection';
+import { Texture } from '../graphics/Texture';
 import vec2 from '../math/vec2';
 import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
-import { ISpriteTexture } from '../systems/AssetManager';
+import { ITextureAsset } from '../systems/AssetManager';
 import { Particle, ParticleCreationArgs } from './Particle';
 
 export interface EmitterArgs extends ParticleCreationArgs {
   /** in pixels */
   position: vec2;
   maxParticles: number;
+  /** the name of the sprite to use */
+  sprite: string;
+  /** the texture asset to use */
+  textureAsset: ITextureAsset;
   /** wait for all particles to die before they are created again */
   waitForAll: boolean;
 }
@@ -20,10 +25,10 @@ export class Emitter extends Component {
   private active: Particle[] = [];
   private inactive: Particle[] = [];
   private _running: boolean;
-  private _spriteTexture: ISpriteTexture;
   private _creationDelay: number;
   private _creationTimer: number;
   private _id: string;
+  protected _textureAsset: ITextureAsset;
 
   /** emitter's position in pixels */
   position: vec2 = new vec2();
@@ -53,8 +58,10 @@ export class Emitter extends Component {
     this.maxParticles = options.maxParticles;
 
     // set the texture
-    this._spriteTexture = this.eng.assetManager.getSprite('enemies.particle.1');
-    this._sprites.setTexture(this._spriteTexture.texture);
+    this._sprites.initialize(
+      options.textureAsset.texture,
+      options.textureAsset.data
+    );
 
     // clear out old particles
     this.active.forEach((p) => p.kill());
@@ -79,7 +86,7 @@ export class Emitter extends Component {
     this.emitter.positionMin.y = this.position.y;
     this.emitter.positionMax.x = this.position.x + 10;
     this.emitter.positionMax.y = this.position.y + 10;
-    this.emitter.loc = this._spriteTexture.tile.loc;
+    this.emitter.loc = this._sprites.getLoc('particle.1');
 
     // spit them all out at once if there is no delay
     if (this.emitter.creationDelay == 0) {
@@ -119,6 +126,15 @@ export class Emitter extends Component {
 
   update(dt: number): void {
     if (this._running) {
+      const view = this.eng.viewManager;
+      let projection = view.projection;
+
+      this.shader.setSpriteSheet(this._sprites.spriteTexture);
+      this.shader.enable();
+
+      // set the project
+      this.shader.setProj(projection);
+
       this._creationTimer += dt;
       // create a new particle
       this.createParticle();

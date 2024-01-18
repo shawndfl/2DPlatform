@@ -1,6 +1,5 @@
 import { Component } from '../../components/Component';
 import { Engine } from '../../core/Engine';
-import { EnemyController } from '../components/EnemyController';
 import { GroundManager } from '../system/GroundManager';
 import { EmptyTile } from './EmptyTile';
 import { SolidTile } from './SolidTile';
@@ -115,7 +114,6 @@ export class TileFactory extends Component {
     } else if (tileType == 'empty') {
       return new EmptyTile(this.gm, i, j);
     } else if (tileType == 'enemy.1') {
-      return new EnemyController(this.gm.eng, args);
     } else {
       console.error(
         "Unknown tile type '" + tile + "' @ (" + i + ', ' + j + ')'

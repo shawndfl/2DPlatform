@@ -79,6 +79,7 @@ export class Particle extends Component {
   ) {
     super(eng);
     this.spriteController = new SpriteInstanceController(id, spriteCollection);
+    this.spriteController.spriteImage('particle.1');
     this.ridgeBody = new RidgeBody(eng, id, this.spriteController);
     this._colorStart = new vec4();
     this._colorEnd = new vec4();

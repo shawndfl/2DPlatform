@@ -50,6 +50,24 @@ export class SpriteInstanceController extends Component implements ISprite {
     return this._quad.translation.y;
   }
 
+  spriteImage(name: string): void {
+    const data = this._collection.spriteData.tiles.get(name);
+    if (data) {
+      this.spriteLocation(data.loc);
+    } else {
+      console.log(
+        'Cannot find sprite ' +
+          name +
+          ' in texture ' +
+          this._collection.spriteTexture.id
+      );
+    }
+  }
+
+  getSpriteImages(): string[] {
+    return Array.from(this._collection.spriteData?.tiles.keys());
+  }
+
   spriteLocation(loc: [number, number, number, number]): void {
     this._loc[0] = loc[0];
     this._loc[1] = loc[1];

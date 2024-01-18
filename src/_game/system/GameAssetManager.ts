@@ -28,27 +28,19 @@ export class GameAssetManager extends AssetManager {
   }
 
   async initialize() {
-    this.textures.set(TextureAssets.edge, {
-      texture: await new Texture(this.gl).loadImage(edge),
-      data: edgeData,
-    });
-
-    this.textures.set(TextureAssets.zero, {
-      texture: await new Texture(this.gl).loadImage(zero),
-      data: zeroData,
-    });
-
-    this.textures.set(TextureAssets.level1Tile, {
-      texture: await new Texture(this.gl).loadImage(level1Tile),
-      data: level1TileData,
-    });
-
-    this.textures.set(TextureAssets.enemies, {
-      texture: await new Texture(this.gl).loadImage(enemies),
-      data: enemiesData,
-    });
+    const promises = [];
+    promises.push(this.loadTexture(TextureAssets.edge, edge, edgeData));
+    promises.push(this.loadTexture(TextureAssets.zero, zero, zeroData));
+    promises.push(
+      this.loadTexture(TextureAssets.enemies, enemies, enemiesData)
+    );
+    promises.push(
+      this.loadTexture(TextureAssets.level1Tile, level1Tile, level1TileData)
+    );
 
     // this must be last
-    await super.initialize();
+    promises.push(super.initialize());
+
+    await Promise.all(promises);
   }
 }

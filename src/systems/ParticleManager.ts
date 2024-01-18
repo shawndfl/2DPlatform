@@ -3,19 +3,15 @@ import { Engine } from '../core/Engine';
 import { Component } from '../components/Component';
 import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
 import { Texture } from '../graphics/Texture';
+import { ITextureAsset } from './AssetManager';
 
 export class ParticleManager extends Component {
   private _shader: SpriteInstanceShader;
-  private _spriteTexture: Texture;
 
   emitter: Map<string, Emitter>;
 
   get shader(): SpriteInstanceShader {
     return this._shader;
-  }
-
-  get texture(): Texture {
-    return this._spriteTexture;
   }
 
   constructor(eng: Engine) {
@@ -51,21 +47,9 @@ export class ParticleManager extends Component {
     }
   }
 
-  setTexture(spriteTexture: Texture): void {
-    this._spriteTexture = spriteTexture;
-  }
-
   initialize(): void {}
 
   update(dt: number): void {
-    const view = this.eng.viewManager;
-    let projection = view.projection;
-
-    this.shader.setSpriteSheet(this._spriteTexture);
-    this.shader.enable();
-    // set the project
-    this.shader.setProj(projection);
-
     this.emitter.forEach((e) => e.update(dt));
   }
 }

@@ -6,7 +6,6 @@ import { MetersToPixels } from '../../systems/PhysicsManager';
 import { PlatformEngine } from '../PlatformEngine';
 import { BulletOptions } from '../system/BulletManager';
 import { BulletType } from './BulletType';
-import { EnemyController } from './EnemyController';
 import { GameComponent } from './GameComponent';
 import { PlayerController } from './PlayerController';
 
@@ -125,11 +124,11 @@ export class BulletController extends GameComponent {
       // check collisions
       collisions.forEach((c) => {
         // if we hit an enemy
-        if (c.tag instanceof EnemyController) {
-          const enemy = c.tag as EnemyController;
-          enemy.hit(this);
-          console.debug('hitting ', c);
-        }
+        //if (c.tag instanceof EnemyController) {
+        //  const enemy = c.tag as EnemyController;
+        //  enemy.hit(this);
+        //  console.debug('hitting ', c);
+        //}
 
         // hit a player
         if (c.tag instanceof PlayerController) {

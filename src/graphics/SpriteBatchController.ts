@@ -1,6 +1,6 @@
 import { Engine } from '../core/Engine';
 import { IQuadModel } from '../geometry/GlBuffer';
-import { ISpriteData } from '../graphics/ISpriteData';
+import { ISpriteData, SpriteData } from '../graphics/ISpriteData';
 import { Sprite } from '../graphics/Sprite';
 import { Texture } from './Texture';
 import { SpritBaseController } from './SpriteBaseController';
@@ -23,7 +23,7 @@ export class SpritBatchController extends SpritBaseController {
    * Get the number of sprites
    */
   get spriteCount(): number {
-    return this._spriteData.tiles.length;
+    return this._spriteData.tiles.size;
   }
 
   constructor(eng: Engine) {
@@ -39,7 +39,7 @@ export class SpritBatchController extends SpritBaseController {
    */
   initialize(
     texture: Texture,
-    spriteData: ISpriteData,
+    spriteData: SpriteData,
     defaultSprite?: string | number
   ) {
     super.initialize(texture, spriteData, defaultSprite);

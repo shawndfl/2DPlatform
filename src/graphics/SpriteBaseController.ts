@@ -1,7 +1,7 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import { GlBuffer, IQuadModel } from '../geometry/GlBuffer';
-import { ISpriteData } from './ISpriteData';
+import { ISpriteData, SpriteData } from './ISpriteData';
 import { Sprite } from './Sprite';
 import { Texture } from './Texture';
 import vec2 from '../math/vec2';
@@ -13,8 +13,7 @@ import { SpriteFlip } from './ISprite';
  * sprite offset and size in pixels.
  */
 export abstract class SpritBaseController extends Component {
-  protected _spriteData: ISpriteData;
-  private _indexLookup: Map<string, number>;
+  protected _spriteData: SpriteData;
   protected _spriteTexture: Texture;
   protected _buffer: GlBuffer;
   protected _selectedSpriteIndex: number;
@@ -42,13 +41,12 @@ export abstract class SpritBaseController extends Component {
   }
 
   get spriteCount(): number {
-    return this._spriteData.tiles.length;
+    return this._spriteData.tiles.size;
   }
 
   constructor(eng: Engine) {
     super(eng);
     this._spriteData;
-    this._indexLookup = new Map<string, number>();
     this._selectedSpriteIndex = 0;
     this._dirty = true;
   }
@@ -60,17 +58,11 @@ export abstract class SpritBaseController extends Component {
    */
   initialize(
     texture: Texture,
-    spriteData: ISpriteData,
+    spriteData: SpriteData,
     defaultSprite?: string | number
   ) {
     // save the data
     this._spriteData = spriteData;
-
-    // cache the indices
-    this._indexLookup.clear();
-    this._spriteData.tiles.forEach((val, i) => {
-      this._indexLookup.set(val.id, i);
-    });
 
     if (this._buffer) {
       this._buffer.dispose();
@@ -170,7 +162,7 @@ export abstract class SpritBaseController extends Component {
    * Select a sprite
    * @param id the id in the sprite sheet
    */
-  setSprite(id?: string | number): void {
+  setSprite(id: string): void {
     // find the sprite of a given id
 
     if (!this._spriteData) {
@@ -180,16 +172,7 @@ export abstract class SpritBaseController extends Component {
     let index = 0;
 
     // number or look up
-    if (typeof id === 'number') {
-      index = id;
-    } else {
-      index = this._indexLookup.get(id);
-      if (index === undefined) {
-        console.error('Cannot find image: ' + id);
-      }
-    }
-
-    const sprite = this._spriteData.tiles[index ?? 0];
+    const sprite = this._spriteData.tiles.get(id);
     if (sprite) {
       // does the id match or if the id is null just pick the first one or if id is a
       // number does the index match

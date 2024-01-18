@@ -6,12 +6,13 @@ import { InputState } from '../core/InputState';
 import { GameMenuComponent } from '../menus/GameMenuComponent';
 import { DialogBuilder } from '../menus/DialogBuilder';
 import { GameMenuBuilder } from '../menus/GameMenuBuilder';
+import { SpriteInstanceCollection } from '../graphics/SpriteInstanceCollection';
 
 /**
  * Manages dialog boxes
  */
 export class DialogManager extends Component {
-  protected _spriteController: SpritBatchController;
+  protected _spriteBatch: SpritBatchController;
   protected _dialog: DialogComponent;
   protected _gameMenu: GameMenuComponent;
   protected _dialogBuild: DialogBuilder;
@@ -36,18 +37,21 @@ export class DialogManager extends Component {
 
     this._dialogBuild = new DialogBuilder(eng);
     this._gameMenuBuilder = new GameMenuBuilder(eng);
-    this._spriteController = new SpritBatchController(eng);
+    this._spriteBatch = new SpritBatchController(eng);
     this._dialog = new DialogComponent(this.eng, this._dialogBuild);
-    this._gameMenu = new GameMenuComponent(this.eng, 'gameMenu', this._gameMenuBuilder);
+    this._gameMenu = new GameMenuComponent(
+      this.eng,
+      'gameMenu',
+      this._gameMenuBuilder
+    );
   }
 
   async initialize() {
     const texture = this.eng.assetManager.menu.texture;
     const data = this.eng.assetManager.menu.data;
-    this._spriteController.initialize(texture, data);
-    this._dialog.initialize(this._spriteController);
-    this._gameMenu.initialize(this._spriteController);
-    this._spriteController.commitToBuffer();
+    this._spriteBatch.initialize(texture, data);
+    this._dialog.initialize(this._spriteBatch);
+    this._gameMenu.initialize(this._spriteBatch);
   }
 
   /**
@@ -56,7 +60,10 @@ export class DialogManager extends Component {
    * @returns
    */
   handleUserAction(state: InputState): boolean {
-    return this._dialog.handleUserAction(state) || this._gameMenu.handleUserAction(state);
+    return (
+      this._dialog.handleUserAction(state) ||
+      this._gameMenu.handleUserAction(state)
+    );
   }
 
   /**
@@ -94,6 +101,6 @@ export class DialogManager extends Component {
   update(dt: number) {
     this._dialog.update(dt);
     this._gameMenu.update(dt);
-    this._spriteController.update(dt);
+    this._spriteBatch.update(dt);
   }
 }

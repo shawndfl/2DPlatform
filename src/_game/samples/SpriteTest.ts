@@ -9,9 +9,9 @@ export class SpriteTest extends Component {
   initialize() {
     this.sprite = new SpriteController2(this.eng);
 
-    const sprite = this.eng.assetManager.getSprite('enemies.default');
-    this.sprite.initialize(sprite.texture);
-    this.sprite.spriteLocation(sprite.tile.loc);
+    const sprite = this.eng.assetManager.getTexture('enemies');
+    this.sprite.initialize(sprite.texture, sprite.data);
+    this.sprite.spriteImage('default');
     this.sprite.left = 1200;
     this.sprite.top = 600;
     this.sprite.angle = 0;

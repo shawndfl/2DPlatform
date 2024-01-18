@@ -4,16 +4,22 @@
     "entities":[
         {
             "type":"enemy",
-            "pos": [100, 10]
+            "pos": [100, 10],
+            "meta": [
+                ["health", "100"]
+            ]
         },
         {
             "type": "player",
-            "pos": [0, 10]
+            "pos": [0, 10],
+            "meta":  [
+                ["health", "90"]
+            ]
         }
     ],
     "edges": [
         {
-            "points": [10, 10, 800, 10],
+            "points": [[10, 10], [800, 10]],
             "type": "solid"
         }
 

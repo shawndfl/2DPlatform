@@ -95,8 +95,6 @@ export class Level1 extends SceneComponent {
 
     this.particleTest.initialize();
 
-    // set the texture for the particle manager
-    this.eng.particleManager.setTexture(this.eng.assetManager.menu.texture);
     /*
         this.eng.dialogManager.showDialog('Welcome:', { x: 100, y: 100, width: 500, height: 300 }, (d) => {
           console.debug('Selected ' + d.selectedOption);

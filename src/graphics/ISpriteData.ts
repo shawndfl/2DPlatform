@@ -36,3 +36,14 @@ export interface ISpriteData {
    */
   tiles: TileData[];
 }
+
+/**
+ * The interface for a sprite
+ */
+export class SpriteData {
+  tiles: Map<string, TileData>;
+  constructor(data: ISpriteData) {
+    this.tiles = new Map<string, TileData>();
+    data.tiles.forEach((t) => this.tiles.set(t.id, t));
+  }
+}

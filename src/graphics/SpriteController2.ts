@@ -8,15 +8,19 @@ import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
 import { ISprite, SpriteFlip } from './ISprite';
+import { SpriteData } from './ISpriteData';
 import { Texture } from './Texture';
 
 export class SpriteController2 extends Component implements ISprite {
   protected _spriteTexture: Texture;
+  protected _spriteData: SpriteData;
+
   protected _buffer: GlBuffer2;
   protected _dirty: boolean;
   protected _world: mat4 = new mat4();
   protected _loc: [number, number, number, number] = [0, 0, 0, 0];
   private _id: string;
+
   protected quad: IQuadModel = {
     color: vec4.one.copy(),
     maxTex: new vec2(),
@@ -49,6 +53,21 @@ export class SpriteController2 extends Component implements ISprite {
   }
   get top(): number {
     return this.quad.translation.y;
+  }
+
+  spriteImage(name: string): void {
+    const data = this._spriteData.tiles.get(name);
+    if (data) {
+      this.spriteLocation(data.loc);
+    } else {
+      console.log(
+        'Cannot find sprite ' + name + ' in texture ' + this._spriteTexture.id
+      );
+    }
+  }
+
+  getSpriteImages(): string[] {
+    return Array.from(this._spriteData?.tiles.keys());
   }
 
   spriteLocation(loc: [number, number, number, number]): void {
@@ -141,7 +160,10 @@ export class SpriteController2 extends Component implements ISprite {
     this._dirty = true;
   }
 
-  initialize(texture: Texture): void {
+  initialize(texture: Texture, spriteData: SpriteData): void {
+    // save the sprite data
+    this._spriteData = spriteData;
+
     if (this._buffer) {
       this._buffer.dispose();
     }

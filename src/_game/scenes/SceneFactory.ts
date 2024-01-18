@@ -4,6 +4,7 @@ import { Engine } from '../../core/Engine';
 import { Level1 } from './Level1';
 import { GameComponent } from '../components/GameComponent';
 import { PlatformEngine } from '../PlatformEngine';
+import { Level2 } from './Level2';
 //import { LevelRenderTest } from "./LevelRenderTest";
 
 /**
@@ -19,7 +20,9 @@ export class SceneFactory extends GameComponent {
       case 'level.1.0':
         return new Level1(this.eng);
       //case 'levelRenderTest':
-      //    return new LevelRenderTest(this.eng);
+      //  return new LevelRenderTest(this.eng);
+      case 'level.2.0':
+        return new Level2(this.eng);
     }
   }
 }

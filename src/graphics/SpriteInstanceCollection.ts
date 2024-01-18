@@ -9,7 +9,7 @@ import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
 import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
 import { SpriteFlip } from './ISprite';
-import { TileData } from './ISpriteData';
+import { SpriteData, TileData } from './ISpriteData';
 import { Texture } from './Texture';
 
 export interface QuadBuildArgs {
@@ -59,6 +59,22 @@ export class SpriteInstanceCollection extends Component {
   private _spriteTexture: Texture;
   private quads: Map<string, IQuadModel>;
   private dirty: boolean;
+  private _spriteData: SpriteData;
+
+  public get spriteData(): SpriteData {
+    return this._spriteData;
+  }
+
+  public getLoc(id: string): [number, number, number, number] {
+    const data = this._spriteData.tiles.get(id);
+    if (!data) {
+      console.debug(
+        'cannot find sprite ' + id + ' in texture ' + this._spriteTexture.id
+      );
+      return [0, 0, 32, 32];
+    }
+    return data.loc;
+  }
 
   public get spriteTexture(): Texture {
     return this._spriteTexture;
@@ -74,15 +90,9 @@ export class SpriteInstanceCollection extends Component {
   /**
    * Initialize a texture
    */
-  initialize(texture: Texture): void {
-    this.setTexture(texture);
-  }
-
-  /**
-   * Sets the texture
-   * @param texture
-   */
-  setTexture(texture: Texture): void {
+  initialize(texture: Texture, spriteData: SpriteData): void {
+    // save the sprite data
+    this._spriteData = spriteData;
     this._spriteTexture = texture;
   }
 

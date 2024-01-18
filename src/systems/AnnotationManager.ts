@@ -7,7 +7,6 @@ import { toDegrees, toRadian } from '../math/constants';
 import rect from '../math/rect';
 import vec2 from '../math/vec2';
 import vec4 from '../math/vec4';
-import { BuiltInTextureAssets } from './AssetManager';
 
 export interface LineArgs {
   id?: string;
@@ -23,8 +22,6 @@ export interface LineArgs {
 
 export class AnnotationManager extends Component {
   private _lineSprites: SpriteInstanceCollection;
-
-  private tileData: TileData;
 
   constructor(eng: Engine) {
     super(eng);
@@ -60,7 +57,7 @@ export class AnnotationManager extends Component {
     const controller = new SpriteInstanceController(id, this._lineSprites);
     controller.left = args.start.x;
     controller.top = args.start.y;
-    controller.spriteLocation(this.tileData.loc);
+    controller.spriteImage('block');
     controller.leftOffset = 1;
     controller.topOffset = -0.5;
     controller.depth = args.depth ?? -0.4;
@@ -130,11 +127,10 @@ export class AnnotationManager extends Component {
   }
 
   initialize() {
-    this._lineSprites.initialize(this.eng.assetManager.menu.texture);
-
-    // setup texture and tile data
-    this._lineSprites.setTexture(this.eng.assetManager.menu.texture);
-    this.tileData = this.eng.assetManager.getSprite('menu.block').tile;
+    this._lineSprites.initialize(
+      this.eng.assetManager.menu.texture,
+      this.eng.assetManager.menu.data
+    );
   }
 
   update(dt: number) {

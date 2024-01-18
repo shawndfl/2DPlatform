@@ -28,13 +28,26 @@ export interface ISprite {
    */
   spriteLocation(loc: [number, number, number, number]): void;
 
+  /**
+   * Sets the sprite image to a given name
+   * @param name
+   */
+  spriteImage(name: string): void;
+
+  /**
+   * Returns a list of valid names that can be used
+   */
+  getSpriteImages(): string[];
+
   /* dept -1 is near, 1 is far */
   get depth(): number;
+
   /* dept -1 is near, 1 is far */
   set depth(depth: number);
 
   /** offset on the quad -1 right, 1 left */
   set leftOffset(value: number);
+
   /** offset on the quad -1 top, 1 bottom  */
   set topOffset(value: number);
 
