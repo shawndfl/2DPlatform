@@ -125,19 +125,16 @@ export default class rect {
    * @param other
    * @returns the offset that can be added to this.left to fix the overlap.
    */
-  edgeOverlapX(other: Readonly<rect>): number {
+  edgeOverlapX(other: Readonly<rect>): boolean {
     const b1 = this;
     const b2 = other;
 
-    // if the other overlap on the left edge of this return a negative value
     if (b1.left < b2.left && b2.left < b1.right) {
-      return b2.left - b1.right;
+      return true;
+    } else if (b2.left < b1.left && b1.left < b2.right) {
+      return true;
     }
-    // if the other overlap on the right edge of this return a positive value
-    else if (b1.left < b2.right && b2.right < b1.right) {
-      return b2.right - b1.left;
-    }
-    return 0;
+    return false;
   }
 
   /**
@@ -145,74 +142,16 @@ export default class rect {
    * @param other
    * @returns The value that can be added to this.top to correct the overlap
    */
-  edgeOverlapY(other: Readonly<rect>): number {
+  edgeOverlapY(other: Readonly<rect>): boolean {
     const b1 = this;
     const b2 = other;
-    // top
+
     if (b1.top > b2.top && b1.bottom < b2.top) {
-      return b2.top - b1.bottom;
+      return true;
+    } else if (b2.top > b1.top && b2.bottom < b1.top) {
+      return true;
     }
-    // bottom
-    if (b1.top > b2.bottom && b1.bottom < b2.bottom) {
-      return b2.bottom - b1.top;
-    }
-    return 0;
-  }
-
-  /**
-   * Return the ratio of left edge overlap over the top edge overlap.
-   * @param other
-   * @returns 0 if no overlap or a ratio of x/y if there is an overlap
-   */
-  topLeftCorner(other: Readonly<rect>): number {
-    const x = Math.abs(this.edgeOverlapX(other));
-    const y = Math.abs(this.edgeOverlapY(other));
-    if (y != 0) {
-      return x / y;
-    }
-    return 0;
-  }
-
-  /**
-   * Return the ratio of right edge overlap over the top edge overlap.
-   * @param other
-   * @returns 0 if no overlap or a ratio of x/y if there is an overlap
-   */
-  topRightCorner(other: Readonly<rect>): number {
-    const x = Math.abs(this.edgeOverlapX(other));
-    const y = Math.abs(this.edgeOverlapY(other));
-    if (y > 0) {
-      return x / y;
-    }
-    return 0;
-  }
-
-  /**
-   * Return the ratio of right edge overlap over the bottom edge overlap.
-   * @param other
-   * @returns 0 if no overlap or a ratio of x/y if there is an overlap
-   */
-  BottomRightCorner(other: Readonly<rect>): number {
-    const x = Math.abs(this.edgeOverlapX(other));
-    const y = Math.abs(this.edgeOverlapY(other));
-    if (y > 0) {
-      return x / y;
-    }
-    return 0;
-  }
-
-  /**
-   * Return the ratio of left edge overlap over the top edge overlap.
-   * @param other
-   * @returns 0 if no overlap or a ratio of x/y if there is an overlap
-   */
-  BottomLeftCorner(other: Readonly<rect>): number {
-    const x = Math.abs(this.edgeOverlapX(other));
-    const y = Math.abs(this.edgeOverlapY(other));
-    if (y > 0) {
-      return x / y;
-    }
-    return 0;
+    return false;
   }
 
   intersects(other: Readonly<rect>): boolean {

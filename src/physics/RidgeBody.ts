@@ -24,8 +24,7 @@ export class RidgeBody extends Collision2D {
   public maxVelocity: vec3;
 
   /** the change in position */
-  private movementDirection: vec3;
-  private touchingGround: boolean;
+  private nextBounds: rect;
   private nextPosition: vec3;
   private nextVelocity: vec3;
   private collisionResults: CollisionResults;
@@ -51,7 +50,6 @@ export class RidgeBody extends Collision2D {
     this.force = new vec3();
     this.mass = 10;
     this.active = true;
-    this.touchingGround = false;
   }
 
   private temp = new vec3();
@@ -63,6 +61,12 @@ export class RidgeBody extends Collision2D {
       return;
     }
     const t = dt * 0.001;
+    // set the current bounds
+    this.bounds.setPosition(
+      this.position.x * MetersToPixels,
+      this.position.y * MetersToPixels + this.bounds.height
+    );
+
     // get a copy of the position and velocity
     this.nextPosition = this.position.copy(this.nextPosition);
     this.nextVelocity = this.velocity.copy(this.nextVelocity);
@@ -75,53 +79,114 @@ export class RidgeBody extends Collision2D {
       adjustAcc.add(this.customGravity);
     }
 
+    // calculate next values
     this.nextVelocity.add(adjustAcc.scale(t, this.temp));
     this.nextPosition.add(this.nextVelocity.scale(t, this.temp));
     this.nextPosition.add(this.instanceVelocity.scale(t, this.temp));
+    this.nextBounds = this.bounds.copy(this.nextBounds); // just used for initial allocation
+    this.nextBounds.setPosition(
+      this.nextPosition.x * MetersToPixels,
+      this.nextPosition.y * MetersToPixels + this.bounds.height
+    );
 
-    //const isTouchingGround = this.isTouchingGround();
-
-    // calculate the movement direction
-    //this.movementDirection.copy(this.nextPosition);
-    //this.movementDirection.subtract(this.position);
-
-    // check collision
-    // adjust position, acceleration, velocity
-    if (this.collisionCorrection()) {
-      this.acceleration.reset();
-    }
+    // correct next values using other collisions
+    this.correctCollision();
 
     // update position and velocity
-    this.nextPosition.copy(this.position);
     this.nextVelocity.copy(this.velocity);
-
-    this.renderCollisions();
+    // set the new bounds that were adjusted from correctCollision
+    this.bounds.setPosition(this.nextBounds.left, this.nextBounds.top);
+    // set the position from the new bounds
+    this.position.x = this.bounds.left * PixelsToMeters;
+    this.position.y = (this.bounds.top - this.bounds.height) * PixelsToMeters;
 
     if (this.onPositionChange) {
       this.onPositionChange(this.nextPosition, this);
     }
   }
-  /*
-  isTouchingGround(): boolean {
-    this.nextPosition = this.nextPosition.copy().subtract(this.position);
+
+  /**
+   * Correct position, velocity and acceleration when a collision is detected
+   *
+   */
+  correctCollision(): void {
     const collisions = this.eng.physicsManager.getCollision();
+    const b1 = this.bounds;
+    const b2 = this.nextBounds;
+
+    // check all collision and see if we should be stopped
     for (let i = 0; i < collisions.length; i++) {
       const c = collisions[i];
-      this.bounds.edgeOverlapX(c.bounds) != 0;
-    }
-  }
-*/
-  private renderCollisions(): void {
-    // show the collision
-    this.collisionResults.collisions.forEach((c) => {
-      if (c.showCollision) {
-        this.eng.annotationManager.buildRect(
-          c.id,
-          c.bounds,
-          new vec4([1, 0, 0, 1])
-        );
+
+      // if we are over this collision see if we are touching it.
+      if (b2.edgeOverlapX(c.bounds)) {
+        // we are colliding with something under us
+        if (b1.bottom >= c.bounds.top && b2.bottom <= c.bounds.top) {
+          this.instanceVelocity.y = 0;
+          this.nextVelocity.y = 0;
+          this.acceleration.y = 0;
+          b2.top = c.bounds.top + b2.height;
+          // the body is at rest on a floor
+          if (this.onFloor) {
+            this.onFloor(this);
+          }
+        } else if (b1.top <= c.bounds.bottom && b2.top >= c.bounds.bottom) {
+          this.instanceVelocity.y = 0;
+          this.nextVelocity.y = 0;
+          this.acceleration.y = 0;
+          b2.top = c.bounds.bottom;
+        }
       }
-    });
+
+      if (b1.edgeOverlapY(c.bounds)) {
+        // we are colliding with something to the right us
+        if (b1.right <= c.bounds.left && b2.right >= c.bounds.left) {
+          this.instanceVelocity.x = 0;
+          this.nextVelocity.x = 0;
+          this.acceleration.x = 0;
+          b2.left = c.bounds.left - b2.width;
+        }
+        // colliding with something to the left
+        else if (b1.left >= c.bounds.right && b2.left <= c.bounds.right) {
+          this.instanceVelocity.x = 0;
+          this.nextVelocity.x = 0;
+          this.acceleration.x = 0;
+          b2.left = c.bounds.right;
+        }
+      }
+    }
+
+    // check world limits
+    const worldBounds = this.eng.physicsManager.bounds;
+
+    // y limits
+    if (b2.bottom <= worldBounds.bottom) {
+      this.instanceVelocity.y = 0;
+      this.nextVelocity.y = 0;
+      this.acceleration.y = 0;
+      b2.top = worldBounds.bottom + b2.height;
+      // the body is at rest on a floor
+      if (this.onFloor) {
+        this.onFloor(this);
+      }
+    } else if (b2.top >= worldBounds.top) {
+      this.instanceVelocity.y = 0;
+      this.nextVelocity.y = 0;
+      this.acceleration.y = 0;
+      b2.top = worldBounds.top;
+    }
+    // x limits
+    if (b2.right >= worldBounds.right) {
+      this.instanceVelocity.x = 0;
+      this.nextVelocity.x = 0;
+      this.acceleration.x = 0;
+      b2.left = worldBounds.right - b2.width;
+    } else if (b2.left <= worldBounds.left) {
+      this.instanceVelocity.x = 0;
+      this.nextVelocity.x = 0;
+      this.acceleration.x = 0;
+      b2.left = worldBounds.left;
+    }
   }
 
   private resetCollision(): void {
@@ -143,6 +208,7 @@ export class RidgeBody extends Collision2D {
    * @param nextPosition
    * @returns true if there is a collision and false otherwise
    */
+  /*
   collisionCorrection(): boolean {
     // clear old collision
     this.resetCollision();
@@ -401,4 +467,5 @@ export class RidgeBody extends Collision2D {
       }
     }
   }
+  */
 }
