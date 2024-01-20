@@ -138,20 +138,33 @@ export class RidgeBody extends Collision2D {
         }
       }
 
-      if (b1.edgeOverlapY(c.bounds)) {
+      if (b2.edgeOverlapY(c.bounds)) {
+        const stepLimit = 10;
+        const stepHeight = c.bounds.top - b2.bottom;
+
         // we are colliding with something to the right us
         if (b1.right <= c.bounds.left && b2.right >= c.bounds.left) {
-          this.instanceVelocity.x = 0;
-          this.nextVelocity.x = 0;
-          this.acceleration.x = 0;
-          b2.left = c.bounds.left - b2.width;
+          // just step over it if we can
+          if (stepHeight <= stepLimit) {
+            b2.top = c.bounds.top + b2.height;
+          } else {
+            this.instanceVelocity.x = 0;
+            this.nextVelocity.x = 0;
+            this.acceleration.x = 0;
+            b2.left = c.bounds.left - b2.width;
+          }
         }
         // colliding with something to the left
         else if (b1.left >= c.bounds.right && b2.left <= c.bounds.right) {
-          this.instanceVelocity.x = 0;
-          this.nextVelocity.x = 0;
-          this.acceleration.x = 0;
-          b2.left = c.bounds.right;
+          // just step over it if we can
+          if (stepHeight <= stepLimit) {
+            b2.top = c.bounds.top + b2.height;
+          } else {
+            this.instanceVelocity.x = 0;
+            this.nextVelocity.x = 0;
+            this.acceleration.x = 0;
+            b2.left = c.bounds.right;
+          }
         }
       }
     }
@@ -202,270 +215,4 @@ export class RidgeBody extends Collision2D {
     }
     this.eng.annotationManager.removeRect(this.id + '_collision');
   }
-  /**
-   * Checks all collisions that are overlapping this one and adjusts the nextPosition, nextVelocity, and instanceVelocity.
-   * @param position
-   * @param nextPosition
-   * @returns true if there is a collision and false otherwise
-   */
-  /*
-  collisionCorrection(): boolean {
-    // clear old collision
-    this.resetCollision();
-
-    // the bounds are used for collision detection
-    // make sure they are up to date.
-    this.bounds.setPosition(
-      this.nextPosition.x * MetersToPixels,
-      this.nextPosition.y * MetersToPixels + this.bounds.height
-    );
-
-    this.collisionResolution();
-
-    // set the new position
-    this.nextPosition.x = this.bounds.left * PixelsToMeters;
-    this.nextPosition.y =
-      (this.bounds.top - this.bounds.height) * PixelsToMeters;
-
-    // bounds of the physics manager
-    const left = this.eng.physicsManager.bounds.left * PixelsToMeters;
-    const right =
-      (this.eng.physicsManager.bounds.right - this.bounds.width) *
-      PixelsToMeters;
-    const top = this.eng.physicsManager.bounds.top * PixelsToMeters;
-    const bottom = this.eng.physicsManager.bounds.bottom * PixelsToMeters;
-    let hitLimit = false;
-    if (this.nextPosition.y <= bottom) {
-      this.nextPosition.y = bottom;
-      this.nextVelocity.y = 0;
-      this.instanceVelocity.y = 0;
-      this.touchingGround = true;
-      // the body is at rest on a floor
-      if (this.onFloor) {
-        this.onFloor(this);
-      }
-      hitLimit = true;
-    } else if (this.nextPosition.y >= top) {
-      this.nextPosition.y = top;
-      this.nextVelocity.y = 0;
-      this.instanceVelocity.y = 0;
-      hitLimit = true;
-    }
-    if (this.nextPosition.x <= left) {
-      this.nextPosition.x = left;
-      this.nextVelocity.x = 0;
-      this.instanceVelocity.x = 0;
-      hitLimit = true;
-    } else if (this.nextPosition.x >= right) {
-      this.nextPosition.x = right;
-      this.nextVelocity.x = 0;
-      this.instanceVelocity.x = 0;
-      hitLimit = true;
-    }
-
-    if (hitLimit) {
-      return true;
-    }
-
-    return this.collisionResults.collisions.length > 0;
-  }
-
-  collisionResolution(): void {
-    const step = 1;
-    const simCount = 1;
-    const myRect = this.bounds;
-    const yOverLapLimit = 11;
-
-    // adjust the bounds a few times
-    for (let sim = 0; sim < simCount; sim++) {
-      if (this.collisionResults) {
-        this.collisionResults.collisions = [];
-      }
-      // check for collisions using the quad tree
-      this.collisionResults = this.eng.physicsManager.checkForCollision(
-        this,
-        this.collisionResults
-      );
-
-      // raise onCollision event only on the first iteration
-      if (sim == 0 && this.onCollision) {
-        this.onCollision(this.collisionResults.collisions, this);
-      }
-
-      const others = this.collisionResults.collisions;
-
-      // check what y edges over me
-      let yOverLap = 0;
-      for (let i = 0; i < others.length; i++) {
-        const b1 = myRect;
-        const b2 = others[i].bounds;
-        yOverLap = b1.edgeOverlapY(b2);
-
-        // bottom
-        if (yOverLap > 0 && this.nextVelocity.y < 0) {
-          // if moving in the direction of the bottom edge stop moving
-          // in the y direction
-          this.nextVelocity.y = 0;
-          this.velocity.y = 0;
-          this.touchingGround = true;
-          // the body is at rest on a floor
-          if (this.onFloor) {
-            this.onFloor(this);
-          }
-        }
-        //top
-        else if (yOverLap < 0 && this.nextVelocity.y > 0) {
-          this.nextVelocity.y = 0;
-          this.velocity.y = 0;
-        }
-      }
-
-      // check x overlap
-      let xOverLap = 0;
-      for (let i = 0; i < others.length; i++) {
-        const b1 = myRect;
-        const b2 = others[i].bounds;
-        xOverLap = b1.edgeOverlapX(b2);
-
-        // right overlap and the top of this bounds is greater than the stepHeight
-        // see if we need to stop the velocity
-        if (xOverLap < 0 && this.nextVelocity.x > 0) {
-          // if moving in the direction of the right edge stop moving
-          // in the x direction
-          this.nextVelocity.x = 0;
-          this.velocity.x = 0;
-        }
-        // left overlap
-        else if (xOverLap > 0 && this.nextVelocity.x < 0) {
-          // if moving in the direction of the left edge stop moving
-          // in the x direction
-          this.nextVelocity.x = 0;
-          this.velocity.x = 0;
-        }
-      }
-
-      const left = myRect.left + xOverLap * step;
-      const top = myRect.top + yOverLap * step;
-
-      myRect.setPosition(left, top);
-    }
-  }
-
-  collisionResolutionOld(): void {
-    const step = 0.5;
-    const simCount = 4;
-    const myRect = this.bounds;
-    // the min step height before an edge will cause velocity to stop
-    const threshold = 16;
-
-    // adjust the bounds a few times
-    for (let sim = 0; sim < simCount; sim++) {
-      if (this.collisionResults) {
-        this.collisionResults.collisions = [];
-      }
-      // check for collisions using the quad tree
-      this.collisionResults = this.eng.physicsManager.checkForCollision(
-        this,
-        this.collisionResults
-      );
-
-      // raise onCollision event only on the first iteration
-      if (sim == 0 && this.onCollision) {
-        this.onCollision(this.collisionResults.collisions, this);
-      }
-
-      const others = this.collisionResults.collisions;
-
-      // check what edges over me
-      for (let i = 0; i < others.length; i++) {
-        const b1 = myRect;
-        const b2 = others[i].bounds;
-        let xOverLap = b1.edgeOverlapX(b2);
-        let yOverLap = b1.edgeOverlapY(b2);
-
-        if (xOverLap != 0) {
-          // check if there is another collision with the same top or bottom value
-          // that will cancel out this
-          for (let j = 0; j < others.length; j++) {
-            if (j == i) {
-              continue;
-            }
-            const b3 = others[j].bounds;
-            // if top align or bottom align cancel out x
-            if (
-              Math.abs(b3.top - b2.top) < threshold ||
-              Math.abs(b3.bottom - b2.bottom) < threshold
-            ) {
-              xOverLap = 0;
-              break;
-            }
-          }
-        }
-
-        if (yOverLap != 0) {
-          // check if there is another collision with the same top or bottom value
-          // that will cancel out this
-          for (let j = 0; j < others.length; j++) {
-            if (j == i) {
-              continue;
-            }
-            const b3 = others[j].bounds;
-            // if top align or bottom align cancel out x
-            if (
-              Math.abs(b3.right - b2.right) < threshold ||
-              Math.abs(b3.left - b2.left) < threshold
-            ) {
-              yOverLap = 0;
-              break;
-            }
-          }
-        }
-
-        // y axis is king no x overlap if we are on a floor
-        if (yOverLap != 0) {
-          xOverLap = 0;
-        }
-
-        const left = myRect.left + xOverLap * step;
-        const top = myRect.top + yOverLap * step;
-
-        myRect.setPosition(left, top);
-
-        // right overlap and the top of this bounds is greater than the stepHeight
-        // see if we need to stop the velocity
-        if (xOverLap < 0 && this.nextVelocity.x > 0) {
-          // if moving in the direction of the right edge stop moving
-          // in the x direction
-          this.nextVelocity.x = 0;
-          this.velocity.x = 0;
-        }
-        // left overlap
-        else if (xOverLap > 0 && this.nextVelocity.x < 0) {
-          // if moving in the direction of the left edge stop moving
-          // in the x direction
-          this.nextVelocity.x = 0;
-          this.velocity.x = 0;
-        }
-
-        // bottom
-        if (yOverLap > 0 && this.nextVelocity.y < 0) {
-          // if moving in the direction of the bottom edge stop moving
-          // in the y direction
-          this.nextVelocity.y = 0;
-          this.velocity.y = 0;
-
-          // the body is at rest on a floor
-          if (this.onFloor) {
-            this.onFloor(this);
-          }
-        }
-        //top
-        else if (yOverLap < 0 && this.nextVelocity.y > 0) {
-          this.nextVelocity.y = 0;
-          this.velocity.y = 0;
-        }
-      }
-    }
-  }
-  */
 }
