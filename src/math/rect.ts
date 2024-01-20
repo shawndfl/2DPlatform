@@ -15,6 +15,14 @@ export default class rect {
     new vec2(),
   ];
 
+  get centerX(): number {
+    return this.left + this.width * 0.5;
+  }
+
+  get centerY(): number {
+    return this.top + this.height * 0.5;
+  }
+
   get left(): number {
     return this.values[0];
   }
@@ -121,13 +129,13 @@ export default class rect {
     const b1 = this;
     const b2 = other;
 
-    // if left overlap return a positive value
-    if (b2.right > b1.left && b2.left < b1.left) {
-      return b2.right - b1.left;
-    }
-    // if right overlap return a negative value
-    else if (b2.left < b1.right && b2.right > b1.right) {
+    // if the other overlap on the left edge of this return a negative value
+    if (b1.left < b2.left && b2.left < b1.right) {
       return b2.left - b1.right;
+    }
+    // if the other overlap on the right edge of this return a positive value
+    else if (b1.left < b2.right && b2.right < b1.right) {
+      return b2.right - b1.left;
     }
     return 0;
   }
@@ -141,12 +149,12 @@ export default class rect {
     const b1 = this;
     const b2 = other;
     // top
-    if (b2.top > b1.top && b2.bottom < b1.top) {
-      return b1.top - b2.top;
+    if (b1.top > b2.top && b1.bottom < b2.top) {
+      return b2.top - b1.bottom;
     }
     // bottom
-    if (b2.top > b1.bottom && b2.bottom < b1.bottom) {
-      return b2.top - b1.bottom;
+    if (b1.top > b2.bottom && b1.bottom < b2.bottom) {
+      return b2.bottom - b1.top;
     }
     return 0;
   }

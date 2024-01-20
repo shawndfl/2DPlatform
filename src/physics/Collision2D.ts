@@ -1,12 +1,33 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import rect from '../math/rect';
+import vec2 from '../math/vec2';
+import vec3 from '../math/vec3';
+import vec4 from '../math/vec4';
 import { PixelsToMeters } from '../systems/PhysicsManager';
 
 export class Collision2D extends Component {
   private _id: string;
   private _bounds: rect;
-  public showCollision: boolean;
+  private _showCollision: boolean;
+
+  public get showCollision(): boolean {
+    return this._showCollision;
+  }
+
+  public set showCollision(value: boolean) {
+    this._showCollision = value;
+    if (this._showCollision) {
+      this.eng.annotationManager.buildRect(
+        this.id + '_collision',
+        this.bounds,
+        new vec4([0, 1, 0, 1]),
+        0.4
+      );
+    } else {
+      this.eng.annotationManager.removeRect(this.id + '_collision');
+    }
+  }
 
   /**
    * The component this is attached to
@@ -67,4 +88,22 @@ export class Collision2D extends Component {
   public isColliding(other: Collision2D): boolean {
     return this._bounds.intersects(other.bounds);
   }
+  /*
+  public getReflectionVector(
+    other: Collision2D,
+    previousPosition: Readonly<vec2>
+  ): vec2 {
+    const center = new vec3(other.bounds.centerX, other.bounds.centerY);
+    const toMe = previousPosition.copy().subtract(center);
+
+    // points clock-wise from top left
+    const p0 = new vec2(other.bounds.left, other.bounds.top);
+    const p1 = new vec2(other.bounds.right, other.bounds.top);
+    const p2 = new vec2(other.bounds.right, other.bounds.bottom);
+    const p3 = new vec2(other.bounds.left, other.bounds.bottom);
+
+    const l0 = p0.subtract()
+  }
+*/
+  update(dt: number): void {}
 }

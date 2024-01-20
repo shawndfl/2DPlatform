@@ -17,11 +17,70 @@
             ]
         }
     ],
-    "edges": [
+    "collision": [
         {
-            "points": [[10, 10], [800, 10]],
-            "type": "solid"
+            "id": "ground1",
+            "box": [10, 1800, 100, 100] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+        {
+            "id": "step1",
+            "box": [500, 100, 150, 50] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+        {
+            "id": "step2",
+            "box": [700, 100, 250, 50] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+        {
+            "id": "step3",
+            "box": [800, 100, 350, 50] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+        {
+            "id": "step4",
+            "box": [900, 100, 450, 50] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+        {
+            "id": "ledge1",
+            "box": [100, 700, 650, 50] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+
+        {
+            "id": "slop1",
+            "box": [900, 500, 110, 10] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+        {
+            "id": "slop2",
+            "box": [950, 450, 120, 10] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+        {
+            "id": "slop3",
+            "box": [1000, 400, 130, 10] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+        {
+            "id": "slop4",
+            "box": [1050, 350, 140, 10] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
         }
+
+
 
     ]
     

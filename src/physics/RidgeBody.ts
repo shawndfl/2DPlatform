@@ -23,6 +23,9 @@ export class RidgeBody extends Collision2D {
 
   public maxVelocity: vec3;
 
+  /** the change in position */
+  private movementDirection: vec3;
+  private touchingGround: boolean;
   private nextPosition: vec3;
   private nextVelocity: vec3;
   private collisionResults: CollisionResults;
@@ -48,10 +51,13 @@ export class RidgeBody extends Collision2D {
     this.force = new vec3();
     this.mass = 10;
     this.active = true;
+    this.touchingGround = false;
   }
 
   private temp = new vec3();
   update(dt: number): void {
+    super.update(dt);
+
     if (!this.active) {
       this.resetCollision();
       return;
@@ -73,12 +79,16 @@ export class RidgeBody extends Collision2D {
     this.nextPosition.add(this.nextVelocity.scale(t, this.temp));
     this.nextPosition.add(this.instanceVelocity.scale(t, this.temp));
 
-    let colliding = false;
+    //const isTouchingGround = this.isTouchingGround();
+
+    // calculate the movement direction
+    //this.movementDirection.copy(this.nextPosition);
+    //this.movementDirection.subtract(this.position);
+
     // check collision
     // adjust position, acceleration, velocity
     if (this.collisionCorrection()) {
       this.acceleration.reset();
-      colliding = true;
     }
 
     // update position and velocity
@@ -91,7 +101,16 @@ export class RidgeBody extends Collision2D {
       this.onPositionChange(this.nextPosition, this);
     }
   }
-
+  /*
+  isTouchingGround(): boolean {
+    this.nextPosition = this.nextPosition.copy().subtract(this.position);
+    const collisions = this.eng.physicsManager.getCollision();
+    for (let i = 0; i < collisions.length; i++) {
+      const c = collisions[i];
+      this.bounds.edgeOverlapX(c.bounds) != 0;
+    }
+  }
+*/
   private renderCollisions(): void {
     // show the collision
     this.collisionResults.collisions.forEach((c) => {
@@ -103,22 +122,6 @@ export class RidgeBody extends Collision2D {
         );
       }
     });
-
-    if (this.showCollision) {
-      if (this.collisionResults.collisions.length > 0) {
-        this.eng.annotationManager.buildRect(
-          this.id + '_collision',
-          this.bounds,
-          new vec4([1, 0, 0, 1])
-        );
-      } else {
-        this.eng.annotationManager.buildRect(
-          this.id + '_collision',
-          this.bounds,
-          new vec4([0, 1, 0, 1])
-        );
-      }
-    }
   }
 
   private resetCollision(): void {
@@ -170,6 +173,7 @@ export class RidgeBody extends Collision2D {
       this.nextPosition.y = bottom;
       this.nextVelocity.y = 0;
       this.instanceVelocity.y = 0;
+      this.touchingGround = true;
       // the body is at rest on a floor
       if (this.onFloor) {
         this.onFloor(this);
@@ -201,6 +205,87 @@ export class RidgeBody extends Collision2D {
   }
 
   collisionResolution(): void {
+    const step = 1;
+    const simCount = 1;
+    const myRect = this.bounds;
+    const yOverLapLimit = 11;
+
+    // adjust the bounds a few times
+    for (let sim = 0; sim < simCount; sim++) {
+      if (this.collisionResults) {
+        this.collisionResults.collisions = [];
+      }
+      // check for collisions using the quad tree
+      this.collisionResults = this.eng.physicsManager.checkForCollision(
+        this,
+        this.collisionResults
+      );
+
+      // raise onCollision event only on the first iteration
+      if (sim == 0 && this.onCollision) {
+        this.onCollision(this.collisionResults.collisions, this);
+      }
+
+      const others = this.collisionResults.collisions;
+
+      // check what y edges over me
+      let yOverLap = 0;
+      for (let i = 0; i < others.length; i++) {
+        const b1 = myRect;
+        const b2 = others[i].bounds;
+        yOverLap = b1.edgeOverlapY(b2);
+
+        // bottom
+        if (yOverLap > 0 && this.nextVelocity.y < 0) {
+          // if moving in the direction of the bottom edge stop moving
+          // in the y direction
+          this.nextVelocity.y = 0;
+          this.velocity.y = 0;
+          this.touchingGround = true;
+          // the body is at rest on a floor
+          if (this.onFloor) {
+            this.onFloor(this);
+          }
+        }
+        //top
+        else if (yOverLap < 0 && this.nextVelocity.y > 0) {
+          this.nextVelocity.y = 0;
+          this.velocity.y = 0;
+        }
+      }
+
+      // check x overlap
+      let xOverLap = 0;
+      for (let i = 0; i < others.length; i++) {
+        const b1 = myRect;
+        const b2 = others[i].bounds;
+        xOverLap = b1.edgeOverlapX(b2);
+
+        // right overlap and the top of this bounds is greater than the stepHeight
+        // see if we need to stop the velocity
+        if (xOverLap < 0 && this.nextVelocity.x > 0) {
+          // if moving in the direction of the right edge stop moving
+          // in the x direction
+          this.nextVelocity.x = 0;
+          this.velocity.x = 0;
+        }
+        // left overlap
+        else if (xOverLap > 0 && this.nextVelocity.x < 0) {
+          // if moving in the direction of the left edge stop moving
+          // in the x direction
+          this.nextVelocity.x = 0;
+          this.velocity.x = 0;
+        }
+      }
+
+      const left = myRect.left + xOverLap * step;
+      const top = myRect.top + yOverLap * step;
+
+      myRect.setPosition(left, top);
+    }
+  }
+
+  collisionResolutionOld(): void {
     const step = 0.5;
     const simCount = 4;
     const myRect = this.bounds;
@@ -218,7 +303,7 @@ export class RidgeBody extends Collision2D {
         this.collisionResults
       );
 
-      // raise onCollision event
+      // raise onCollision event only on the first iteration
       if (sim == 0 && this.onCollision) {
         this.onCollision(this.collisionResults.collisions, this);
       }

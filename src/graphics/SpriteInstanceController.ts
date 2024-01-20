@@ -215,9 +215,6 @@ export class SpriteInstanceController extends Component implements ISprite {
   }
 
   updateCollection(): void {
-    if (this.id == 'explode.1_p_0') {
-      console.debug('adding back');
-    }
     this._collection.setDirty();
     this.addSprite();
   }

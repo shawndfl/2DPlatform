@@ -2,7 +2,7 @@ import { Component } from '../../components/Component';
 import { Engine } from '../../core/Engine';
 import { GroundManager } from '../system/GroundManager';
 import { EmptyTile } from './EmptyTile';
-import { SolidTile } from './SolidTile';
+
 import { ITileCreationArgs, TileComponent } from './TileComponent';
 
 export interface ITileTypeData {
@@ -110,7 +110,7 @@ export class TileFactory extends Component {
     };
 
     if (tileType == 'solid') {
-      return new SolidTile(this.gm, args);
+      //NOP
     } else if (tileType == 'empty') {
       return new EmptyTile(this.gm, i, j);
     } else if (tileType == 'enemy.1') {

@@ -263,6 +263,7 @@ export class PlayerController extends TileComponent {
     const xOffset = this.screenPosition.x - this.eng.width / 2 + forwardPadding;
     const yOffset = this.screenPosition.y - this.eng.height / 2 + upPadding;
     this.eng.viewManager.setTarget(xOffset, yOffset);
+    //console.debug('player: pos ' + this.screenPosition);
   }
 
   update(dt: number): void {

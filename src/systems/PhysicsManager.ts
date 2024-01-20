@@ -25,6 +25,7 @@ export class PhysicsManager extends Component {
   public quadTree: QuadTree;
   private _bounds: rect;
   protected ridgeBodies: RidgeBody[];
+  protected collisions: Collision2D[];
 
   public get bounds(): Readonly<rect> {
     return this._bounds;
@@ -37,6 +38,7 @@ export class PhysicsManager extends Component {
     this._bounds = new rect([0, 10000, 2000, 2000]);
     this.quadTree = new QuadTree(10000, 5);
     this.ridgeBodies = [];
+    this.collisions = [];
   }
 
   initializeBounds(
@@ -52,7 +54,12 @@ export class PhysicsManager extends Component {
   initialize(): void {}
 
   setCollision(collision: Collision2D): void {
+    this.collisions.push(collision);
     this.quadTree.addCollision(collision);
+  }
+
+  getCollision(): Collision2D[] {
+    return this.collisions;
   }
 
   addBody(body: RidgeBody): void {
