@@ -113,4 +113,9 @@ export class Texture {
   isPowerOf2(value: number) {
     return (value & (value - 1)) == 0;
   }
+
+  dispose(): void {
+    this.gl.deleteTexture(this.glTexture);
+    this.glTexture = 0;
+  }
 }

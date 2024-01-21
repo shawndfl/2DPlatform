@@ -35,6 +35,7 @@ export class PlayerController extends TileComponent {
 
   /** How many mid air jumps can we do */
   private midAirJump: number;
+  private readonly maxMidAirJumps = 1;
 
   private ridgeBody: RidgeBody;
 
@@ -177,7 +178,7 @@ export class PlayerController extends TileComponent {
 
   private onFloor(body: RidgeBody): void {
     this.touchingFloor = true;
-    this.midAirJump = 1;
+    this.midAirJump = this.maxMidAirJumps;
   }
 
   private jump(): void {

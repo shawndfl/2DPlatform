@@ -164,9 +164,7 @@ export class SpriteController2 extends Component implements ISprite {
     // save the sprite data
     this._spriteData = spriteData;
 
-    if (this._buffer) {
-      this._buffer.dispose();
-    }
+    this.dispose();
 
     // create the gl buffers for this sprite
     this._buffer = new GlBuffer2(this.gl);
@@ -249,6 +247,14 @@ export class SpriteController2 extends Component implements ISprite {
   ): void {
     const sheetW = this._spriteTexture.width;
     const sheetH = this._spriteTexture.height;
+
+    if (!loc[2]) {
+      loc[2] = sheetW;
+    }
+    if (!loc[3]) {
+      loc[3] = sheetH;
+    }
+
     let minX = loc[0] / sheetW;
     let minY = 1.0 - loc[1] / sheetH;
     let maxX = (loc[0] + loc[2]) / sheetW;
@@ -268,6 +274,15 @@ export class SpriteController2 extends Component implements ISprite {
     } else {
       resultsMin.y = minY;
       resultsMax.y = maxY;
+    }
+  }
+
+  /**
+   * Disposes the geometry, but not the texture
+   */
+  dispose(): void {
+    if (this._buffer) {
+      this._buffer.dispose();
     }
   }
 }

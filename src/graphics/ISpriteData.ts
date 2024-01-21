@@ -47,3 +47,7 @@ export class SpriteData {
     data.tiles.forEach((t) => this.tiles.set(t.id, t));
   }
 }
+
+export const DefaultSpriteData = new SpriteData({
+  tiles: [{ id: 'default', loc: [0, 0, 0, 0] }],
+});

@@ -55,7 +55,7 @@ export class PlatformEngine extends Engine {
     await this.bullets.initialize();
 
     // load the first scene
-    this.sceneManager.changeScene('level.2.0');
+    await this.sceneManager.changeScene('level.2.0');
 
     // used for isolated feature debugger
     //this.sceneManager.changeScene("levelRenderTest");
@@ -88,6 +88,7 @@ export class PlatformEngine extends Engine {
       this.player.update(dt);
     }
 
+    this.backgroundManager.update(dt);
     this.physicsManager.update(dt);
     this.groundManager.update(dt);
     this.bullets.update(dt);

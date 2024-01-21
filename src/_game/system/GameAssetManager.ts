@@ -1,7 +1,5 @@
-import { Texture } from '../../graphics/Texture';
 import { AssetManager, BuiltInTextureAssets } from '../../systems/AssetManager';
 import { PlatformEngine } from '../PlatformEngine';
-import { TileData } from '../../graphics/ISpriteData';
 
 import edge from '../assets/edge.png';
 import edgeData from '../assets/edge.json';

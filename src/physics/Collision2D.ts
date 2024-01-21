@@ -1,15 +1,17 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import rect from '../math/rect';
-import vec2 from '../math/vec2';
-import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
-import { PixelsToMeters } from '../systems/PhysicsManager';
 
 export class Collision2D extends Component {
   private _id: string;
   private _bounds: rect;
   private _showCollision: boolean;
+  protected _debugColor: vec4 = new vec4(0, 1, 0, 1);
+
+  public get debugColor(): Readonly<vec4> {
+    return this._debugColor;
+  }
 
   public get showCollision(): boolean {
     return this._showCollision;
@@ -21,7 +23,7 @@ export class Collision2D extends Component {
       this.eng.annotationManager.buildRect(
         this.id + '_collision',
         this.bounds,
-        new vec4([0, 1, 0, 1]),
+        this._debugColor,
         0.4
       );
     } else {

@@ -150,12 +150,14 @@ export class SpriteInstanceCollection extends Component {
   ): void {
     const sheetW = this._spriteTexture.width;
     const sheetH = this._spriteTexture.height;
-    /*
-    let minX = loc[0] / sheetW;
-    let minY = 1.0 - loc[1] / sheetH;
-    let maxX = (loc[0] + loc[2]) / sheetW;
-    let maxY = 1.0 - (loc[1] + loc[3]) / sheetH;
-    */
+
+    if (!loc[2]) {
+      loc[2] = sheetW;
+    }
+    if (!loc[3]) {
+      loc[3] = sheetH;
+    }
+
     let minX = loc[0] / sheetW;
     let minY = 1.0 - loc[1] / sheetH;
     let maxX = (loc[0] + loc[2]) / sheetW;

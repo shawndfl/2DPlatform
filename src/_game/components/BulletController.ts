@@ -114,28 +114,26 @@ export class BulletController extends GameComponent {
   }
 
   onCollision(collisions: Collision2D[]): void {
-    if (collisions.length > 0) {
-      // destroy bullet
-      this._active = false;
-      this._ridgeBody.active = false;
-      this.sprite.removeSprite(this.id);
-      this.sprite.commitToBuffer();
+    // destroy bullet
+    this._active = false;
+    this._ridgeBody.active = false;
+    this.sprite.removeSprite(this.id);
+    this.sprite.commitToBuffer();
 
-      // check collisions
-      collisions.forEach((c) => {
-        // if we hit an enemy
-        //if (c.tag instanceof EnemyController) {
-        //  const enemy = c.tag as EnemyController;
-        //  enemy.hit(this);
-        //  console.debug('hitting ', c);
-        //}
+    // check collisions
+    collisions.forEach((c) => {
+      // if we hit an enemy
+      //if (c.tag instanceof EnemyController) {
+      //  const enemy = c.tag as EnemyController;
+      //  enemy.hit(this);
+      //  console.debug('hitting ', c);
+      //}
 
-        // hit a player
-        if (c.tag instanceof PlayerController) {
-          //TODO
-        }
-      });
-    }
+      // hit a player
+      if (c.tag instanceof PlayerController) {
+        //TODO
+      }
+    });
   }
 
   update(dt: number): void {

@@ -129,9 +129,9 @@ export default class rect {
     const b1 = this;
     const b2 = other;
 
-    if (b1.left < b2.left && b2.left < b1.right) {
+    if (b1.left <= b2.left && b2.left <= b1.right) {
       return true;
-    } else if (b2.left < b1.left && b1.left < b2.right) {
+    } else if (b2.left <= b1.left && b1.left <= b2.right) {
       return true;
     }
     return false;
@@ -146,9 +146,9 @@ export default class rect {
     const b1 = this;
     const b2 = other;
 
-    if (b1.top > b2.top && b1.bottom < b2.top) {
+    if (b1.top >= b2.top && b1.bottom <= b2.top) {
       return true;
-    } else if (b2.top > b1.top && b2.bottom < b1.top) {
+    } else if (b2.top >= b1.top && b2.bottom <= b1.top) {
       return true;
     }
     return false;

@@ -1,5 +1,5 @@
 import { SceneComponent } from '../../components/SceneComponent';
-import Level1Data from '../assets/levels/level1.json';
+import Level1Data from '../assets/level1/level1.json';
 import { PlatformEngine } from '../PlatformEngine';
 
 import { InputState } from '../../core/InputState';

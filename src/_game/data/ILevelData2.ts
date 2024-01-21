@@ -1,4 +1,3 @@
-import { Line } from '../../data/Line';
 import rect from '../../math/rect';
 import vec2 from '../../math/vec2';
 
@@ -6,7 +5,15 @@ import vec2 from '../../math/vec2';
  * This is the raw level data from json
  */
 interface ILevelData2 {
+  size: [number, number];
+  backgrounds: {
+    id: string;
+    type: string;
+    image: string;
+    meta: [[string, string]];
+  }[];
   entities: {
+    id: string;
     type: string;
     pos: [number, number];
     meta: [[string, string]];
@@ -19,7 +26,15 @@ interface ILevelData2 {
   }[];
 }
 
+export interface IBackgrounds {
+  id: string;
+  type: string;
+  image: string;
+  meta: Map<string, string>;
+}
+
 export interface IEntity {
+  id: string;
   type: string;
   pos: Readonly<vec2>;
   meta: Map<string, string>;
@@ -36,16 +51,27 @@ export interface ICollision {
  * This is the level data that will be used in code.
  */
 export class LevelData2 {
+  size: vec2;
   entities: IEntity[];
   collision: ICollision[];
+  backgrounds: IBackgrounds[];
 
   constructor(data: ILevelData2) {
     this.entities = [];
     this.collision = [];
+    this.backgrounds = [];
+
+    this.size = new vec2(data.size);
+
     data.entities.forEach((e) => {
       const pos = new vec2(e.pos);
       const meta = new Map<string, string>(e.meta);
-      this.entities.push({ pos, meta, type: e.type });
+      this.entities.push({ id: e.id, pos, meta, type: e.type });
+    });
+
+    data.backgrounds.forEach((e) => {
+      const meta = new Map<string, string>(e.meta);
+      this.backgrounds.push({ id: e.id, image: e.image, meta, type: e.type });
     });
 
     data.collision.forEach((e) => {

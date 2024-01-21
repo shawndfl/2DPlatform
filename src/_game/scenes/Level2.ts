@@ -1,17 +1,18 @@
 import { SceneComponent } from '../../components/SceneComponent';
-import Level2Data from '../assets/levels/level2.json';
+import Level2Data from '../assets/level2/level2.json';
 import { PlatformEngine } from '../PlatformEngine';
 
 import { InputState } from '../../core/InputState';
-import vec4 from '../../math/vec4';
 import { LevelData2 } from '../data/ILevelData2';
 import { ParticleTest } from '../samples/ParticleTest';
 import { Collision2D } from '../../physics/Collision2D';
 import { CollisionBox } from '../tiles/CollisionBox';
+import { BackgroundComponent } from '../../components/BackgroundComponet';
 
 export class Level2 extends SceneComponent {
   private particleTest: ParticleTest;
   private collision: Collision2D[];
+  private levelData: LevelData2;
 
   get eng(): PlatformEngine {
     return super.eng as PlatformEngine;
@@ -19,32 +20,54 @@ export class Level2 extends SceneComponent {
 
   constructor(eng: PlatformEngine) {
     super(eng);
-    const maxScreenSize = 100000;
-    const maxHeightSize = 50000;
-    this.eng.viewManager.minX = 0;
-    this.eng.viewManager.maxX = maxScreenSize;
-    this.eng.viewManager.maxY = maxHeightSize;
-    this.eng.physicsManager.initializeBounds(maxScreenSize, maxHeightSize);
 
     this.particleTest = new ParticleTest(this.eng);
   }
 
-  initialize(): void {
+  async initialize(): Promise<void> {
     this.particleTest.initialize();
 
-    const levelData = new LevelData2(Level2Data);
-    console.debug(levelData);
+    // save the level data
+    const data = new LevelData2(Level2Data);
+    this.levelData = data;
+    console.debug(this.levelData);
+
+    // set the view and the limits
+    this.eng.viewManager.minX = 0;
+    this.eng.viewManager.maxX = data.size.x;
+    this.eng.viewManager.maxY = data.size.y;
+    this.eng.physicsManager.initializeBounds(data.size.x, data.size.y);
 
     // load all the collision
     this.collision = [];
-    for (let i = 0; i < levelData.collision.length; i++) {
-      const options = levelData.collision[i];
+    for (let i = 0; i < data.collision.length; i++) {
+      const options = data.collision[i];
 
       // create different collision types
       if (options.type == 'box') {
         this.collision.push(new CollisionBox(this.eng, options));
       }
     }
+
+    // show the background image
+    const promises = [];
+    for (let i = 0; i < data.backgrounds.length; i++) {
+      const bgData = data.backgrounds[i];
+
+      // create the background
+      const bg = new BackgroundComponent(
+        this.eng,
+        bgData.id ?? this.eng.random.getUuid()
+      );
+
+      // load the image
+      promises.push(bg.initialize(bgData.image, data.size));
+
+      this.eng.backgroundManager.addBackground(bg);
+    }
+
+    // wait for all images to load
+    await Promise.all(promises);
   }
 
   /**
@@ -61,4 +84,8 @@ export class Level2 extends SceneComponent {
   }
 
   postUpdate(dt: number): void {}
+
+  dispose(): void {
+    this.eng.backgroundManager.dispose();
+  }
 }

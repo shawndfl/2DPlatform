@@ -40,7 +40,7 @@ export class GameSceneManager extends GameComponent implements ISceneManager {
 
     this._activeScene = scene;
 
-    this._activeScene.initialize();
+    await this._activeScene.initialize();
   }
 
   /**

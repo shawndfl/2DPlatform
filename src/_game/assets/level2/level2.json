@@ -1,6 +1,13 @@
 
 {
+    "size":[15360, 1080 ],
     "spriteSheet": "level1Tiles",
+    "backgrounds": [
+        {
+            "type":"background0",
+            "image": "/assets/level2/background0.png"
+        }
+    ],
     "entities":[
         {
             "type":"enemy",
@@ -84,9 +91,73 @@
             "box": [1400, 10, 140, 40] ,
             "type": "box",
             "meta":[["debug", "true"]]
+        },
+
+        {
+            "id": "ground2",
+            "box": [2000, 4000, 120, 100] ,
+            "type": "box",
+            "meta":[
+                ["debug", "true"]
+            ]
+        },
+        {
+            "id": "block1.2",
+            "box": [2500, 200, 200, 100] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
         }
+        ,
+        {
+            "id": "block1.3",
+            "box": [2700, 200, 250, 50] ,
+            "type": "box",
+            "meta":[["debug", "true"],  ["color","0,0,1,1"]]
+        } ,
+        {
+            "id": "block1.4",
+            "box": [2900, 200, 420, 50] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        }
+        ,
+        {
+            "id": "block1.5",
+            "box": [3100, 200, 520, 50] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
+        {
+            "id": "block1.6",
+            "box": [3200, 200, 620, 50] ,
+            "type": "box",
+            "meta":[["debug", "true"]]
+        },
 
-
+        {
+            "id": "ground3",
+            "box": [6000, 4000, 220, 100] ,
+            "type": "box",
+            "meta":[
+                ["debug", "true"]
+            ]
+        },
+        {
+            "id": "ground4",
+            "box": [10200, 4000, 220, 1] ,
+            "type": "box",
+            "meta":[
+                ["debug", "true"]
+            ]
+        },
+        {
+            "id": "ground5",
+            "box": [14400, 1000, 320, 100] ,
+            "type": "box",
+            "meta":[
+                ["debug", "true"]
+            ]
+        }
 
     ]
     

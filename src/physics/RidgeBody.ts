@@ -113,15 +113,19 @@ export class RidgeBody extends Collision2D {
     const collisions = this.eng.physicsManager.getCollision();
     const b1 = this.bounds;
     const b2 = this.nextBounds;
-
+    const hits = [];
     // check all collision and see if we should be stopped
     for (let i = 0; i < collisions.length; i++) {
       const c = collisions[i];
+      if (c.id == 'block1.3' && b2.intersects(c.bounds)) {
+        console.debug('got it');
+      }
 
       // if we are over this collision see if we are touching it.
       if (b2.edgeOverlapX(c.bounds)) {
         // we are colliding with something under us
         if (b1.bottom >= c.bounds.top && b2.bottom <= c.bounds.top) {
+          hits.push(c);
           this.instanceVelocity.y = 0;
           this.nextVelocity.y = 0;
           this.acceleration.y = 0;
@@ -130,7 +134,9 @@ export class RidgeBody extends Collision2D {
           if (this.onFloor) {
             this.onFloor(this);
           }
-        } else if (b1.top <= c.bounds.bottom && b2.top >= c.bounds.bottom) {
+        }
+        if (b1.top <= c.bounds.bottom && b2.top >= c.bounds.bottom) {
+          hits.push(c);
           this.instanceVelocity.y = 0;
           this.nextVelocity.y = 0;
           this.acceleration.y = 0;
@@ -144,6 +150,7 @@ export class RidgeBody extends Collision2D {
 
         // we are colliding with something to the right us
         if (b1.right <= c.bounds.left && b2.right >= c.bounds.left) {
+          hits.push(c);
           // just step over it if we can
           if (stepHeight <= stepLimit) {
             b2.top = c.bounds.top + b2.height;
@@ -155,7 +162,8 @@ export class RidgeBody extends Collision2D {
           }
         }
         // colliding with something to the left
-        else if (b1.left >= c.bounds.right && b2.left <= c.bounds.right) {
+        if (b1.left >= c.bounds.right && b2.left <= c.bounds.right) {
+          hits.push(c);
           // just step over it if we can
           if (stepHeight <= stepLimit) {
             b2.top = c.bounds.top + b2.height;
@@ -167,11 +175,15 @@ export class RidgeBody extends Collision2D {
           }
         }
       }
+
+      if (this.onCollision && hits.length > 0) {
+        this.onCollision(hits, this);
+      }
     }
 
     // check world limits
     const worldBounds = this.eng.physicsManager.bounds;
-
+    let hitLimit: boolean = false;
     // y limits
     if (b2.bottom <= worldBounds.bottom) {
       this.instanceVelocity.y = 0;
@@ -182,11 +194,13 @@ export class RidgeBody extends Collision2D {
       if (this.onFloor) {
         this.onFloor(this);
       }
+      hitLimit = true;
     } else if (b2.top >= worldBounds.top) {
       this.instanceVelocity.y = 0;
       this.nextVelocity.y = 0;
       this.acceleration.y = 0;
       b2.top = worldBounds.top;
+      hitLimit = true;
     }
     // x limits
     if (b2.right >= worldBounds.right) {
@@ -194,11 +208,19 @@ export class RidgeBody extends Collision2D {
       this.nextVelocity.x = 0;
       this.acceleration.x = 0;
       b2.left = worldBounds.right - b2.width;
+      hitLimit = true;
     } else if (b2.left <= worldBounds.left) {
       this.instanceVelocity.x = 0;
       this.nextVelocity.x = 0;
       this.acceleration.x = 0;
       b2.left = worldBounds.left;
+      hitLimit = true;
+    }
+
+    if (hitLimit) {
+      if (this.onCollision) {
+        this.onCollision([], this);
+      }
     }
   }
 

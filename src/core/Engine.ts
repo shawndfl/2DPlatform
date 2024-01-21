@@ -16,6 +16,7 @@ import { PhysicsManager } from '../systems/PhysicsManager';
 import { AnnotationManager } from '../systems/AnnotationManager';
 import { SpriteShader } from '../shaders/SpriteShader';
 import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
+import { BackgroundManager } from '../systems/BackgroundManager';
 
 /**
  * The engine for this game. There is one instance of this
@@ -42,6 +43,7 @@ export abstract class Engine {
   readonly particleManager: ParticleManager;
   readonly physicsManager: PhysicsManager;
   readonly annotationManager: AnnotationManager;
+  readonly backgroundManager: BackgroundManager;
 
   abstract get sceneManager(): ISceneManager;
 
@@ -84,6 +86,7 @@ export abstract class Engine {
     this.particleManager = new ParticleManager(this);
     this.physicsManager = new PhysicsManager(this);
     this.annotationManager = new AnnotationManager(this);
+    this.backgroundManager = new BackgroundManager(this);
   }
 
   createAssetManager(): AssetManager {
@@ -91,44 +94,48 @@ export abstract class Engine {
   }
 
   async initialize(root?: HTMLElement): Promise<void> {
-    if (!root) {
-      console.error('cannot find root element');
+    try {
+      if (!root) {
+        console.error('cannot find root element');
+      }
+      this.canvasController.initialize(root);
+
+      // Browsers copy pixels from the loaded image in top-to-bottom order —
+      // from the top-left corner; but WebGL wants the pixels in bottom-to-top
+      // order — starting from the bottom-left corner. So in order to prevent
+      // the resulting image texture from having the wrong orientation when
+      // rendered, we need to make the following call, to cause the pixels to
+      // be flipped into the bottom-to-top order that WebGL expects.
+      // See jameshfisher.com/2020/10/22/why-is-my-webgl-texture-upside-down
+      // NOTE, this must be done before any textures are loaded
+      this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+
+      //await this.gameManager.initialize();
+      await this.assetManager.initialize();
+      await this.textManager.initialize();
+      await this.dialogManager.initialize();
+      await this.sceneManager.initialize();
+      await this.particleManager.initialize();
+      await this.physicsManager.initialize();
+      await this.annotationManager.initialize();
+
+      // some gl setup
+      this.gl.enable(this.gl.CULL_FACE);
+      this.gl.cullFace(this.gl.BACK);
+
+      this.gl.enable(this.gl.BLEND);
+
+      this.gl.blendFuncSeparate(
+        this.gl.SRC_ALPHA,
+        this.gl.ONE_MINUS_SRC_ALPHA,
+        this.gl.ONE,
+        this.gl.ONE_MINUS_SRC_ALPHA
+      );
+      this.gl.enable(this.gl.DEPTH_TEST); // Enable depth testing
+      this.gl.depthFunc(this.gl.LEQUAL); // Near things obscure far things
+    } catch (ex) {
+      console.error('error', ex);
     }
-    this.canvasController.initialize(root);
-
-    // Browsers copy pixels from the loaded image in top-to-bottom order —
-    // from the top-left corner; but WebGL wants the pixels in bottom-to-top
-    // order — starting from the bottom-left corner. So in order to prevent
-    // the resulting image texture from having the wrong orientation when
-    // rendered, we need to make the following call, to cause the pixels to
-    // be flipped into the bottom-to-top order that WebGL expects.
-    // See jameshfisher.com/2020/10/22/why-is-my-webgl-texture-upside-down
-    // NOTE, this must be done before any textures are loaded
-    this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
-
-    //await this.gameManager.initialize();
-    await this.assetManager.initialize();
-    await this.textManager.initialize();
-    await this.dialogManager.initialize();
-    await this.sceneManager.initialize();
-    await this.particleManager.initialize();
-    await this.physicsManager.initialize();
-    await this.annotationManager.initialize();
-
-    // some gl setup
-    this.gl.enable(this.gl.CULL_FACE);
-    this.gl.cullFace(this.gl.BACK);
-
-    this.gl.enable(this.gl.BLEND);
-
-    this.gl.blendFuncSeparate(
-      this.gl.SRC_ALPHA,
-      this.gl.ONE_MINUS_SRC_ALPHA,
-      this.gl.ONE,
-      this.gl.ONE_MINUS_SRC_ALPHA
-    );
-    this.gl.enable(this.gl.DEPTH_TEST); // Enable depth testing
-    this.gl.depthFunc(this.gl.LEQUAL); // Near things obscure far things
   }
 
   handleUserAction(state: InputState): boolean {
@@ -145,6 +152,7 @@ export abstract class Engine {
     this.dialogManager.update(dt);
     this.textManager.update(dt);
     this.annotationManager.update(dt);
+    this.backgroundManager.update(dt);
   }
 
   update(dt: number): void {
