@@ -4,10 +4,21 @@ import rect from '../math/rect';
 import vec4 from '../math/vec4';
 
 export class Collision2D extends Component {
+  protected _requiresUpdate: boolean;
+
   private _id: string;
   private _bounds: rect;
   private _showCollision: boolean;
   protected _debugColor: vec4 = new vec4(0, 1, 0, 1);
+  onCollision: (other: Collision2D) => void;
+
+  public get requireUpdate(): boolean {
+    return this._requiresUpdate;
+  }
+
+  public getMetaHelp(): string[] {
+    return null;
+  }
 
   public get debugColor(): Readonly<vec4> {
     return this._debugColor;
@@ -90,22 +101,17 @@ export class Collision2D extends Component {
   public isColliding(other: Collision2D): boolean {
     return this._bounds.intersects(other.bounds);
   }
-  /*
-  public getReflectionVector(
-    other: Collision2D,
-    previousPosition: Readonly<vec2>
-  ): vec2 {
-    const center = new vec3(other.bounds.centerX, other.bounds.centerY);
-    const toMe = previousPosition.copy().subtract(center);
 
-    // points clock-wise from top left
-    const p0 = new vec2(other.bounds.left, other.bounds.top);
-    const p1 = new vec2(other.bounds.right, other.bounds.top);
-    const p2 = new vec2(other.bounds.right, other.bounds.bottom);
-    const p3 = new vec2(other.bounds.left, other.bounds.bottom);
-
-    const l0 = p0.subtract()
+  /**
+   * Used by derived classes to handle when something
+   * is colliding with this. This could
+   * @param other
+   */
+  collisionTriggered(other: Collision2D): void {
+    if (this.onCollision) {
+      this.onCollision(other);
+    }
   }
-*/
+
   update(dt: number): void {}
 }

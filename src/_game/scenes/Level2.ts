@@ -8,10 +8,13 @@ import { ParticleTest } from '../samples/ParticleTest';
 import { Collision2D } from '../../physics/Collision2D';
 import { CollisionBox } from '../tiles/CollisionBox';
 import { BackgroundComponent } from '../../components/BackgroundComponet';
+import { Elevator } from '../tiles/Elevator';
+import { CollisionFactory } from '../tiles/CollisionFactory';
 
 export class Level2 extends SceneComponent {
   private particleTest: ParticleTest;
-  private collision: Collision2D[];
+  private collisions: Collision2D[];
+  private updatableCollisions: Collision2D[];
   private levelData: LevelData2;
 
   get eng(): PlatformEngine {
@@ -39,13 +42,18 @@ export class Level2 extends SceneComponent {
     this.eng.physicsManager.initializeBounds(data.size.x, data.size.y);
 
     // load all the collision
-    this.collision = [];
+    this.collisions = [];
+    this.updatableCollisions = [];
     for (let i = 0; i < data.collision.length; i++) {
       const options = data.collision[i];
 
       // create different collision types
-      if (options.type == 'box') {
-        this.collision.push(new CollisionBox(this.eng, options));
+      const collision = CollisionFactory.create(this.eng, options);
+      // save the collision
+      this.collisions.push(collision);
+      // check if it requires an update
+      if (collision.requireUpdate) {
+        this.updatableCollisions.push(collision);
       }
     }
 
@@ -81,6 +89,7 @@ export class Level2 extends SceneComponent {
 
   update(dt: number): void {
     //this.particleTest.update(dt);
+    this.updatableCollisions.forEach((c) => c.update(dt));
   }
 
   postUpdate(dt: number): void {}

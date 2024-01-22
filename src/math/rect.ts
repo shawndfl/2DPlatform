@@ -125,14 +125,22 @@ export default class rect {
    * @param other
    * @returns the offset that can be added to this.left to fix the overlap.
    */
-  edgeOverlapX(other: Readonly<rect>): boolean {
+  edgeOverlapX(other: Readonly<rect>, includeEdges?: boolean): boolean {
     const b1 = this;
     const b2 = other;
 
-    if (b1.left <= b2.left && b2.left <= b1.right) {
-      return true;
-    } else if (b2.left <= b1.left && b1.left <= b2.right) {
-      return true;
+    if (includeEdges) {
+      if (b1.left <= b2.left && b2.left <= b1.right) {
+        return true;
+      } else if (b2.left <= b1.left && b1.left <= b2.right) {
+        return true;
+      }
+    } else {
+      if (b1.left < b2.left && b2.left < b1.right) {
+        return true;
+      } else if (b2.left < b1.left && b1.left < b2.right) {
+        return true;
+      }
     }
     return false;
   }
@@ -142,14 +150,22 @@ export default class rect {
    * @param other
    * @returns The value that can be added to this.top to correct the overlap
    */
-  edgeOverlapY(other: Readonly<rect>): boolean {
+  edgeOverlapY(other: Readonly<rect>, includeEdges?: boolean): boolean {
     const b1 = this;
     const b2 = other;
 
-    if (b1.top >= b2.top && b1.bottom <= b2.top) {
-      return true;
-    } else if (b2.top >= b1.top && b2.bottom <= b1.top) {
-      return true;
+    if (includeEdges) {
+      if (b1.top >= b2.top && b1.bottom <= b2.top) {
+        return true;
+      } else if (b2.top >= b1.top && b2.bottom <= b1.top) {
+        return true;
+      }
+    } else {
+      if (b1.top > b2.top && b1.bottom < b2.top) {
+        return true;
+      } else if (b2.top > b1.top && b2.bottom < b1.top) {
+        return true;
+      }
     }
     return false;
   }

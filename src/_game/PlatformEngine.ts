@@ -79,6 +79,8 @@ export class PlatformEngine extends Engine {
 
   gameUpdate(dt: number): void {
     this.sceneManager.update(dt);
+    this.physicsManager.update(dt);
+
     if (this.editorMode) {
       this.editor.update(dt);
     }
@@ -89,7 +91,6 @@ export class PlatformEngine extends Engine {
     }
 
     this.backgroundManager.update(dt);
-    this.physicsManager.update(dt);
     this.groundManager.update(dt);
     this.bullets.update(dt);
     this.particleManager.update(dt);

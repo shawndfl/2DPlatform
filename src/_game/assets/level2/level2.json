@@ -32,10 +32,10 @@
             "meta":[["debug", "true"]]
         },
         {
-            "id": "step1",
+            "id": "elevator1",
             "box": [500, 100, 150, 50] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
+            "type": "elevator",
+            "meta":[["debug", "true"], ["color", "1,0,0,1"], ["msTime", "3000"], ["offset", "0,800"]]
         },
         {
             "id": "step2",
@@ -57,7 +57,7 @@
         },
         {
             "id": "ledge1",
-            "box": [100, 700, 650, 50] ,
+            "box": [900, 700, 750, 50] ,
             "type": "box",
             "meta":[["debug", "true"]]
         },

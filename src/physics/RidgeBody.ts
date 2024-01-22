@@ -29,11 +29,13 @@ export class RidgeBody extends Collision2D {
   private nextVelocity: vec3;
   private collisionResults: CollisionResults;
 
+  public parentBody: RidgeBody;
+
+  public childBodies: RidgeBody[];
+
   /** events */
   onPositionChange: (newPosition: Readonly<vec3>, body: RidgeBody) => void;
   onFloor: (body: RidgeBody) => void;
-  /** all collision this body is hitting */
-  onCollision: (collisions: Collision2D[], body: RidgeBody) => void;
 
   constructor(
     eng: Engine,
@@ -106,6 +108,20 @@ export class RidgeBody extends Collision2D {
   }
 
   /**
+   * Raise collision event
+   * @param other
+   */
+  onHit(other: Collision2D): void {
+    this.collisionTriggered(other);
+
+    // this might be the physics limit it is colliding with
+    // so the other is null
+    if (other) {
+      other.collisionTriggered(this);
+    }
+  }
+
+  /**
    * Correct position, velocity and acceleration when a collision is detected
    *
    */
@@ -113,44 +129,20 @@ export class RidgeBody extends Collision2D {
     const collisions = this.eng.physicsManager.getCollision();
     const b1 = this.bounds;
     const b2 = this.nextBounds;
-    const hits = [];
+
     // check all collision and see if we should be stopped
     for (let i = 0; i < collisions.length; i++) {
       const c = collisions[i];
-      if (c.id == 'block1.3' && b2.intersects(c.bounds)) {
+      if (c.id == 'topBack' && b2.intersects(c.bounds)) {
         console.debug('got it');
       }
 
-      // if we are over this collision see if we are touching it.
-      if (b2.edgeOverlapX(c.bounds)) {
-        // we are colliding with something under us
-        if (b1.bottom >= c.bounds.top && b2.bottom <= c.bounds.top) {
-          hits.push(c);
-          this.instanceVelocity.y = 0;
-          this.nextVelocity.y = 0;
-          this.acceleration.y = 0;
-          b2.top = c.bounds.top + b2.height;
-          // the body is at rest on a floor
-          if (this.onFloor) {
-            this.onFloor(this);
-          }
-        }
-        if (b1.top <= c.bounds.bottom && b2.top >= c.bounds.bottom) {
-          hits.push(c);
-          this.instanceVelocity.y = 0;
-          this.nextVelocity.y = 0;
-          this.acceleration.y = 0;
-          b2.top = c.bounds.bottom;
-        }
-      }
-
-      if (b2.edgeOverlapY(c.bounds)) {
+      if (b2.edgeOverlapY(c.bounds, true)) {
         const stepLimit = 10;
         const stepHeight = c.bounds.top - b2.bottom;
 
         // we are colliding with something to the right us
         if (b1.right <= c.bounds.left && b2.right >= c.bounds.left) {
-          hits.push(c);
           // just step over it if we can
           if (stepHeight <= stepLimit) {
             b2.top = c.bounds.top + b2.height;
@@ -160,10 +152,11 @@ export class RidgeBody extends Collision2D {
             this.acceleration.x = 0;
             b2.left = c.bounds.left - b2.width;
           }
+          this.onHit(c);
+          continue;
         }
         // colliding with something to the left
-        if (b1.left >= c.bounds.right && b2.left <= c.bounds.right) {
-          hits.push(c);
+        else if (b1.left >= c.bounds.right && b2.left <= c.bounds.right) {
           // just step over it if we can
           if (stepHeight <= stepLimit) {
             b2.top = c.bounds.top + b2.height;
@@ -173,11 +166,33 @@ export class RidgeBody extends Collision2D {
             this.acceleration.x = 0;
             b2.left = c.bounds.right;
           }
+          this.onHit(c);
+          continue;
         }
       }
 
-      if (this.onCollision && hits.length > 0) {
-        this.onCollision(hits, this);
+      // if we are over this collision see if we are touching it.
+      if (b2.edgeOverlapX(c.bounds, true)) {
+        // we are colliding with something under us
+        if (b1.top >= c.bounds.top && b2.bottom <= c.bounds.top) {
+          this.instanceVelocity.y = 0;
+          this.nextVelocity.y = 0;
+          this.acceleration.y = 0;
+          b2.top = c.bounds.top + b2.height;
+
+          this.onHit(c);
+
+          // the body is at rest on a floor
+          if (this.onFloor) {
+            this.onFloor(this);
+          }
+        } else if (b1.top <= c.bounds.bottom && b2.top >= c.bounds.bottom) {
+          this.instanceVelocity.y = 0;
+          this.nextVelocity.y = 0;
+          this.acceleration.y = 0;
+          b2.top = c.bounds.bottom;
+          this.onHit(c);
+        }
       }
     }
 
@@ -218,9 +233,7 @@ export class RidgeBody extends Collision2D {
     }
 
     if (hitLimit) {
-      if (this.onCollision) {
-        this.onCollision([], this);
-      }
+      this.onHit(null);
     }
   }
 

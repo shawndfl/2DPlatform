@@ -9,8 +9,6 @@ import { RidgeBody } from '../../physics/RidgeBody';
 import { PixelsToMeters } from '../../systems/PhysicsManager';
 import { PlatformEngine } from '../PlatformEngine';
 import { IEntity } from '../data/ILevelData2';
-import { TextureAssets } from '../system/GameAssetManager';
-import { ITileCreationArgs, TileComponent } from '../tiles/TileComponent';
 import { BulletController } from './BulletController';
 import { Direction } from './Direction';
 import { GameComponent } from './GameComponent';
@@ -89,10 +87,8 @@ export class EnemyController2 extends GameComponent {
         collisionHeight,
       ])
     );
-    this.ridgeBody.onCollision = (others) => {
-      others.forEach((c) => {
-        console.debug('colliding with ', c);
-      });
+    this.ridgeBody.onCollision = (other) => {
+      console.debug('Enemy colliding with ', other);
     };
     // make this something you can collide with
     this.eng.physicsManager.setCollision(this.ridgeBody);

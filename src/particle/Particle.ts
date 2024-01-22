@@ -195,10 +195,9 @@ export class Particle extends Component {
     };
 
     // on collision kill it.
-    this.ridgeBody.onCollision = (collisions, body) => {
-      if (collisions.length > 0) {
-        this.kill();
-      }
+    this.ridgeBody.onCollision = (other) => {
+      // if the particle hits anything kill it
+      this.kill();
     };
 
     // debug
