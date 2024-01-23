@@ -5,12 +5,21 @@ import vec4 from '../math/vec4';
 
 export class Collision2D extends Component {
   protected _requiresUpdate: boolean;
-
   private _id: string;
   private _bounds: rect;
   private _showCollision: boolean;
   protected _debugColor: vec4 = new vec4(0, 1, 0, 1);
+
   onCollision: (other: Collision2D) => void;
+  onPosition: (left: number, top: number, collision: Collision2D) => void;
+
+  public get left(): number {
+    return this._bounds.left;
+  }
+
+  public get top(): number {
+    return this._bounds.top;
+  }
 
   public get requireUpdate(): boolean {
     return this._requiresUpdate;
@@ -78,6 +87,10 @@ export class Collision2D extends Component {
 
   setPos(left: number, top: number): void {
     this._bounds.set(left, this._bounds.width, top, this._bounds.height);
+
+    if (this.onPosition) {
+      this.onPosition(this.bounds.left, this.bounds.top, this);
+    }
   }
 
   public setBounds(bounds?: Readonly<rect>): void {

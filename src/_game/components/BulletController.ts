@@ -28,7 +28,7 @@ export class BulletController extends GameComponent {
     super(eng);
     this._id = id;
     this._ridgeBody = new RidgeBody(eng, id, this);
-    this._ridgeBody.onPositionChange = this.onPositionChange.bind(this);
+    this._ridgeBody.onPosition = this.onPositionChange.bind(this);
     this._ridgeBody.onCollision = this.onCollision.bind(this);
     this._ridgeBody.active = false;
 
@@ -77,39 +77,9 @@ export class BulletController extends GameComponent {
 
   stop(): void {}
 
-  private hitTest(x: number, y: number): boolean {
-    if (x > this.eng.viewManager.right + this.sprite.spriteWidth()) {
-      return true;
-    } else if (x < this.eng.viewManager.left - this.sprite.spriteWidth()) {
-      return true;
-    }
-
-    if (y > this.eng.viewManager.top + this.sprite.spriteHeight()) {
-      return true;
-    } else if (y < this.eng.viewManager.bottom) {
-      return true;
-    }
-  }
-
-  onPositionChange(newPosition: Readonly<vec3>): void {
-    if (
-      this.hitTest(
-        newPosition.x * MetersToPixels,
-        newPosition.y * MetersToPixels
-      )
-    ) {
-      // destroy bullet
-      this._active = false;
-      this._ridgeBody.active = false;
-      this.sprite.removeSprite(this._id);
-      this.sprite.commitToBuffer();
-    }
+  onPositionChange(left: number, top: number, body: RidgeBody): void {
     this.sprite.activeSprite(this._id);
-    this.sprite.setSpritePosition(
-      newPosition.x * MetersToPixels,
-      newPosition.y * MetersToPixels,
-      newPosition.z * MetersToPixels
-    );
+    this.sprite.setSpritePosition(left, top);
     this.sprite.commitToBuffer();
   }
 
@@ -119,6 +89,10 @@ export class BulletController extends GameComponent {
     this._ridgeBody.active = false;
     this.sprite.removeSprite(this.id);
     this.sprite.commitToBuffer();
+
+    if (!collisions) {
+      return;
+    }
 
     // check collisions
     collisions.forEach((c) => {

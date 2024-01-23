@@ -33,9 +33,15 @@
         },
         {
             "id": "elevator1",
-            "box": [500, 100, 150, 50] ,
+            "box": [1500, 200, 550, 10] ,
             "type": "elevator",
-            "meta":[["debug", "true"], ["color", "1,0,0,1"], ["msTime", "3000"], ["offset", "0,800"]]
+            "meta":[["debug", "true"], ["color", "1,0,0,1"], ["msTime", "3000"], ["offset", "-800,0"]]
+        },
+        {
+            "id": "elevator2",
+            "box": [500, 200, 150, 10] ,
+            "type": "elevator",
+            "meta":[["debug", "true"], ["color", "1,0,0,1"], ["msTime", "3000"], ["offset", "0,500"]]
         },
         {
             "id": "step2",

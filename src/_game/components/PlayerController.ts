@@ -17,6 +17,7 @@ import { RidgeBody } from '../../physics/RidgeBody';
 import { MetersToPixels, PixelsToMeters } from '../../systems/PhysicsManager';
 import { Direction } from './Direction';
 import { BulletType } from './BulletType';
+import { Collision2D } from '../../physics/Collision2D';
 
 export class PlayerController extends TileComponent {
   private sprite: SpritBatchController;
@@ -85,7 +86,7 @@ export class PlayerController extends TileComponent {
       this,
       new rect([0, 64, 0, 64])
     );
-    this.ridgeBody.onPositionChange = this.setPosition.bind(this);
+    this.ridgeBody.onPosition = this.setPosition.bind(this);
     this.ridgeBody.onFloor = this.onFloor.bind(this);
     this.eng.physicsManager.addBody(this.ridgeBody);
   }
@@ -96,8 +97,8 @@ export class PlayerController extends TileComponent {
     this.sprite.initialize(spriteData.texture, spriteData.data);
     // initial the player's position
     this.setTilePosition(2, 10);
-    this.ridgeBody.position = this.screenPosition.copy().scale(PixelsToMeters);
-    this.setPosition(this.ridgeBody.position);
+    this.ridgeBody.setPos(this.screenPosition.x, this.screenPosition.y);
+    this.setPosition(this.ridgeBody.left, this.ridgeBody.top, this.ridgeBody);
 
     this.sprite.activeSprite(this.id);
     this.sprite.setSprite('teleport.1');
@@ -254,9 +255,9 @@ export class PlayerController extends TileComponent {
    * This will check for collisions and adjust the position
    * @param position
    */
-  setPosition(position: Readonly<vec3>): void {
+  setPosition(left: number, top: number, body: Collision2D): void {
     // update the screen position.
-    this.setScreenPosition(position.copy().scale(MetersToPixels));
+    this.setScreenPosition(new vec3(left, top, 0));
 
     // update view manager position
     const forwardPadding = 200;

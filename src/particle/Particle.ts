@@ -175,23 +175,15 @@ export class Particle extends Component {
     this.ridgeBody.acceleration.reset();
     this.ridgeBody.velocity.reset();
 
-    this.ridgeBody.position = new vec3(
-      this.spriteController.left * PixelsToMeters,
-      this.spriteController.top * PixelsToMeters,
-      0
+    this.ridgeBody.setPos(
+      this.spriteController.left,
+      this.spriteController.top
     );
 
     // update the position of the particle
-    this.ridgeBody.onPositionChange = (pos, body) => {
-      this.spriteController.left = pos.x * MetersToPixels;
-      this.spriteController.top = pos.y * MetersToPixels;
-
-      body.set(
-        this.spriteController.left,
-        this.spriteController.width,
-        this.spriteController.top + this.spriteController.height,
-        this.spriteController.height
-      );
+    this.ridgeBody.onPosition = (left, top, body) => {
+      this.spriteController.left = left;
+      this.spriteController.top = top;
     };
 
     // on collision kill it.

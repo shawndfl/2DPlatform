@@ -70,11 +70,8 @@ export class EnemyController2 extends GameComponent {
     this.sprite.left = this.entity.pos.x;
     this.sprite.top = this.entity.pos.y;
 
-    // set the position in meters
-    this.ridgeBody.position = new vec3([
-      ...this.entity.pos.values,
-      0,
-    ] as any).scale(PixelsToMeters);
+    // set the position in pixels
+    this.ridgeBody.setPos(this.entity.pos.x, this.entity.pos.y);
 
     const collisionHeight = 80;
     const collisionWidth = 64;

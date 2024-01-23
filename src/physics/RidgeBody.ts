@@ -1,16 +1,14 @@
 import { Component } from '../components/Component';
 import { Engine } from '../core/Engine';
 import rect from '../math/rect';
-
 import vec3 from '../math/vec3';
-import vec4 from '../math/vec4';
 import { MetersToPixels, PixelsToMeters } from '../systems/PhysicsManager';
 import { Collision2D } from './Collision2D';
 import { CollisionResults } from './QuadTree';
 
 export class RidgeBody extends Collision2D {
   /** meters */
-  public position: vec3;
+  private _position: vec3;
   /** meters per second ^2 */
   public acceleration: vec3;
   /** meters per second */
@@ -29,12 +27,14 @@ export class RidgeBody extends Collision2D {
   private nextVelocity: vec3;
   private collisionResults: CollisionResults;
 
-  public parentBody: RidgeBody;
+  public get position(): Readonly<vec3> {
+    return this._position;
+  }
 
   public childBodies: RidgeBody[];
 
   /** events */
-  onPositionChange: (newPosition: Readonly<vec3>, body: RidgeBody) => void;
+  //onPositionChange: (newPosition: Readonly<vec3>, body: RidgeBody) => void;
   onFloor: (body: RidgeBody) => void;
 
   constructor(
@@ -44,7 +44,7 @@ export class RidgeBody extends Collision2D {
     bounds?: Readonly<rect>
   ) {
     super(eng, id, tag, bounds);
-    this.position = new vec3();
+    this._position = new vec3();
     this.velocity = new vec3();
     this.acceleration = new vec3();
     this.instanceVelocity = new vec3();
@@ -96,15 +96,18 @@ export class RidgeBody extends Collision2D {
 
     // update position and velocity
     this.nextVelocity.copy(this.velocity);
-    // set the new bounds that were adjusted from correctCollision
-    this.bounds.setPosition(this.nextBounds.left, this.nextBounds.top);
-    // set the position from the new bounds
-    this.position.x = this.bounds.left * PixelsToMeters;
-    this.position.y = (this.bounds.top - this.bounds.height) * PixelsToMeters;
+    // update the position of the bounds, which will update
+    // the position of the ridge body, with will update the position of
+    // the sprite.
+    this.setPos(this.nextBounds.left, this.nextBounds.top);
+  }
 
-    if (this.onPositionChange) {
-      this.onPositionChange(this.nextPosition, this);
-    }
+  setPos(left: number, top: number): void {
+    super.setPos(left, top);
+
+    // set the position from the new bounds
+    this._position.x = this.bounds.left * PixelsToMeters;
+    this._position.y = (this.bounds.top - this.bounds.height) * PixelsToMeters;
   }
 
   /**
