@@ -63,11 +63,6 @@ export class RidgeBody extends Collision2D {
       return;
     }
     const t = dt * 0.001;
-    // set the current bounds
-    this.bounds.setPosition(
-      this.position.x * MetersToPixels,
-      this.position.y * MetersToPixels + this.bounds.height
-    );
 
     // get a copy of the position and velocity
     this.nextPosition = this.position.copy(this.nextPosition);
@@ -88,7 +83,7 @@ export class RidgeBody extends Collision2D {
     this.nextBounds = this.bounds.copy(this.nextBounds); // just used for initial allocation
     this.nextBounds.setPosition(
       this.nextPosition.x * MetersToPixels,
-      this.nextPosition.y * MetersToPixels + this.bounds.height
+      this.nextPosition.y * MetersToPixels
     );
 
     // correct next values using other collisions
@@ -107,7 +102,7 @@ export class RidgeBody extends Collision2D {
 
     // set the position from the new bounds
     this._position.x = this.bounds.left * PixelsToMeters;
-    this._position.y = (this.bounds.top - this.bounds.height) * PixelsToMeters;
+    this._position.y = this.bounds.top * PixelsToMeters;
   }
 
   /**

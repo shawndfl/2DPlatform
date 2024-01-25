@@ -1,15 +1,15 @@
-import { SpriteFlip } from '../../graphics/ISprite';
+import { ISprite, SpriteFlip } from '../../graphics/ISprite';
 import { SpritBatchController } from '../../graphics/SpriteBatchController';
 import { Curve } from '../../math/Curve';
 import { AnimationComponent } from './AnimationComponent';
 
 export class WalkAnimation extends AnimationComponent {
   private curve: Curve;
-  private sprite: SpritBatchController;
+  private sprite: ISprite;
   private firstOne: boolean;
   private facingRight: boolean;
 
-  initialize(sprite: SpritBatchController): void {
+  initialize(sprite: ISprite): void {
     this.sprite = sprite;
     this.curve = new Curve();
     const points: { p: number; t: number }[] = [];
@@ -44,8 +44,10 @@ export class WalkAnimation extends AnimationComponent {
         value++;
       }
       value = value > 10 ? 2 : value;
-      this.sprite.flip(this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip);
-      this.sprite.setSprite('run.' + value);
+      this.sprite.flipDirection = this.facingRight
+        ? SpriteFlip.None
+        : SpriteFlip.XFlip;
+      this.sprite.spriteImage('run.' + value);
 
       if (value >= 10) {
         this.firstOne = false;
@@ -54,7 +56,7 @@ export class WalkAnimation extends AnimationComponent {
   }
 
   stop(): WalkAnimation {
-    this.sprite.setSprite('default');
+    this.sprite.spriteImage('default');
     this.curve.pause();
     return this;
   }
@@ -73,8 +75,10 @@ export class WalkAnimation extends AnimationComponent {
       this.curve.repeat(-1).start(true);
 
       // set the first frame
-      this.sprite.flip(this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip);
-      this.sprite.setSprite('run.1');
+      this.sprite.flipDirection = this.facingRight
+        ? SpriteFlip.None
+        : SpriteFlip.XFlip;
+      this.sprite.spriteImage('run.1');
     }
     return this;
   }

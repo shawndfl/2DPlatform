@@ -1,6 +1,4 @@
-import { SpriteFlip } from '../../graphics/ISprite';
-import { SpritBaseController } from '../../graphics/SpriteBaseController';
-import { SpritBatchController } from '../../graphics/SpriteBatchController';
+import { ISprite, SpriteFlip } from '../../graphics/ISprite';
 import { PlatformEngine } from '../PlatformEngine';
 import { AnimationComponent } from './AnimationComponent';
 
@@ -12,7 +10,7 @@ export class StepAnimation extends AnimationComponent {
   private currentSprite: string;
   public isFlipped: boolean;
   public frames = ['ground.shot.1', 'ground.shot.2'];
-  private sprite: SpritBatchController;
+  private sprite: ISprite;
 
   constructor(eng: PlatformEngine) {
     super(eng);
@@ -20,9 +18,9 @@ export class StepAnimation extends AnimationComponent {
     this.currentSprite = this.frames[this.index];
   }
 
-  initialize(sprite: SpritBatchController): void {
+  initialize(sprite: ISprite): void {
     this.sprite = sprite;
-    this.sprite.setSprite(this.currentSprite);
+    this.sprite.spriteImage(this.currentSprite);
   }
 
   toggleFlipped(): boolean {
@@ -46,9 +44,10 @@ export class StepAnimation extends AnimationComponent {
     this.currentSprite = this.frames[this.index];
     console.debug('Sprite Step: ', this.currentSprite);
 
-    this.sprite
-      .flip(this.isFlipped ? SpriteFlip.XFlip : SpriteFlip.None)
-      .setSprite(this.currentSprite);
+    this.sprite.flipDirection = this.isFlipped
+      ? SpriteFlip.XFlip
+      : SpriteFlip.None;
+    this.sprite.spriteImage(this.currentSprite);
   }
 
   stepBackwards(): void {
@@ -59,9 +58,10 @@ export class StepAnimation extends AnimationComponent {
     this.currentSprite = this.frames[this.index];
     console.debug('Sprite Step: ', this.currentSprite);
 
-    this.sprite
-      .flip(this.isFlipped ? SpriteFlip.XFlip : SpriteFlip.None)
-      .setSprite(this.currentSprite);
+    this.sprite.flipDirection = this.isFlipped
+      ? SpriteFlip.XFlip
+      : SpriteFlip.None;
+    this.sprite.spriteImage(this.currentSprite);
   }
 
   update(dt: number): void {

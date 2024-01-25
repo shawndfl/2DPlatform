@@ -25,10 +25,22 @@ export class ViewManager extends Component {
 
   protected readonly _minScale = 0.01;
 
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
+  protected minX: number;
+  protected maxX: number;
+  protected minY: number;
+  protected maxY: number;
+
+  setXLimits(minX: number, maxX: number): void {
+    this.minX = minX;
+    this.maxX = maxX;
+    this.updateProjection();
+  }
+
+  setYLimits(minY: number, maxY: number): void {
+    this.minX = minY;
+    this.maxX = maxY;
+    this.updateProjection();
+  }
 
   get screenX() {
     return this._screenX;
@@ -77,7 +89,14 @@ export class ViewManager extends Component {
     this._right = 0;
     this._bottom = 0;
 
-    this._projection = mat4.orthographic(this._left, this._right, this._bottom, this._top, 1, -1);
+    this._projection = mat4.orthographic(
+      this._left,
+      this._right,
+      this._bottom,
+      this._top,
+      1,
+      -1
+    );
     this._screenX = 0;
     this._screenY = 0;
     this._screenW = eng.width;
@@ -127,13 +146,22 @@ export class ViewManager extends Component {
       this._screenY = MathConst.clamp(this._targetY, this.minY, this.maxY);
     }
 
-    this._left = this._screenX + (this.eng.width - this.eng.width * this._scale);
-    this._bottom = this._screenY + (this.eng.height - this.eng.height * this._scale);
+    this._left =
+      this._screenX + (this.eng.width - this.eng.width * this._scale);
+    this._bottom =
+      this._screenY + (this.eng.height - this.eng.height * this._scale);
     this._right = this.eng.width * this._scale + this._screenX;
     this._top = this.eng.height * this._scale + this._screenY;
 
-    this._projection = mat4.orthographic(this._left, this._right, this._bottom, this._top, 1, -1);
+    this._projection = mat4.orthographic(
+      this._left,
+      this._right,
+      this._bottom,
+      this._top,
+      1,
+      -1
+    );
   }
 
-  update(dt: number) { }
+  update(dt: number) {}
 }

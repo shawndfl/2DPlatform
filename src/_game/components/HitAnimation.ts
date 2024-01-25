@@ -1,15 +1,14 @@
-import { SpriteFlip } from '../../graphics/ISprite';
-import { SpritBatchController } from '../../graphics/SpriteBatchController';
+import { ISprite, SpriteFlip } from '../../graphics/ISprite';
 import { Curve, CurveType } from '../../math/Curve';
 import { AnimationComponent } from './AnimationComponent';
 
 export class HitAnimation extends AnimationComponent {
   private curve: Curve;
   private curveFade: Curve;
-  private sprite: SpritBatchController;
+  private sprite: ISprite;
   private facingRight: boolean;
 
-  initialize(sprite: SpritBatchController): void {
+  initialize(sprite: ISprite): void {
     this.sprite = sprite;
     this.facingRight = true;
 
@@ -33,11 +32,13 @@ export class HitAnimation extends AnimationComponent {
 
         // animation sprites
         value = value > 3 ? 1 : value;
-        this.sprite.flip(this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip);
+        this.sprite.flipDirection = this.facingRight
+          ? SpriteFlip.None
+          : SpriteFlip.XFlip;
         if (value < 3) {
-          this.sprite.setSprite('hit.' + value);
+          this.sprite.spriteImage('hit.' + value);
         } else {
-          this.sprite.setSprite('default');
+          this.sprite.spriteImage('default');
         }
       })
       .onDone((value) => {});
@@ -68,14 +69,16 @@ export class HitAnimation extends AnimationComponent {
       this.curve.start(true);
 
       // set the first frame
-      this.sprite.flip(this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip);
-      this.sprite.setSprite('hit.1');
+      this.sprite.flipDirection = this.facingRight
+        ? SpriteFlip.None
+        : SpriteFlip.XFlip;
+      this.sprite.spriteImage('hit.1');
     }
     return this;
   }
 
   stop(): HitAnimation {
-    this.sprite.setSprite('default');
+    this.sprite.spriteImage('default');
     this.curve.pause();
     return this;
   }

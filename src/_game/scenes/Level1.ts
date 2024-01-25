@@ -22,8 +22,7 @@ export class Level1 extends SceneComponent {
 
   constructor(eng: PlatformEngine) {
     super(eng);
-    this.eng.viewManager.minX = 0;
-    this.eng.viewManager.maxX = 1000;
+    this.eng.viewManager.setXLimits(0, 1000);
 
     this.inputCal = new InputCalibration(eng);
     this.spriteTest = new SpriteTest(eng);

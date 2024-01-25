@@ -2,7 +2,6 @@ import { Engine } from '../core/Engine';
 import { InputState } from '../core/InputState';
 import { AssetManager } from '../systems/AssetManager';
 import { PlayerController } from './components/PlayerController';
-import { TestAnimationController } from './components/TestAnimationController';
 import { GameEditor } from './editor/GameEditor';
 import { BulletManager } from './system/BulletManager';
 import { GameAssetManager } from './system/GameAssetManager';
@@ -17,7 +16,6 @@ export class PlatformEngine extends Engine {
   readonly sceneManager: GameSceneManager;
   readonly editor: GameEditor;
   readonly player: PlayerController;
-  readonly testAnimation: TestAnimationController;
   readonly groundManager: GroundManager;
   readonly bullets: BulletManager;
   readonly urlParams: URLSearchParams;
@@ -32,7 +30,6 @@ export class PlatformEngine extends Engine {
     this.sceneManager = new GameSceneManager(this);
     this.groundManager = new GroundManager(this);
     this.player = new PlayerController(this);
-    this.testAnimation = new TestAnimationController(this);
     this.editor = new GameEditor(this);
     this.bullets = new BulletManager(this);
   }
@@ -44,18 +41,14 @@ export class PlatformEngine extends Engine {
   async initialize(root?: HTMLElement): Promise<void> {
     await super.initialize(root);
 
-    this.groundManager.initialize();
-    if (this.urlParams.get('animation')) {
-      this.testAnimation.initialize();
-      this.animationMode = true;
-    } else {
-      this.player.initialize();
-    }
+    this.player.initialize();
 
     await this.bullets.initialize();
 
     // load the first scene
-    await this.sceneManager.changeScene('level.2.0');
+    await this.sceneManager.changeScene(
+      this.urlParams.get('level') ?? 'level.2.0'
+    );
 
     // used for isolated feature debugger
     //this.sceneManager.changeScene("levelRenderTest");
@@ -66,15 +59,11 @@ export class PlatformEngine extends Engine {
   }
 
   handleUserAction(state: InputState): boolean {
-    if (this.animationMode) {
-      return this.testAnimation.handleUserAction(state);
-    } else {
-      return (
-        this.dialogManager.handleUserAction(state) ||
-        this.player.handleUserAction(state) ||
-        this.sceneManager.scene.handleUserAction(state)
-      );
-    }
+    return (
+      this.dialogManager.handleUserAction(state) ||
+      this.player.handleUserAction(state) ||
+      this.sceneManager.scene.handleUserAction(state)
+    );
   }
 
   gameUpdate(dt: number): void {
@@ -84,13 +73,10 @@ export class PlatformEngine extends Engine {
     if (this.editorMode) {
       this.editor.update(dt);
     }
-    if (this.animationMode) {
-      this.testAnimation.update(dt);
-    } else {
-      this.player.update(dt);
-    }
 
     this.backgroundManager.update(dt);
+    this.player.update(dt);
+
     this.groundManager.update(dt);
     this.bullets.update(dt);
     this.particleManager.update(dt);

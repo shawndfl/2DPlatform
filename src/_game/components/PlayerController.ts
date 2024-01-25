@@ -11,16 +11,17 @@ import { SpriteId } from '../data/SpriteId';
 import { ShootAnimation } from './ShootAnimation';
 import rect from '../../math/rect';
 import { JumpAnimation } from './JumpAnimation';
-import vec2 from '../../math/vec2';
 import { InputState } from '../../core/InputState';
 import { RidgeBody } from '../../physics/RidgeBody';
-import { MetersToPixels, PixelsToMeters } from '../../systems/PhysicsManager';
+import { PixelsToMeters } from '../../systems/PhysicsManager';
 import { Direction } from './Direction';
 import { BulletType } from './BulletType';
 import { Collision2D } from '../../physics/Collision2D';
+import { GameComponent } from './GameComponent';
+import { SpriteController2 } from '../../graphics/SpriteController2';
 
-export class PlayerController extends TileComponent {
-  private sprite: SpritBatchController;
+export class PlayerController extends GameComponent {
+  private sprite: SpriteController2;
   private running: boolean;
   private facingDirection: Direction;
   private movementDirection: Direction;
@@ -56,19 +57,9 @@ export class PlayerController extends TileComponent {
     return this.facingDirection == Direction.Left;
   }
 
-  public get spriteController(): SpritBaseController {
-    return this.sprite;
-  }
-
   constructor(eng: PlatformEngine) {
-    super(eng.groundManager, {
-      i: 0,
-      j: 0,
-      options: [],
-      spriteName: 'default',
-      tileClass: 'PlayerController',
-    });
-    this.sprite = new SpritBatchController(eng);
+    super(eng);
+    this.sprite = new SpriteController2(eng);
     this.teleportAnimation = new TeleportAnimation(this.eng);
     this.walk = new WalkAnimation(this.eng);
     this.shootAnimation = new ShootAnimation(this.eng);
@@ -95,14 +86,26 @@ export class PlayerController extends TileComponent {
     const spriteData = this.eng.assetManager.getTexture(TextureAssets.edge);
 
     this.sprite.initialize(spriteData.texture, spriteData.data);
-    // initial the player's position
-    this.setTilePosition(2, 10);
-    this.ridgeBody.setPos(this.screenPosition.x, this.screenPosition.y);
-    this.setPosition(this.ridgeBody.left, this.ridgeBody.top, this.ridgeBody);
 
-    this.sprite.activeSprite(this.id);
-    this.sprite.setSprite('teleport.1');
-    this.sprite.scale(2.0);
+    // offset the sprite from the center to the top left
+    this.sprite.leftOffset = 1;
+    this.sprite.topOffset = -1;
+
+    // set the default image and double the scale
+    this.sprite.spriteImage('default');
+    this.sprite.xScale = 2.0;
+    this.sprite.yScale = 2.0;
+    this.sprite.depth = 0.7;
+
+    // initial the player's position
+    // and collision box size
+    this.ridgeBody.set(
+      100,
+      this.sprite.width,
+      150 + this.sprite.height,
+      this.sprite.height
+    );
+    this.ridgeBody.showCollision = true;
 
     this.teleportAnimation.initialize(this.sprite);
     this.walk.initialize(this.sprite);
@@ -110,7 +113,6 @@ export class PlayerController extends TileComponent {
     this.jumpAnimation.initialize(this.sprite);
 
     // setup the teleport animation
-
     this.teleport(false);
   }
 
@@ -168,8 +170,8 @@ export class PlayerController extends TileComponent {
     this.ridgeBody.active = false;
 
     // update teleport position
-    this.teleportAnimation.groundLevel = this.screenPosition.y;
-    this.teleportAnimation.xOffset = this.screenPosition.x;
+    this.teleportAnimation.groundLevel = this.ridgeBody.bottom;
+    this.teleportAnimation.xOffset = this.ridgeBody.left;
     this.teleportAnimation.start(up).onDone(() => {
       if (!this.teleportAnimation.isUp) {
         this.ridgeBody.active = true;
@@ -199,7 +201,7 @@ export class PlayerController extends TileComponent {
     this.shootAnimation.start(facingRight);
 
     // get the start position of the bullet
-    const startPos = this._screenPosition.copy();
+    const startPos = new vec3(this.ridgeBody.left, this.ridgeBody.bottom, 0);
     startPos.y += 25;
     startPos.x += facingRight ? 35 : -5;
     // must be in meters
@@ -257,13 +259,14 @@ export class PlayerController extends TileComponent {
    */
   setPosition(left: number, top: number, body: Collision2D): void {
     // update the screen position.
-    this.setScreenPosition(new vec3(left, top, 0));
+    this.sprite.left = left; // + this.sprite.width * 0.5;
+    this.sprite.top = top; // - this.sprite.height * 0.5;
 
     // update view manager position
     const forwardPadding = 200;
     const upPadding = 100;
-    const xOffset = this.screenPosition.x - this.eng.width / 2 + forwardPadding;
-    const yOffset = this.screenPosition.y - this.eng.height / 2 + upPadding;
+    const xOffset = this.sprite.left - this.eng.width / 2 + forwardPadding;
+    const yOffset = this.sprite.top - this.eng.height / 2 + upPadding;
     this.eng.viewManager.setTarget(xOffset, yOffset);
     //console.debug('player: pos ' + this.screenPosition);
   }

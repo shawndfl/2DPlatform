@@ -36,9 +36,8 @@ export class Level2 extends SceneComponent {
     console.debug(this.levelData);
 
     // set the view and the limits
-    this.eng.viewManager.minX = 0;
-    this.eng.viewManager.maxX = data.size.x;
-    this.eng.viewManager.maxY = data.size.y;
+    this.eng.viewManager.setXLimits(0, data.size.x);
+    this.eng.viewManager.setYLimits(0, data.size.y);
     this.eng.physicsManager.initializeBounds(data.size.x, data.size.y);
 
     // load all the collision

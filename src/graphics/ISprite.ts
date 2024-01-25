@@ -74,4 +74,6 @@ export interface ISprite {
 
   get flipDirection(): SpriteFlip;
   set flipDirection(flip: SpriteFlip);
+
+  removeSprite(): void;
 }

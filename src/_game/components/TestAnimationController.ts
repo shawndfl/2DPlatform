@@ -10,6 +10,7 @@ import { SpritBatchController } from '../../graphics/SpriteBatchController';
 import { ShootAnimation } from './ShootAnimation';
 import { TextureAssets } from '../system/GameAssetManager';
 
+/*
 export class TestAnimationController extends TileComponent {
   private sprite: SpritBatchController;
   private speedScale: number;
@@ -114,3 +115,4 @@ export class TestAnimationController extends TileComponent {
     this.sprite.update(dt);
   }
 }
+*/

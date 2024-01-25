@@ -47,10 +47,8 @@ export class GroundManager extends GameComponent {
     this.eng.physicsManager.initializeBounds(levelPixelWidth, levelPixelHeight);
 
     // set the max range of the view manager
-    this.eng.viewManager.minX = 0;
-    this.eng.viewManager.minY = 0;
-    this.eng.viewManager.maxX = levelPixelWidth;
-    this.eng.viewManager.maxY = levelPixelHeight;
+    this.eng.viewManager.setXLimits(0, levelPixelWidth);
+    this.eng.viewManager.setXLimits(0, levelPixelHeight);
 
     const columnCount = level.encode[0].length;
     this.tilesToUpdate = [];

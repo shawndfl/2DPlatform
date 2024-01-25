@@ -14,7 +14,7 @@ import { Texture } from './Texture';
 export class SpriteController2 extends Component implements ISprite {
   protected _spriteTexture: Texture;
   protected _spriteData: SpriteData;
-
+  protected _visible: boolean = true;
   protected _buffer: GlBuffer2;
   protected _dirty: boolean;
   protected _world: mat4 = new mat4();
@@ -76,6 +76,7 @@ export class SpriteController2 extends Component implements ISprite {
     this._loc[2] = loc[2];
     this._loc[3] = loc[3];
     this.pixelsToUv(this._loc, this._flip, this.quad.minTex, this.quad.maxTex);
+    this.calculateMat();
     this._dirty = true;
   }
 
@@ -197,12 +198,18 @@ export class SpriteController2 extends Component implements ISprite {
 
   protected commitToBuffer(force?: boolean): void {
     if (this._dirty) {
+      this.calculateMat();
       this._buffer.setBuffers(this.quad, false);
+
       this._dirty = false;
     }
   }
 
   update(dt: number): void {
+    if (!this._visible) {
+      return;
+    }
+
     if (!this._buffer) {
       console.error('Call Initialize()');
       return;
@@ -275,6 +282,10 @@ export class SpriteController2 extends Component implements ISprite {
       resultsMin.y = minY;
       resultsMax.y = maxY;
     }
+  }
+
+  removeSprite(): void {
+    this._visible = false;
   }
 
   /**

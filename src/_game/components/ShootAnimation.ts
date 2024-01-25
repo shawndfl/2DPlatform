@@ -1,15 +1,14 @@
-import { SpriteFlip } from '../../graphics/ISprite';
-import { SpritBatchController } from '../../graphics/SpriteBatchController';
+import { ISprite, SpriteFlip } from '../../graphics/ISprite';
 import { Curve } from '../../math/Curve';
 import { SpriteId } from '../data/SpriteId';
 import { AnimationComponent } from './AnimationComponent';
 
 export class ShootAnimation extends AnimationComponent {
   private curve: Curve;
-  private sprite: SpritBatchController;
+  private sprite: ISprite;
   private facingRight: boolean;
 
-  initialize(sprite: SpritBatchController): void {
+  initialize(sprite: ISprite): void {
     this.sprite = sprite;
     this.curve = new Curve();
     const points: { p: number; t: number }[] = [];
@@ -29,18 +28,19 @@ export class ShootAnimation extends AnimationComponent {
       }
       lastValue = value;
 
-      this.sprite.flip(this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip);
+      this.sprite.flipDirection = this.facingRight
+        ? SpriteFlip.None
+        : SpriteFlip.XFlip;
       if (value > 2) {
-        this.sprite.setSprite('default');
+        this.sprite.spriteImage('default');
       } else {
-        this.sprite.setSprite('ground.shot.' + value);
+        this.sprite.spriteImage('ground.shot.' + value);
       }
     });
   }
 
   stop(): ShootAnimation {
-    this.sprite.activeSprite(SpriteId.Player);
-    this.sprite.setSprite('default');
+    this.sprite.spriteImage('default');
     this.curve.pause();
     return this;
   }
@@ -57,8 +57,10 @@ export class ShootAnimation extends AnimationComponent {
     this.curve.start(true);
 
     // set the first frame
-    this.sprite.flip(this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip);
-    this.sprite.setSprite('ground.shot.1');
+    this.sprite.flipDirection = this.facingRight
+      ? SpriteFlip.None
+      : SpriteFlip.XFlip;
+    this.sprite.spriteImage('ground.shot.1');
 
     return this;
   }

@@ -21,6 +21,14 @@ export class Collision2D extends Component {
     return this._bounds.top;
   }
 
+  public get bottom(): number {
+    return this._bounds.bottom;
+  }
+
+  public get right(): number {
+    return this._bounds.right;
+  }
+
   public get requireUpdate(): boolean {
     return this._requiresUpdate;
   }
@@ -82,11 +90,16 @@ export class Collision2D extends Component {
   }
 
   set(left: number, width: number, top: number, height: number): void {
-    this._bounds.set(left, width, top, height);
+    this._bounds.width = width;
+    this._bounds.height = height;
+    this.setPos(left, top);
   }
 
   setPos(left: number, top: number): void {
     this._bounds.set(left, this._bounds.width, top, this._bounds.height);
+
+    // refresh collision position
+    this.showCollision = this.showCollision;
 
     if (this.onPosition) {
       this.onPosition(this.bounds.left, this.bounds.top, this);
