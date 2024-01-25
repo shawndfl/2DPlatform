@@ -78,7 +78,7 @@ def create_spritesheet(image, columns, filename, outputFolder):
 
    
     json = jsonClose(json)
-    os.remove(f)
+    #os.remove(f)
 
     # Save the json
     outputfile = file(f, 'w')

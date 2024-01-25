@@ -8,7 +8,7 @@ export class Texture {
   height: number;
 
   public get id(): string {
-    return this.id;
+    return this._id;
   }
 
   constructor(private _id: string, private gl: WebGL2RenderingContext) {

@@ -1,8 +1,8 @@
 import { AssetManager, BuiltInTextureAssets } from '../../systems/AssetManager';
 import { PlatformEngine } from '../PlatformEngine';
 
-import edge from '../assets/edge.png';
-import edgeData from '../assets/edge.json';
+import edge from '../assets/common/edge.png';
+import edgeData from '../assets/common/edge.json';
 import zero from '../assets/zero.png';
 import zeroData from '../assets/zero.json';
 import enemies from '../assets/enemies.png';

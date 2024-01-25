@@ -38,7 +38,7 @@ export class ViewManager extends Component {
 
   setYLimits(minY: number, maxY: number): void {
     this.minX = minY;
-    this.maxX = maxY;
+    this.maxY = maxY;
     this.updateProjection();
   }
 

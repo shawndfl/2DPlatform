@@ -13,7 +13,7 @@ export class TeleportAnimation extends AnimationComponent {
   private _isUp: boolean;
 
   public speed = 0.2; // how many seconds to move from top to bottom
-  public animationSpeedScale = 1.4; // normal speed is 1 .5 is half time, 2 is twice as fast
+  public animationSpeedScale = 1; // normal speed is 1 .5 is half time, 2 is twice as fast
   public get running(): boolean {
     return this._running;
   }
@@ -76,6 +76,7 @@ export class TeleportAnimation extends AnimationComponent {
       } else {
         this.sprite.spriteImage('teleport.' + value);
       }
+      this.sprite.left = this.xOffset;
       this.sprite.top = this.groundLevel + this.sprite.height;
     });
     this.curve.onDone((curve) => {
