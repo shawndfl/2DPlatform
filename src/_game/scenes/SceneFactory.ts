@@ -1,7 +1,4 @@
-import { Component } from '../../components/Component';
 import { SceneComponent } from '../../components/SceneComponent';
-import { Engine } from '../../core/Engine';
-import { Level1 } from './Level1';
 import { GameComponent } from '../components/GameComponent';
 import { PlatformEngine } from '../PlatformEngine';
 import { Level2 } from './Level2';
@@ -17,8 +14,6 @@ export class SceneFactory extends GameComponent {
 
   createScene(type: string): SceneComponent {
     switch (type) {
-      case 'level.1.0':
-        return new Level1(this.eng);
       //case 'levelRenderTest':
       //  return new LevelRenderTest(this.eng);
       case 'level.2.0':

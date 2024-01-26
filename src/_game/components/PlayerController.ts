@@ -1,11 +1,9 @@
 import { UserAction } from '../../core/UserAction';
-import { SpritBaseController } from '../../graphics/SpriteBaseController';
-import { SpritBatchController } from '../../graphics/SpriteBatchController';
 import { TextureAssets } from '../system/GameAssetManager';
 import { TeleportAnimation } from './TeleportAnimation';
 import { WalkAnimation } from './WalkAnimation';
 import { PlatformEngine } from '../PlatformEngine';
-import { TileComponent } from '../tiles/TileComponent';
+
 import vec3 from '../../math/vec3';
 import { SpriteId } from '../data/SpriteId';
 import { ShootAnimation } from './ShootAnimation';
@@ -228,28 +226,6 @@ export class PlayerController extends GameComponent {
         this.ridgeBody.instanceVelocity.x = 0;
       }
     }
-  }
-
-  /**
-   * Are the bounds facing away from a given tile
-   * @param myBounds
-   * @param tile
-   * @returns
-   */
-  facingAwayFromTile(myBounds: Readonly<rect>, tile: TileComponent): boolean {
-    if (this.movementDirection == Direction.Right) {
-      if (myBounds.right < tile.screenBounds.right) {
-        return false;
-      }
-    }
-
-    if (this.movementDirection == Direction.Left) {
-      if (myBounds.left > tile.screenBounds.left) {
-        return false;
-      }
-    }
-
-    return true;
   }
 
   /**

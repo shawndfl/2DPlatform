@@ -6,7 +6,6 @@ import { GameEditor } from './editor/GameEditor';
 import { BulletManager } from './system/BulletManager';
 import { GameAssetManager } from './system/GameAssetManager';
 import { GameSceneManager } from './system/GameSceneManager';
-import { GroundManager } from './system/GroundManager';
 
 /**
  * This is the engine override that will kick off our editor
@@ -16,7 +15,6 @@ export class PlatformEngine extends Engine {
   readonly sceneManager: GameSceneManager;
   readonly editor: GameEditor;
   readonly player: PlayerController;
-  readonly groundManager: GroundManager;
   readonly bullets: BulletManager;
   readonly urlParams: URLSearchParams;
 
@@ -28,7 +26,6 @@ export class PlatformEngine extends Engine {
     const queryString = window.location.search;
     this.urlParams = new URLSearchParams(queryString);
     this.sceneManager = new GameSceneManager(this);
-    this.groundManager = new GroundManager(this);
     this.player = new PlayerController(this);
     this.editor = new GameEditor(this);
     this.bullets = new BulletManager(this);
@@ -77,7 +74,6 @@ export class PlatformEngine extends Engine {
     this.backgroundManager.update(dt);
     this.player.update(dt);
 
-    this.groundManager.update(dt);
     this.bullets.update(dt);
     this.particleManager.update(dt);
     this.dialogManager.update(dt);

@@ -2,7 +2,6 @@ import { InputState } from '../../core/InputState';
 import { UserAction } from '../../core/UserAction';
 import { SpritBaseController } from '../../graphics/SpriteBaseController';
 import { PlatformEngine } from '../PlatformEngine';
-import { TileComponent } from '../tiles/TileComponent';
 import { WalkAnimation } from './WalkAnimation';
 import { AnimationComponent } from './AnimationComponent';
 import { TeleportAnimation } from './TeleportAnimation';
