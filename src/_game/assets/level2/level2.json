@@ -26,6 +26,12 @@
     ],
     "collision": [
         {
+            "id": "bottomless",
+            "box": [0, 15360, 1, 1] ,
+            "type": "bottomless",
+            "meta":[["debug", "true"], ["color", "1,0,0,1"]]
+        },
+        {
             "id": "ground1",
             "box": [10, 1800, 100, 100] ,
             "type": "box",

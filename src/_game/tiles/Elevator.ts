@@ -5,14 +5,9 @@ import vec4 from '../../math/vec4';
 import { Collision2D } from '../../physics/Collision2D';
 import { PlatformEngine } from '../PlatformEngine';
 
-import { ICollision } from '../data/ILevelData2';
+import { CollisionBox, ICollisionBoxOptions } from './CollisionBox';
 
-export interface IElevatorOptions {
-  id: string;
-  debug: boolean;
-  color: vec4;
-  bounds: rect;
-
+export interface IElevatorOptions extends ICollisionBoxOptions {
   offset: vec2;
   msTime: number;
 }
@@ -20,7 +15,7 @@ export interface IElevatorOptions {
 /**
  * This is an elevator that can move up and down and side to side
  */
-export class Elevator extends Collision2D {
+export class Elevator extends CollisionBox {
   startPoint: vec2;
   lastPosition: vec2;
   endPoint: vec2;
@@ -31,10 +26,7 @@ export class Elevator extends Collision2D {
   private attached: Map<string, Collision2D>;
 
   constructor(eng: PlatformEngine, public options: Readonly<IElevatorOptions>) {
-    super(eng, options.id ?? eng.random.getUuid(), null, options.bounds);
-
-    this._debugColor = options.color;
-    this.showCollision = options.debug;
+    super(eng, options);
 
     this.attached = new Map<string, Collision2D>();
     this._requiresUpdate = true;
@@ -72,8 +64,6 @@ export class Elevator extends Collision2D {
         c.bounds.setPosition(c.bounds.left + dx, c.bounds.top + dy);
       });
     });
-
-    this.eng.physicsManager.setCollision(this);
   }
 
   collisionTriggered(other: Collision2D): void {

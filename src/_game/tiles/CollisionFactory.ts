@@ -4,6 +4,7 @@ import vec4 from '../../math/vec4';
 import { Collision2D } from '../../physics/Collision2D';
 import { PlatformEngine } from '../PlatformEngine';
 import { ICollision } from '../data/ILevelData2';
+import { Bottomless, IBottomlessOptions } from './Bottomless';
 import { CollisionBox, ICollisionBoxOptions } from './CollisionBox';
 import { Elevator, IElevatorOptions } from './Elevator';
 
@@ -39,6 +40,16 @@ export class CollisionFactory {
         offset: this.stringToVec2(args.meta.get('offset')),
       };
       collision = new Elevator(eng, options);
+    } else if (args.type == 'bottomless') {
+      const options: IBottomlessOptions = {
+        id,
+        bounds,
+        color,
+        debug,
+      };
+      collision = new Bottomless(eng, options);
+    } else {
+      console.error('cannot create: ' + args.type);
     }
 
     return collision;

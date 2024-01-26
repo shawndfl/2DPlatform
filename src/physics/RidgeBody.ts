@@ -127,13 +127,14 @@ export class RidgeBody extends Collision2D {
     const collisions = this.eng.physicsManager.getCollision();
     const b1 = this.bounds;
     const b2 = this.nextBounds;
+    const padding = 3; // pixels
 
     // check all collision and see if we should be stopped
     for (let i = 0; i < collisions.length; i++) {
       const c = collisions[i];
-      if (c.id == 'topBack' && b2.intersects(c.bounds)) {
-        console.debug('got it');
-      }
+      //if (c.id == 'topBack' && b2.intersects(c.bounds)) {
+      //  console.debug('got it');
+      //}
 
       if (b2.edgeOverlapY(c.bounds, true)) {
         const stepLimit = 10;
@@ -148,7 +149,7 @@ export class RidgeBody extends Collision2D {
             this.instanceVelocity.x = 0;
             this.nextVelocity.x = 0;
             this.acceleration.x = 0;
-            b2.left = c.bounds.left - b2.width;
+            b2.left = c.bounds.left - b2.width - padding;
           }
           this.onHit(c);
           continue;
@@ -162,7 +163,7 @@ export class RidgeBody extends Collision2D {
             this.instanceVelocity.x = 0;
             this.nextVelocity.x = 0;
             this.acceleration.x = 0;
-            b2.left = c.bounds.right;
+            b2.left = c.bounds.right + padding;
           }
           this.onHit(c);
           continue;
