@@ -33,6 +33,10 @@ export class PhysicsManager extends Component {
 
   constructor(eng: Engine) {
     super(eng);
+    this.reset();
+  }
+
+  reset(): void {
     this.gravity = new vec3([0, -9.8, 0]);
     this.wind = new vec3();
     this._bounds = new rect([0, 10000, 2000, 2000]);

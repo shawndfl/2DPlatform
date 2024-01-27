@@ -8,19 +8,18 @@
             "image": "/assets/level2/background0.png"
         }
     ],
+    "player": {
+        "pos": [50, 100],
+        "meta":  [["debug", "true"], 
+             ["health", "90"]]
+        
+    },
     "entities":[
         {
             "type":"enemy",
             "pos": [100, 10],
             "meta": [
                 ["health", "100"]
-            ]
-        },
-        {
-            "type": "player",
-            "pos": [0, 10],
-            "meta":  [
-                ["health", "90"]
             ]
         }
     ],

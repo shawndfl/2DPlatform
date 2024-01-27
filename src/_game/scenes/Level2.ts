@@ -6,9 +6,8 @@ import { InputState } from '../../core/InputState';
 import { LevelData2 } from '../data/ILevelData2';
 import { ParticleTest } from '../samples/ParticleTest';
 import { Collision2D } from '../../physics/Collision2D';
-import { CollisionBox } from '../tiles/CollisionBox';
+
 import { BackgroundComponent } from '../../components/BackgroundComponet';
-import { Elevator } from '../tiles/Elevator';
 import { CollisionFactory } from '../tiles/CollisionFactory';
 
 export class Level2 extends SceneComponent {
@@ -39,6 +38,9 @@ export class Level2 extends SceneComponent {
     this.eng.viewManager.setXLimits(0, data.size.x);
     this.eng.viewManager.setYLimits(0, data.size.y);
     this.eng.physicsManager.initializeBounds(data.size.x, data.size.y);
+
+    // setup the player for this level
+    this.eng.player.loadPlayer(this.levelData.player);
 
     // load all the collision
     this.collisions = [];
@@ -94,6 +96,10 @@ export class Level2 extends SceneComponent {
   postUpdate(dt: number): void {}
 
   dispose(): void {
-    this.eng.backgroundManager.dispose();
+    this.eng.physicsManager.reset();
+    this.eng.annotationManager.reset();
+    this.eng.player.reset();
+
+    //this.eng.backgroundManager.dispose();
   }
 }

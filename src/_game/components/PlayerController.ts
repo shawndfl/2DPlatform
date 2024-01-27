@@ -17,6 +17,8 @@ import { BulletType } from './BulletType';
 import { Collision2D } from '../../physics/Collision2D';
 import { GameComponent } from './GameComponent';
 import { SpriteController2 } from '../../graphics/SpriteController2';
+import vec2 from '../../math/vec2';
+import { IPlayerOptions } from '../data/ILevelData2';
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
@@ -58,9 +60,11 @@ export class PlayerController extends GameComponent {
   constructor(eng: PlatformEngine) {
     super(eng);
     this.sprite = new SpriteController2(eng);
+
     this.teleportAnimation = new TeleportAnimation(this.eng);
     this.walk = new WalkAnimation(this.eng);
     this.shootAnimation = new ShootAnimation(this.eng);
+    this.jumpAnimation = new JumpAnimation(this.eng);
 
     this.facingDirection = Direction.Right;
     this.movementDirection = Direction.Right;
@@ -75,9 +79,47 @@ export class PlayerController extends GameComponent {
       this,
       new rect([0, 64, 0, 64])
     );
-    this.ridgeBody.onPosition = this.setPosition.bind(this);
+    this.ridgeBody.onPosition = this.updateFromRidgeBodyPosition.bind(this);
     this.ridgeBody.onFloor = this.onFloor.bind(this);
     this.eng.physicsManager.addBody(this.ridgeBody);
+  }
+
+  reset(): void {
+    // reset state
+    this.facingDirection = Direction.Right;
+    this.movementDirection = Direction.Right;
+    this.running = false;
+    this.touchingFloor = false;
+    this.midAirJump = 0;
+
+    // offset the sprite from the center to the top left
+    this.sprite.leftOffset = 1;
+    this.sprite.topOffset = -1;
+
+    // set the default image and double the scale
+    this.sprite.spriteImage('default');
+    this.sprite.xScale = 2.0;
+    this.sprite.yScale = 2.0;
+
+    this.sprite.depth = 0.7;
+
+    // initial the player's position
+    // and collision box size
+    this.ridgeBody.set(
+      0,
+      this.sprite.width,
+      0 + this.sprite.height,
+      this.sprite.height
+    );
+
+    // add the ridge body back in
+    this.eng.physicsManager.addBody(this.ridgeBody);
+
+    // initialize animations
+    this.teleportAnimation.initialize(this.sprite);
+    this.walk.initialize(this.sprite);
+    this.shootAnimation.initialize(this.sprite);
+    this.jumpAnimation.initialize(this.sprite);
   }
 
   initialize(): void {
@@ -103,13 +145,20 @@ export class PlayerController extends GameComponent {
       150 + this.sprite.height,
       this.sprite.height
     );
-    this.ridgeBody.showCollision = true;
 
     this.teleportAnimation.initialize(this.sprite);
     this.walk.initialize(this.sprite);
     this.shootAnimation.initialize(this.sprite);
     this.jumpAnimation.initialize(this.sprite);
 
+    // setup the teleport animation
+    this.teleport(false);
+  }
+
+  loadPlayer(options: IPlayerOptions): void {
+    this.setPosition(options.position.x, options.position.y);
+    const debug = options.meta.get('debug');
+    this.ridgeBody.showCollision = options.meta.get('debug') == 'true';
     // setup the teleport animation
     this.teleport(false);
   }
@@ -229,11 +278,32 @@ export class PlayerController extends GameComponent {
   }
 
   /**
+   * Used to manually set the player's position.
+   * This should only be done during setup and from then on the
+   * ridgeBody will manage the position.
+   * @param left
+   * @param top
+   */
+  setPosition(left: number, top: number): void {
+    this.ridgeBody.set(
+      left,
+      this.sprite.width,
+      top + this.sprite.height,
+      this.sprite.height
+    );
+    this.updateFromRidgeBodyPosition(left, top, this.ridgeBody);
+  }
+
+  /**
    * This is used to set the position of the player.
    * This will check for collisions and adjust the position
    * @param position
    */
-  setPosition(left: number, top: number, body: Collision2D): void {
+  private updateFromRidgeBodyPosition(
+    left: number,
+    top: number,
+    body: Collision2D
+  ): void {
     // update the screen position.
     this.sprite.left = left; // + this.sprite.width * 0.5;
     this.sprite.top = top; // - this.sprite.height * 0.5;

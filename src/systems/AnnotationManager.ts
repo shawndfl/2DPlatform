@@ -29,6 +29,10 @@ export class AnnotationManager extends Component {
     //this._boundSprites = new SpriteInstanceController(eng);
   }
 
+  reset(): void {
+    this._lineSprites.clear();
+  }
+
   removeAnnotation(id: string): void {
     this._lineSprites.removeQuad(id);
   }

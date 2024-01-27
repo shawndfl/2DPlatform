@@ -6,6 +6,10 @@ import vec2 from '../../math/vec2';
  */
 interface ILevelData2 {
   size: [number, number];
+  player: {
+    pos: [number, number];
+    meta: [[string, string]];
+  };
   backgrounds: {
     id: string;
     type: string;
@@ -24,6 +28,11 @@ interface ILevelData2 {
     box: [number, number, number, number];
     meta: [[string, string]];
   }[];
+}
+
+export interface IPlayerOptions {
+  position: vec2;
+  meta: Map<string, string>;
 }
 
 export interface IBackgrounds {
@@ -52,6 +61,7 @@ export interface ICollision {
  */
 export class LevelData2 {
   size: vec2;
+  player: IPlayerOptions;
   entities: IEntity[];
   collision: ICollision[];
   backgrounds: IBackgrounds[];
@@ -62,6 +72,10 @@ export class LevelData2 {
     this.backgrounds = [];
 
     this.size = new vec2(data.size);
+    this.player = {
+      meta: new Map<string, string>(data.player.meta),
+      position: new vec2(data.player.pos),
+    };
 
     data.entities.forEach((e) => {
       const pos = new vec2(e.pos);

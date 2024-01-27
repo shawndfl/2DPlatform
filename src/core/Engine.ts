@@ -10,13 +10,14 @@ import { InputHandler } from './InputHandler';
 import { InputState } from './InputState';
 import { SoundManager } from '../systems/SoundManager';
 import { DialogManager } from '../systems/DialogManager';
-import { ISceneManager } from '../interfaces/ISceneManager';
 import { ParticleManager } from '../systems/ParticleManager';
 import { PhysicsManager } from '../systems/PhysicsManager';
 import { AnnotationManager } from '../systems/AnnotationManager';
 import { SpriteShader } from '../shaders/SpriteShader';
 import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
 import { BackgroundManager } from '../systems/BackgroundManager';
+import { SceneManager } from '../systems/SceneManager';
+import { SceneComponent } from '../components/SceneComponent';
 
 /**
  * The engine for this game. There is one instance of this
@@ -44,8 +45,7 @@ export abstract class Engine {
   readonly physicsManager: PhysicsManager;
   readonly annotationManager: AnnotationManager;
   readonly backgroundManager: BackgroundManager;
-
-  abstract get sceneManager(): ISceneManager;
+  readonly sceneManager: SceneManager;
 
   get width(): number {
     return this.gl.canvas.width;
@@ -83,12 +83,21 @@ export abstract class Engine {
       'spriteInstanceShader'
     );
 
+    this.sceneManager = this.createSceneManager();
     this.particleManager = new ParticleManager(this);
     this.physicsManager = new PhysicsManager(this);
     this.annotationManager = new AnnotationManager(this);
     this.backgroundManager = new BackgroundManager(this);
   }
 
+  createSceneManager(): SceneManager {
+    return new SceneManager(this, {
+      createScene(type: string): SceneComponent {
+        console.error('no scene factor found');
+        return null;
+      },
+    });
+  }
   createAssetManager(): AssetManager {
     return new AssetManager(this);
   }
