@@ -42,6 +42,9 @@ export class Level2 extends SceneComponent {
     // setup the player for this level
     this.eng.player.loadPlayer(this.levelData.player);
 
+    // create the bullets
+    await this.eng.bullets.initialize();
+
     // load all the collision
     this.collisions = [];
     this.updatableCollisions = [];
@@ -99,7 +102,7 @@ export class Level2 extends SceneComponent {
     this.eng.physicsManager.reset();
     this.eng.annotationManager.reset();
     this.eng.player.reset();
-
+    this.eng.bullets.reset();
     //this.eng.backgroundManager.dispose();
   }
 }

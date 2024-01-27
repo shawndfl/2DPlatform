@@ -55,7 +55,7 @@ export class SpriteInstanceController extends Component implements ISprite {
     if (data) {
       this.spriteLocation(data.loc);
     } else {
-      console.log(
+      console.error(
         'Cannot find sprite ' +
           name +
           ' in texture ' +
@@ -168,6 +168,21 @@ export class SpriteInstanceController extends Component implements ISprite {
     this.updateCollection();
   }
 
+  get visible(): boolean {
+    return this._collection.hasQuad(this.id);
+  }
+  /**
+   *sets the visibility
+   * @param id
+   */
+  set visible(value: boolean) {
+    if (value) {
+      this._collection.addQuad(this.id, this._quad);
+    } else {
+      this._collection.removeQuad(this.id);
+    }
+  }
+
   constructor(
     id: string,
     protected _collection: SpriteInstanceCollection,
@@ -184,6 +199,8 @@ export class SpriteInstanceController extends Component implements ISprite {
       quad.translation.copy(this._quad.translation);
     }
     this._id = id;
+
+    this.visible = true;
   }
 
   protected calculateMat(): void {
@@ -206,21 +223,8 @@ export class SpriteInstanceController extends Component implements ISprite {
     this._quad.rotScale.scaleNumber(w, h);
   }
 
-  /**
-   * Removes a quad
-   * @param id
-   */
-  removeSprite(): void {
-    this._collection.removeQuad(this.id);
-  }
-
   updateCollection(): void {
     this._collection.setDirty();
-    this.addSprite();
-  }
-
-  addSprite(): void {
-    this._collection.addQuad(this.id, this._quad);
   }
 
   getSprite(id: string): IQuadModel {

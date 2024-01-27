@@ -60,7 +60,7 @@ export class SpriteController2 extends Component implements ISprite {
     if (data) {
       this.spriteLocation(data.loc);
     } else {
-      console.log(
+      console.error(
         'Cannot find sprite ' + name + ' in texture ' + this._spriteTexture.id
       );
     }
@@ -161,6 +161,14 @@ export class SpriteController2 extends Component implements ISprite {
     this._dirty = true;
   }
 
+  get visible(): boolean {
+    return this._visible;
+  }
+
+  set visible(value: boolean) {
+    this._visible = value;
+  }
+
   initialize(texture: Texture, spriteData: SpriteData): void {
     // save the sprite data
     this._spriteData = spriteData;
@@ -175,6 +183,8 @@ export class SpriteController2 extends Component implements ISprite {
 
     // needs to be committed to buffer when update is called
     this._dirty = true;
+
+    this.visible = true;
   }
 
   protected calculateMat(): void {
@@ -282,10 +292,6 @@ export class SpriteController2 extends Component implements ISprite {
       resultsMin.y = minY;
       resultsMax.y = maxY;
     }
-  }
-
-  removeSprite(): void {
-    this._visible = false;
   }
 
   /**

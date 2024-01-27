@@ -34,7 +34,7 @@ export class ShootAnimation extends AnimationComponent {
       if (value > 2) {
         this.sprite.spriteImage('default');
       } else {
-        this.sprite.spriteImage('ground.shot.' + value);
+        this.sprite.spriteImage('ground.shoot.' + value);
       }
     });
   }
@@ -60,7 +60,7 @@ export class ShootAnimation extends AnimationComponent {
     this.sprite.flipDirection = this.facingRight
       ? SpriteFlip.None
       : SpriteFlip.XFlip;
-    this.sprite.spriteImage('ground.shot.1');
+    this.sprite.spriteImage('ground.shoot.1');
 
     return this;
   }

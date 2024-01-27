@@ -75,5 +75,6 @@ export interface ISprite {
   get flipDirection(): SpriteFlip;
   set flipDirection(flip: SpriteFlip);
 
-  removeSprite(): void;
+  get visible(): boolean;
+  set visible(value: boolean);
 }

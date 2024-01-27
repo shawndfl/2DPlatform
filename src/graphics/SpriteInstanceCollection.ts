@@ -96,6 +96,10 @@ export class SpriteInstanceCollection extends Component {
     this._spriteTexture = texture;
   }
 
+  hasQuad(id: string): boolean {
+    return this.quads.has(id);
+  }
+
   /**
    * Get a quad from an id
    * @param id

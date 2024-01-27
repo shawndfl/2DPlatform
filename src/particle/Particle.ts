@@ -197,12 +197,12 @@ export class Particle extends Component {
 
     // add the ridgeBody and activate the particle
     this._active = true;
-    this.spriteController.addSprite();
+    this.spriteController.visible = true;
     this.eng.physicsManager.addBody(this.ridgeBody);
   }
 
   kill(): void {
-    this.spriteController.removeSprite();
+    this.spriteController.visible = false;
     // remove this from the list of active
     this.eng.physicsManager.removeBody(this.ridgeBody);
     this._active = false;

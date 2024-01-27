@@ -1,4 +1,7 @@
+import { ISprite } from '../../graphics/ISprite';
 import { SpritBatchController } from '../../graphics/SpriteBatchController';
+import { SpriteInstanceCollection } from '../../graphics/SpriteInstanceCollection';
+import { SpriteInstanceController } from '../../graphics/SpriteInstanceController';
 import vec3 from '../../math/vec3';
 import { Collision2D } from '../../physics/Collision2D';
 import { RidgeBody } from '../../physics/RidgeBody';
@@ -11,7 +14,7 @@ import { PlayerController } from './PlayerController';
 
 export class BulletController extends GameComponent {
   private _active: boolean;
-  private sprite: SpritBatchController;
+  private sprite: ISprite;
   private _options: BulletOptions;
   private _ridgeBody: RidgeBody;
   private _bulletType: BulletType;
@@ -34,7 +37,6 @@ export class BulletController extends GameComponent {
 
     // no gravity
     this._ridgeBody.customGravity = vec3.zero.copy();
-
     this.eng.physicsManager.addBody(this._ridgeBody);
   }
 
@@ -46,44 +48,53 @@ export class BulletController extends GameComponent {
     return this._ridgeBody.position;
   }
 
-  initialize(sprite: SpritBatchController, options: BulletOptions): void {
-    this.sprite = sprite;
+  initialize(
+    spriteCollection: SpriteInstanceCollection,
+    options: BulletOptions
+  ): void {
+    // lazy create sprite controllers
+    if (!this.sprite) {
+      this.sprite = new SpriteInstanceController(this._id, spriteCollection);
+    }
     this._options = options;
     this._options.position.copy(this._ridgeBody.position);
     this._options.velocity.copy(this._ridgeBody.instanceVelocity);
     this._bulletType = this._options.bulletType;
 
-    this.sprite.activeSprite(this._id);
     this._ridgeBody.setId(this._id);
 
-    this.sprite.setSprite('bullet.normal.1');
-    this.sprite.scale(2.0);
-    this.sprite.setSpritePosition(
-      options.position.x,
-      options.position.y,
-      options.position.z
-    );
+    this.sprite.spriteImage('bullet.normal.1');
+    this.sprite.xScale = 2.0;
+    this.sprite.yScale = 2.0;
+    this.sprite.left = options.position.x;
+    this.sprite.top = options.position.y;
+    this.sprite.depth = options.position.z;
 
     // set bounds in pixels
     this._ridgeBody.set(
-      this._options.position.x * MetersToPixels,
-      this.sprite.spriteWidth(),
-      this._options.position.y * MetersToPixels,
-      this.sprite.spriteHeight()
+      this._options.position.x,
+      this.sprite.width,
+      this._options.position.y,
+      this.sprite.height
     );
     this._ridgeBody.active = true;
     this._active = true;
+    this.sprite.visible = true;
+    this._ridgeBody.showCollision = true;
   }
 
-  stop(): void {}
+  destroy(): void {
+    this._active = false;
+    this._ridgeBody.active = false;
+    this.sprite.visible = false;
+  }
 
   onPositionChange(left: number, top: number, body: RidgeBody): void {
     if (!this.sprite) {
       return;
     }
-    this.sprite.activeSprite(this._id);
-    this.sprite.setSpritePosition(left, top);
-    this.sprite.commitToBuffer();
+    this.sprite.left = left;
+    this.sprite.top = top;
   }
 
   onCollision(collision: Collision2D): void {
@@ -91,10 +102,7 @@ export class BulletController extends GameComponent {
       return;
     }
     // destroy bullet
-    this._active = false;
-    this._ridgeBody.active = false;
-    this.sprite.removeSprite(this.id);
-    this.sprite.commitToBuffer();
+    this.destroy();
 
     if (!collision) {
       return;
@@ -113,8 +121,5 @@ export class BulletController extends GameComponent {
     }
   }
 
-  update(dt: number): void {
-    // make sure the correct sprite is active
-    this.sprite.activeSprite(this.id);
-  }
+  update(dt: number): void {}
 }

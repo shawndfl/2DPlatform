@@ -1,4 +1,5 @@
 import { SpritBatchController } from '../../graphics/SpriteBatchController';
+import { SpriteInstanceCollection } from '../../graphics/SpriteInstanceCollection';
 import vec3 from '../../math/vec3';
 import { Random } from '../../utilities/Random';
 import { PlatformEngine } from '../PlatformEngine';
@@ -19,11 +20,11 @@ export class BulletManager extends GameComponent {
   readonly MaxBullets: number = 50;
   private bullets: BulletController[] = [];
   private inactiveBullets: BulletController[] = [];
-  private sprite: SpritBatchController;
+  private sprite: SpriteInstanceCollection;
 
   constructor(eng: PlatformEngine) {
     super(eng);
-    this.sprite = new SpritBatchController(this.eng);
+    this.sprite = new SpriteInstanceCollection(this.eng);
   }
 
   /**
@@ -43,7 +44,6 @@ export class BulletManager extends GameComponent {
 
   initialize(): void {
     const texture = this.eng.assetManager.getTexture(TextureAssets.edge);
-
     this.sprite.initialize(texture.texture, texture.data);
 
     for (let i = 0; i < this.MaxBullets; i++) {
@@ -62,7 +62,13 @@ export class BulletManager extends GameComponent {
     });
 
     this.bullets = this.bullets.filter((b) => b.active);
+  }
 
-    //console.debug(' active: ' + this.bullets.length + ' inactive: ' + this.inactiveBullets.length);
+  reset(): void {
+    this.bullets.forEach((b) => {
+      b.destroy();
+    });
+    this.inactiveBullets = [];
+    this.bullets = [];
   }
 }

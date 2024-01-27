@@ -272,8 +272,6 @@ export class PlayerController extends GameComponent {
     const startPos = new vec3(this.ridgeBody.left, this.ridgeBody.bottom, 0);
     startPos.y += 25;
     startPos.x += facingRight ? 35 : -5;
-    // must be in meters
-    startPos.scale(PixelsToMeters);
 
     const speed = this.bulletSpeed; // m/second
     const velocity = new vec3(facingRight ? speed : -speed, 0, 0);
@@ -339,6 +337,8 @@ export class PlayerController extends GameComponent {
   }
 
   hit(by: Collision2D): void {
+    this.ridgeBody.active = false;
+
     if (!this.hitAnimation.isRunning) {
       this.ridgeBody.active = false;
       this.hitAnimation.start(this.facingDirection == Direction.Right);
@@ -352,10 +352,13 @@ export class PlayerController extends GameComponent {
   update(dt: number): void {
     this.run(dt);
 
-    this.jumpAnimation.update(dt);
-    this.teleportAnimation.update(dt);
-    this.walk.update(dt);
-    this.shootAnimation.update(dt);
+    // can't do anything when you are hit
+    if (!this.hitAnimation.isRunning) {
+      this.jumpAnimation.update(dt);
+      this.teleportAnimation.update(dt);
+      this.walk.update(dt);
+      this.shootAnimation.update(dt);
+    }
     this.hitAnimation.update(dt);
 
     this.sprite.update(dt);
