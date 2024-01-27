@@ -1,7 +1,5 @@
 import { InputState } from '../core/InputState';
 import { Component } from '../components/Component';
-import { PlayerController } from '../_game/components/PlayerController';
-import { ILevelData } from '../_game/data/ILevelData';
 import { Engine } from '../core/Engine';
 
 /**

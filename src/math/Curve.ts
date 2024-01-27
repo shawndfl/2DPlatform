@@ -18,6 +18,7 @@ export class Curve {
   private _pingPong: boolean;
   private _repeat: number;
   private _isDone: boolean;
+  public speedScale: number = 1;
 
   private _onDone: (curve: Curve) => void;
   private _onUpdate: (value: number, curve: Curve) => void;
@@ -150,9 +151,9 @@ export class Curve {
     if (this._running && !this._isDone) {
       // update time first.
       if (this._reverse) {
-        this._time -= dt;
+        this._time -= dt * this.speedScale;
       } else {
-        this._time += dt;
+        this._time += dt * this.speedScale;
       }
 
       // find the closest point

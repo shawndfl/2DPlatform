@@ -19,6 +19,8 @@ import { GameComponent } from './GameComponent';
 import { SpriteController2 } from '../../graphics/SpriteController2';
 import vec2 from '../../math/vec2';
 import { IPlayerOptions } from '../data/ILevelData2';
+import { HitAnimation } from './HitAnimation';
+import { Curve } from '../../math/Curve';
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
@@ -29,6 +31,7 @@ export class PlayerController extends GameComponent {
   private walk: WalkAnimation;
   private shootAnimation: ShootAnimation;
   private jumpAnimation: JumpAnimation;
+  private hitAnimation: HitAnimation;
 
   /** a new jump can start after the jump button is released */
   private jumpReset: boolean;
@@ -65,6 +68,7 @@ export class PlayerController extends GameComponent {
     this.walk = new WalkAnimation(this.eng);
     this.shootAnimation = new ShootAnimation(this.eng);
     this.jumpAnimation = new JumpAnimation(this.eng);
+    this.hitAnimation = new HitAnimation(this.eng);
 
     this.facingDirection = Direction.Right;
     this.movementDirection = Direction.Right;
@@ -120,6 +124,7 @@ export class PlayerController extends GameComponent {
     this.walk.initialize(this.sprite);
     this.shootAnimation.initialize(this.sprite);
     this.jumpAnimation.initialize(this.sprite);
+    this.hitAnimation.initialize(this.sprite);
   }
 
   initialize(): void {
@@ -145,20 +150,36 @@ export class PlayerController extends GameComponent {
       150 + this.sprite.height,
       this.sprite.height
     );
+    this.ridgeBody.active = true;
 
     this.teleportAnimation.initialize(this.sprite);
     this.walk.initialize(this.sprite);
     this.shootAnimation.initialize(this.sprite);
     this.jumpAnimation.initialize(this.sprite);
+    this.hitAnimation.initialize(this.sprite);
 
     // setup the teleport animation
     this.teleport(false);
   }
 
   loadPlayer(options: IPlayerOptions): void {
+    const spriteData = this.eng.assetManager.getTexture(TextureAssets.edge);
+
+    this.sprite.initialize(spriteData.texture, spriteData.data);
+
+    // offset the sprite from the center to the top left
+    this.sprite.leftOffset = 1;
+    this.sprite.topOffset = -1;
+
+    // set the default image and double the scale
+    this.sprite.spriteImage('default');
+    this.sprite.xScale = 2.0;
+    this.sprite.yScale = 2.0;
+    this.sprite.depth = 0.7;
+
     this.setPosition(options.position.x, options.position.y);
-    const debug = options.meta.get('debug');
     this.ridgeBody.showCollision = options.meta.get('debug') == 'true';
+    this.ridgeBody.active = true;
     // setup the teleport animation
     this.teleport(false);
   }
@@ -317,6 +338,17 @@ export class PlayerController extends GameComponent {
     //console.debug('player: pos ' + this.screenPosition);
   }
 
+  hit(by: Collision2D): void {
+    if (!this.hitAnimation.isRunning) {
+      this.ridgeBody.active = false;
+      this.hitAnimation.start(this.facingDirection == Direction.Right);
+      this.hitAnimation.onDone = (curve: Curve) => {
+        this.eng.sceneManager.setNextScene('level.2.0');
+        console.debug('die');
+      };
+    }
+  }
+
   update(dt: number): void {
     this.run(dt);
 
@@ -324,6 +356,7 @@ export class PlayerController extends GameComponent {
     this.teleportAnimation.update(dt);
     this.walk.update(dt);
     this.shootAnimation.update(dt);
+    this.hitAnimation.update(dt);
 
     this.sprite.update(dt);
   }

@@ -30,8 +30,8 @@ export class Bottomless extends CollisionBox {
 
     // attach it
     if (other.tag instanceof PlayerController) {
-      this.eng.sceneManager.setNextScene('level.2.0');
-      console.debug('die');
+      const player = other.tag as PlayerController;
+      player.hit(this);
     }
   }
 

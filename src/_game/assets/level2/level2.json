@@ -9,8 +9,8 @@
         }
     ],
     "player": {
-        "pos": [50, 100],
-        "meta":  [["debug", "true"], 
+        "pos": [50, 150],
+        "meta":  [["debug", "false"], 
              ["health", "90"]]
         
     },
