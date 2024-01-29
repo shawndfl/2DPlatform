@@ -61,25 +61,25 @@ export class Elevator extends CollisionBox {
 
       // update the position of all the attached things
       this.attached.forEach((c) => {
-        c.bounds.setPosition(c.bounds.left + dx, c.bounds.top + dy);
+        // the attached thing needs to be on the surface of the elevator
+        c.setPos(c.bounds.left + dx, c.bounds.top + dy);
       });
+      this.attached.clear();
     });
   }
 
-  collisionTriggered(other: Collision2D): void {
-    super.collisionTriggered(other);
-    if (!other) {
+  collisionTriggered(others: Collision2D[]): void {
+    super.collisionTriggered(others);
+    if (!others) {
       return;
     }
 
     // attach it
-    if (other.bounds.bottom == this.bounds.top) {
-      this.attached.set(other.id, other);
+    for (let other of others) {
+      if (other.bounds.bottom == this.bounds.top) {
+        this.attached.set(other.id, other);
+      }
     }
-    //if (other.bounds.top > this.bounds.top && other.bounds.edgeOverlapX) {
-    //  const top = this.bounds.top + other.bounds.height;
-    //  other.setPos(other.bounds.left, top);
-    //}
   }
 
   update(dt: number) {

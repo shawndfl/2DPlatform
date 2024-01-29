@@ -22,16 +22,16 @@ export class Bottomless extends CollisionBox {
     super(eng, options);
   }
 
-  collisionTriggered(other: Collision2D): void {
-    super.collisionTriggered(other);
-    if (!other) {
-      return;
-    }
+  collisionTriggered(others: Collision2D[]): void {
+    super.collisionTriggered(others);
 
-    // attach it
-    if (other.tag instanceof PlayerController) {
-      const player = other.tag as PlayerController;
-      player.hit(this);
+    // see if the player hit this
+    for (let other of others) {
+      if (other.tag instanceof PlayerController) {
+        const player = other.tag as PlayerController;
+        player.hit(this);
+        break;
+      }
     }
   }
 

@@ -25,17 +25,13 @@ export class RidgeBody extends Collision2D {
   private nextBounds: rect;
   private nextPosition: vec3;
   private nextVelocity: vec3;
-  private collisionResults: CollisionResults;
+  private collisionResults: Collision2D[] = [];
 
   public get position(): Readonly<vec3> {
     return this._position;
   }
 
   public childBodies: RidgeBody[];
-
-  /** events */
-  //onPositionChange: (newPosition: Readonly<vec3>, body: RidgeBody) => void;
-  onFloor: (body: RidgeBody) => void;
 
   constructor(
     eng: Engine,
@@ -55,11 +51,14 @@ export class RidgeBody extends Collision2D {
   }
 
   private temp = new vec3();
+
   update(dt: number): void {
     super.update(dt);
 
+    // reset the results
+    this.collisionResults = [];
+
     if (!this.active) {
-      this.resetCollision();
       return;
     }
     const t = dt * 0.001;
@@ -95,6 +94,9 @@ export class RidgeBody extends Collision2D {
     // the position of the ridge body, with will update the position of
     // the sprite.
     this.setPos(this.nextBounds.left, this.nextBounds.top);
+
+    // raise the collision events
+    this.onHit(this.collisionResults);
   }
 
   setPos(left: number, top: number): void {
@@ -109,13 +111,11 @@ export class RidgeBody extends Collision2D {
    * Raise collision event
    * @param other
    */
-  onHit(other: Collision2D): void {
-    this.collisionTriggered(other);
+  onHit(others: Collision2D[]): void {
+    this.collisionTriggered(others);
 
-    // this might be the physics limit it is colliding with
-    // so the other is null
-    if (other) {
-      other.collisionTriggered(this);
+    for (let c of others) {
+      c.collisionTriggered([this]);
     }
   }
 
@@ -151,7 +151,7 @@ export class RidgeBody extends Collision2D {
             this.acceleration.x = 0;
             b2.left = c.bounds.left - b2.width - padding;
           }
-          this.onHit(c);
+          this.collisionResults.push(c);
           continue;
         }
         // colliding with something to the left
@@ -165,7 +165,7 @@ export class RidgeBody extends Collision2D {
             this.acceleration.x = 0;
             b2.left = c.bounds.right + padding;
           }
-          this.onHit(c);
+          this.collisionResults.push(c);
           continue;
         }
       }
@@ -179,18 +179,13 @@ export class RidgeBody extends Collision2D {
           this.acceleration.y = 0;
           b2.top = c.bounds.top + b2.height;
 
-          this.onHit(c);
-
-          // the body is at rest on a floor
-          if (this.onFloor) {
-            this.onFloor(this);
-          }
+          this.collisionResults.push(c);
         } else if (b1.top <= c.bounds.bottom && b2.top >= c.bounds.bottom) {
           this.instanceVelocity.y = 0;
           this.nextVelocity.y = 0;
           this.acceleration.y = 0;
           b2.top = c.bounds.bottom;
-          this.onHit(c);
+          this.collisionResults.push(c);
         }
       }
     }
@@ -204,10 +199,6 @@ export class RidgeBody extends Collision2D {
       this.nextVelocity.y = 0;
       this.acceleration.y = 0;
       b2.top = worldBounds.bottom + b2.height;
-      // the body is at rest on a floor
-      if (this.onFloor) {
-        this.onFloor(this);
-      }
       hitLimit = true;
     } else if (b2.top >= worldBounds.top) {
       this.instanceVelocity.y = 0;
@@ -230,23 +221,5 @@ export class RidgeBody extends Collision2D {
       b2.left = worldBounds.left;
       hitLimit = true;
     }
-
-    if (hitLimit) {
-      this.onHit(null);
-    }
-  }
-
-  private resetCollision(): void {
-    if (this.collisionResults) {
-      // removing highlights
-      this.collisionResults.collisions.forEach((c) => {
-        this.eng.annotationManager.removeRect(c.id);
-      });
-      // reset collisions
-      this.collisionResults.collisions = [];
-      this.collisionResults.correctionVector.x = 0;
-      this.collisionResults.correctionVector.y = 0;
-    }
-    this.eng.annotationManager.removeRect(this.id + '_collision');
   }
 }

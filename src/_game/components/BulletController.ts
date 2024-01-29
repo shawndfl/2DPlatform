@@ -64,8 +64,10 @@ export class BulletController extends GameComponent {
     this._ridgeBody.setId(this._id);
 
     this.sprite.spriteImage('bullet.normal.1');
-    this.sprite.xScale = 2.0;
-    this.sprite.yScale = 2.0;
+    this.sprite.topOffset = -0.5;
+    this.sprite.leftOffset = 0.5;
+    this.sprite.xScale = 1.0;
+    this.sprite.yScale = 1.0;
     this.sprite.left = options.position.x;
     this.sprite.top = options.position.y;
     this.sprite.depth = options.position.z;
@@ -80,7 +82,6 @@ export class BulletController extends GameComponent {
     this._ridgeBody.active = true;
     this._active = true;
     this.sprite.visible = true;
-    this._ridgeBody.showCollision = true;
   }
 
   destroy(): void {

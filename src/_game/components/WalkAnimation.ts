@@ -9,11 +9,14 @@ export class WalkAnimation extends AnimationComponent {
   private firstOne: boolean;
   private facingRight: boolean;
 
+  public touchingFloor: boolean;
+
   initialize(sprite: ISprite): void {
     this.sprite = sprite;
     this.curve = new Curve();
     const points: { p: number; t: number }[] = [];
 
+    this.touchingFloor = true;
     this.firstOne = true;
     this.facingRight = true;
 
@@ -47,7 +50,11 @@ export class WalkAnimation extends AnimationComponent {
       this.sprite.flipDirection = this.facingRight
         ? SpriteFlip.None
         : SpriteFlip.XFlip;
-      this.sprite.spriteImage('run.' + value);
+      if (this.touchingFloor) {
+        this.sprite.spriteImage('run.' + value);
+      } else {
+        this.sprite.spriteImage('jump.5');
+      }
 
       if (value >= 10) {
         this.firstOne = false;
@@ -78,7 +85,12 @@ export class WalkAnimation extends AnimationComponent {
       this.sprite.flipDirection = this.facingRight
         ? SpriteFlip.None
         : SpriteFlip.XFlip;
-      this.sprite.spriteImage('run.1');
+
+      if (this.touchingFloor) {
+        this.sprite.spriteImage('run.1');
+      } else {
+        this.sprite.spriteImage('jump.5');
+      }
     }
     return this;
   }

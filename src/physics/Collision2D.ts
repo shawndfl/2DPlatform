@@ -10,7 +10,7 @@ export class Collision2D extends Component {
   private _showCollision: boolean;
   protected _debugColor: vec4 = new vec4(0, 1, 0, 1);
 
-  onCollision: (other: Collision2D) => void;
+  onCollision: (others: Collision2D[]) => void;
   onPosition: (left: number, top: number, collision: Collision2D) => void;
 
   public get left(): number {
@@ -133,9 +133,9 @@ export class Collision2D extends Component {
    * is colliding with this. This could
    * @param other
    */
-  collisionTriggered(other: Collision2D): void {
+  collisionTriggered(others: Collision2D[]): void {
     if (this.onCollision) {
-      this.onCollision(other);
+      this.onCollision(others);
     }
   }
 

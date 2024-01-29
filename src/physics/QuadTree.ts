@@ -13,7 +13,6 @@ export interface QuadTreeAnalytics {
  */
 export class CollisionResults {
   collisions: Collision2D[];
-  correctionVector: vec2;
 }
 
 export class QuadTreeNode {
@@ -240,7 +239,6 @@ export class QuadTree {
     if (!results) {
       results = {
         collisions: [],
-        correctionVector: new vec2(),
       };
     }
     this.root.checkForCollision(collision, results, analytics);
