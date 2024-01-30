@@ -21,10 +21,10 @@ import vec2 from '../../math/vec2';
 import { IPlayerOptions } from '../data/ILevelData2';
 import { HitAnimation } from './HitAnimation';
 import { Curve } from '../../math/Curve';
-import { EntityState, EntityStateFlags } from '../data/EntityState';
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
+  private running: boolean;
   private facingDirection: Direction;
   private movementDirection: Direction;
   private teleportAnimation: TeleportAnimation;
@@ -32,7 +32,6 @@ export class PlayerController extends GameComponent {
   private shootAnimation: ShootAnimation;
   private jumpAnimation: JumpAnimation;
   private hitAnimation: HitAnimation;
-  private _state: EntityState;
 
   /** a new jump can start after the jump button is released */
   private jumpReset: boolean;
@@ -46,7 +45,7 @@ export class PlayerController extends GameComponent {
   private ridgeBody: RidgeBody;
 
   // config options
-  private readonly bulletSpeed = 4.0;
+  private readonly bulletSpeed = 3.0;
   private readonly jumpVelocity = 3.0;
 
   get id(): string {
@@ -73,11 +72,10 @@ export class PlayerController extends GameComponent {
 
     this.facingDirection = Direction.Right;
     this.movementDirection = Direction.Right;
-
+    this.running = false;
     this.jumpAnimation = new JumpAnimation(eng);
     this.touchingFloor = false;
     this.midAirJump = 0;
-    this._state = new EntityState(EntityStateFlags.None);
 
     this.ridgeBody = new RidgeBody(
       this.eng,
@@ -86,7 +84,7 @@ export class PlayerController extends GameComponent {
       new rect([0, 64, 0, 64])
     );
     this.ridgeBody.onPosition = this.updateFromRidgeBodyPosition.bind(this);
-    this.ridgeBody.onCollision = this.onCollision.bind(this);
+    this.ridgeBody.onCollision = this.onFloor.bind(this);
     this.eng.physicsManager.addBody(this.ridgeBody);
   }
 
@@ -94,7 +92,7 @@ export class PlayerController extends GameComponent {
     // reset state
     this.facingDirection = Direction.Right;
     this.movementDirection = Direction.Right;
-    this._state.set(EntityStateFlags.None);
+    this.running = false;
     this.touchingFloor = false;
     this.midAirJump = 0;
 
@@ -199,29 +197,25 @@ export class PlayerController extends GameComponent {
     }
 
     if (state.isDown(UserAction.Right)) {
-      if (this.touchingFloor) {
-        this.walk.start(true);
-      }
+      this.walk.start(true);
 
       this.facingDirection = Direction.Right;
       this.movementDirection = Direction.Right;
-      this._state.append(EntityStateFlags.Running);
+      this.running = true;
     }
     if (state.isDown(UserAction.Left)) {
-      if (this.touchingFloor) {
-        this.walk.start(false);
-      }
+      this.walk.start(false);
       this.facingDirection = Direction.Left;
       this.movementDirection = Direction.Left;
-      this._state.append(EntityStateFlags.Running);
+      this.running = true;
     }
     if (state.isReleased(UserAction.Right)) {
       this.walk.stop();
-      this._state.remove(EntityStateFlags.Running);
+      this.running = false;
     }
     if (state.isReleased(UserAction.Left)) {
       this.walk.stop();
-      this._state.remove(EntityStateFlags.Running);
+      this.running = false;
     }
 
     if (state.isReleased(UserAction.A)) {
@@ -243,32 +237,19 @@ export class PlayerController extends GameComponent {
   private teleport(up: boolean): void {
     this.ridgeBody.active = false;
 
-    // remove teleporting flag and set it correctly
-    this._state.remove(EntityStateFlags.Teleporting);
-    this._state.set(
-      up ? EntityStateFlags.TeleportUp : EntityStateFlags.TeleportDown
-    );
-
     // update teleport position
     this.teleportAnimation.groundLevel = this.ridgeBody.bottom;
     this.teleportAnimation.xOffset = this.ridgeBody.left;
     this.teleportAnimation.start(up).onDone(() => {
       if (!this.teleportAnimation.isUp) {
         this.ridgeBody.active = true;
-        // we are not teleporting anymore
-        this._state.remove(EntityStateFlags.Teleporting);
       }
     });
   }
 
-  private onCollision(others: Collision2D[]): void {
+  private onFloor(body: RidgeBody): void {
+    this.touchingFloor = true;
     this.midAirJump = this.maxMidAirJumps;
-    this.touchingFloor = false;
-    for (let c of others) {
-      if (this.ridgeBody.bottom == c.top) {
-        this.touchingFloor = true;
-      }
-    }
   }
 
   private jump(): void {
@@ -279,24 +260,17 @@ export class PlayerController extends GameComponent {
       }
       this.ridgeBody.velocity.y = this.jumpVelocity;
       this.jumpAnimation.start(false);
+      this.touchingFloor = false;
     }
   }
 
   private shoot(): void {
     const facingRight = this.facingRight;
-    if (this._state.isTrue(EntityStateFlags.Running)) {
-      //NOP
-    } else if (this._state.isTrue(EntityStateFlags.Falling)) {
-      //NOP
-    } else if (this._state.isTrue(EntityStateFlags.SlidingDownWall)) {
-      //NOP
-    } else {
-      this.shootAnimation.start(facingRight);
-    }
+    this.shootAnimation.start(facingRight);
 
     // get the start position of the bullet
     const startPos = new vec3(this.ridgeBody.left, this.ridgeBody.bottom, 0);
-    startPos.y += 45;
+    startPos.y += 25;
     startPos.x += facingRight ? 35 : -5;
 
     const speed = this.bulletSpeed; // m/second
@@ -309,28 +283,16 @@ export class PlayerController extends GameComponent {
   }
 
   run(dt: number): void {
-    this.walk.touchingFloor = this.touchingFloor;
-    if (this._state.isTrue(EntityStateFlags.Teleporting)) {
-      return;
-    } else if (this._state.isTrue(EntityStateFlags.Hit)) {
-      return;
-    } else if (this._state.isTrue(EntityStateFlags.Dead)) {
-      return;
-    } else if (this._state.isTrue(EntityStateFlags.SlidingDownWall)) {
-      return;
-    } else if (this._state.isTrue(EntityStateFlags.Running)) {
-      if (this.facingRight) {
-        this.ridgeBody.instanceVelocity.x = PixelsToMeters * 500;
+    if (!this.teleportAnimation.running && !this.teleportAnimation.isUp) {
+      if (this.running) {
+        if (this.facingRight) {
+          this.ridgeBody.instanceVelocity.x = PixelsToMeters * 500;
+        } else {
+          this.ridgeBody.instanceVelocity.x = -PixelsToMeters * 500;
+        }
       } else {
-        this.ridgeBody.instanceVelocity.x = -PixelsToMeters * 500;
+        this.ridgeBody.instanceVelocity.x = 0;
       }
-    } else {
-      this.sprite.spriteImage('default');
-      this.ridgeBody.instanceVelocity.x = 0;
-    }
-
-    if (!this.touchingFloor) {
-      this.sprite.spriteImage('jump.5');
     }
   }
 
@@ -374,13 +336,8 @@ export class PlayerController extends GameComponent {
     //console.debug('player: pos ' + this.screenPosition);
   }
 
-  /**
-   * When we are hit by a bullet
-   * @param by
-   */
   hit(by: Collision2D): void {
     this.ridgeBody.active = false;
-    this._state.set(EntityStateFlags.Dead);
 
     if (!this.hitAnimation.isRunning) {
       this.ridgeBody.active = false;
@@ -396,7 +353,7 @@ export class PlayerController extends GameComponent {
     this.run(dt);
 
     // can't do anything when you are hit
-    if (!this._state.isTrue(EntityStateFlags.Dead)) {
+    if (!this.hitAnimation.isRunning) {
       this.jumpAnimation.update(dt);
       this.teleportAnimation.update(dt);
       this.walk.update(dt);

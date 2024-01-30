@@ -50,6 +50,7 @@ export class WalkAnimation extends AnimationComponent {
       this.sprite.flipDirection = this.facingRight
         ? SpriteFlip.None
         : SpriteFlip.XFlip;
+
       if (this.touchingFloor) {
         this.sprite.spriteImage('run.' + value);
       } else {
