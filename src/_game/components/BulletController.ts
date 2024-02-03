@@ -98,16 +98,17 @@ export class BulletController extends GameComponent {
     this.sprite.top = top;
   }
 
-  onCollision(collision: Collision2D): void {
-    if (!this.sprite) {
+  onCollision(collisions: Collision2D[]): void {
+    if (!this.sprite || !collisions || collisions.length == 0) {
       return;
     }
+
+    if (!collisions) {
+      return;
+    }
+
     // destroy bullet
     this.destroy();
-
-    if (!collision) {
-      return;
-    }
 
     // if we hit an enemy
     //if (c.tag instanceof EnemyController) {
@@ -117,8 +118,12 @@ export class BulletController extends GameComponent {
     //}
 
     // hit a player
-    if (collision.tag instanceof PlayerController) {
-      //TODO
+    for (let c of collisions) {
+      if (this._bulletType == BulletType.EnemyBullet) {
+        if (c.tag instanceof PlayerController) {
+          //TODO
+        }
+      }
     }
   }
 

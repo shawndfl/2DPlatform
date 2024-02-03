@@ -1,6 +1,8 @@
 import { ISprite, SpriteFlip } from '../../graphics/ISprite';
+import vec3 from '../../math/vec3';
 import { RidgeBody } from '../../physics/RidgeBody';
 import { PlatformEngine } from '../PlatformEngine';
+import { BulletType } from '../components/BulletType';
 import { Direction } from '../components/Direction';
 import { GameComponent } from '../components/GameComponent';
 import { HitAnimation } from '../components/HitAnimation';
@@ -28,12 +30,13 @@ export enum EntityStateFlags {
 }
 
 export class EntityStateOptions {
-  runSpeed: number = 2;
-  runAcceleration: number = 0.1;
-  runMaxSpeed: number = 3;
+  runSpeed: number = 1;
+  runAcceleration: number = 1.5;
+  runMaxSpeed: number = 4;
   jumpSpeed: number = 3.5;
   midAirJumps: number = 1;
-  midAirNudge: number = 3;
+  midAirNudge: number = 1;
+  bulletSpeed: number = 6;
 }
 
 export class EntityState extends GameComponent {
@@ -133,12 +136,12 @@ export class EntityState extends GameComponent {
       case EntityStateFlags.Disable:
         break;
       case EntityStateFlags.Idle:
-        this.ridgeBody.instanceVelocity.y = 0;
+        this.ridgeBody.velocity.y = 0;
         this.changeState(EntityStateFlags.Falling);
         this.sprite.spriteImage('jumping.6');
         break;
       case EntityStateFlags.Running:
-        this.ridgeBody.instanceVelocity.y = 0;
+        this.ridgeBody.velocity.y = 0;
         this.runAnimation.stop();
         this.changeState(EntityStateFlags.Falling);
         this.sprite.spriteImage('jumping.6');
@@ -166,12 +169,16 @@ export class EntityState extends GameComponent {
       case EntityStateFlags.Disable:
         break;
       case EntityStateFlags.Idle:
-        this.sprite.spriteImage('default');
-        this.changeState(EntityStateFlags.Idle);
+        if (!this._shooting) {
+          this.ridgeBody.instanceVelocity.x = 0;
+          this.sprite.spriteImage('default');
+          this.changeState(EntityStateFlags.Idle);
+        }
         break;
       case EntityStateFlags.Running:
         break;
       case EntityStateFlags.Falling:
+        this.ridgeBody.instanceVelocity.x = 0;
         this.sprite.spriteImage('default');
         this.changeState(EntityStateFlags.Idle);
         break;
@@ -207,23 +214,27 @@ export class EntityState extends GameComponent {
       case EntityStateFlags.Running:
         this.sprite.spriteImage('default');
         this.runAnimation.stop();
+        this.ridgeBody.velocity.x = 0;
         this.ridgeBody.instanceVelocity.x = 0;
+        this.ridgeBody.acceleration.x = 0;
         this.changeState(EntityStateFlags.Idle);
         break;
       case EntityStateFlags.Falling:
+        this.ridgeBody.velocity.x = 0;
         this.ridgeBody.instanceVelocity.x = 0;
+        this.ridgeBody.acceleration.x = 0;
         break;
       case EntityStateFlags.FirstJump:
         this.jumpAnimation.stop();
-        this.ridgeBody.instanceVelocity.y = 0;
+        this.ridgeBody.velocity.y = 0;
         this.changeState(EntityStateFlags.Falling);
         break;
       case EntityStateFlags.MidAirJump:
-        this.ridgeBody.instanceVelocity.y = 0;
+        this.ridgeBody.velocity.y = 0;
         this.changeState(EntityStateFlags.Falling);
         break;
       case EntityStateFlags.SlidingDownWall:
-        this.ridgeBody.instanceVelocity.y = 0;
+        this.ridgeBody.velocity.y = 0;
         this.changeState(EntityStateFlags.Falling);
         break;
       case EntityStateFlags.Hit:
@@ -312,12 +323,12 @@ export class EntityState extends GameComponent {
         break;
       case EntityStateFlags.Idle:
         this.changeState(EntityStateFlags.FirstJump);
-        this.ridgeBody.instanceVelocity.y = this.options.jumpSpeed;
+        this.ridgeBody.velocity.y = this.options.jumpSpeed;
         this.jumpAnimation.start(this.facingRight);
         break;
       case EntityStateFlags.Running:
         this.changeState(EntityStateFlags.FirstJump);
-        this.ridgeBody.instanceVelocity.y = this.options.jumpSpeed;
+        this.ridgeBody.velocity.y = this.options.jumpSpeed;
         this.runAnimation.stop();
         this.jumpAnimation.start(this.facingRight);
         break;
@@ -342,6 +353,23 @@ export class EntityState extends GameComponent {
         break;
       case EntityStateFlags.Idle:
         this._shooting = true;
+        const startPos = new vec3(
+          this.ridgeBody.left,
+          this.ridgeBody.bottom,
+          0
+        );
+        startPos.y += 45;
+        startPos.x += this.ridgeBody.width * 0.5;
+        startPos.z = this.sprite.depth - 0.001;
+
+        const speed = this.options.bulletSpeed; // m/second
+        const velocity = new vec3(this.facingRight ? speed : -speed, 0, 0);
+        this.eng.bullets.addBullet({
+          bulletType: BulletType.PlayerBullet,
+          position: startPos,
+          velocity,
+        });
+
         this.shootAnimation.start(this.facingRight).onDone(() => {
           this._shooting = false;
         });
@@ -494,6 +522,8 @@ export class EntityState extends GameComponent {
 
       // move when running
       if (this._state == EntityStateFlags.Running) {
+        this.ridgeBody.acceleration.x =
+          this.options.runAcceleration * (this.facingRight ? 1 : -1);
         this.ridgeBody.instanceVelocity.x =
           this.options.runSpeed * (this.facingRight ? 1 : -1);
       }

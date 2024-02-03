@@ -29,26 +29,8 @@ import {
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
-  //private running: boolean;
+
   private entityState: EntityState;
-
-  //private facingDirection: Direction;
-  //private movementDirection: Direction;
-  //private teleportAnimation: TeleportAnimation;
-  //private walk: WalkAnimation;
-  //private shootAnimation: ShootAnimation;
-  //private jumpAnimation: JumpAnimation;
-  //private hitAnimation: HitAnimation;
-
-  /** a new jump can start after the jump button is released */
-  //private jumpReset: boolean;
-  /** Must be on a floor to start a jump */
-  //private touchingFloor: boolean;
-
-  /** How many mid air jumps can we do */
-  //private midAirJump: number;
-  //private readonly maxMidAirJumps = 1;
-
   private ridgeBody: RidgeBody;
 
   // config options
@@ -226,8 +208,6 @@ export class PlayerController extends GameComponent {
     } else if (hitGround) {
       this.entityState.landed();
     }
-    //this.touchingFloor = true;
-    //this.midAirJump = this.maxMidAirJumps;
   }
 
   /*

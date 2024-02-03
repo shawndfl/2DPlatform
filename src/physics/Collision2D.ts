@@ -29,6 +29,14 @@ export class Collision2D extends Component {
     return this._bounds.right;
   }
 
+  public get width(): number {
+    return this._bounds.width;
+  }
+
+  public get height(): number {
+    return this._bounds.height;
+  }
+
   public get requireUpdate(): boolean {
     return this._requiresUpdate;
   }
