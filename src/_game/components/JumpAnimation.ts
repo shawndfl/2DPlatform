@@ -63,6 +63,7 @@ export class JumpAnimation extends AnimationComponent {
   }
 
   stop(): void {}
+
   update(dt: number): void {
     if (this.curve) {
       this.curve.update(dt);

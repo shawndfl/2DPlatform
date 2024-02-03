@@ -7,6 +7,7 @@ export class ShootAnimation extends AnimationComponent {
   private curve: Curve;
   private sprite: ISprite;
   private facingRight: boolean;
+  private _onDone: () => void;
 
   initialize(sprite: ISprite): void {
     this.sprite = sprite;
@@ -21,6 +22,11 @@ export class ShootAnimation extends AnimationComponent {
 
     this.curve.points(points);
     let lastValue = -1;
+    this.curve.onDone((curve) => {
+      if (this._onDone) {
+        this._onDone();
+      }
+    });
     this.curve.onUpdate((value) => {
       // wait for the value to change
       if (value == lastValue) {
@@ -37,6 +43,11 @@ export class ShootAnimation extends AnimationComponent {
         this.sprite.spriteImage('ground.shoot.' + value);
       }
     });
+  }
+
+  onDone(done: () => void): ShootAnimation {
+    this._onDone = done;
+    return this;
   }
 
   stop(): ShootAnimation {

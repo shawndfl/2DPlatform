@@ -10,10 +10,6 @@ export class HitAnimation extends AnimationComponent {
   private _initialTop: number;
   private _defaultHeight: number;
 
-  set onDone(value: (curve: Curve) => void) {
-    this.curve.onDone(value);
-  }
-
   public get isRunning(): boolean {
     return this.curve.isRunning();
   }
@@ -62,6 +58,11 @@ export class HitAnimation extends AnimationComponent {
     this.curveFade.onUpdate((value) => {
       //this.sprite.se
     });
+  }
+
+  onDone(value: (curve: Curve) => void): HitAnimation {
+    this.curve.onDone(value);
+    return this;
   }
 
   start(facingRight: boolean): HitAnimation {

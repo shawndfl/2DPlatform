@@ -21,26 +21,33 @@ import vec2 from '../../math/vec2';
 import { IPlayerOptions } from '../data/ILevelData2';
 import { HitAnimation } from './HitAnimation';
 import { Curve } from '../../math/Curve';
+import {
+  EntityState,
+  EntityStateFlags,
+  EntityStateOptions,
+} from '../data/EntityState';
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
-  private running: boolean;
-  private facingDirection: Direction;
-  private movementDirection: Direction;
-  private teleportAnimation: TeleportAnimation;
-  private walk: WalkAnimation;
-  private shootAnimation: ShootAnimation;
-  private jumpAnimation: JumpAnimation;
-  private hitAnimation: HitAnimation;
+  //private running: boolean;
+  private entityState: EntityState;
+
+  //private facingDirection: Direction;
+  //private movementDirection: Direction;
+  //private teleportAnimation: TeleportAnimation;
+  //private walk: WalkAnimation;
+  //private shootAnimation: ShootAnimation;
+  //private jumpAnimation: JumpAnimation;
+  //private hitAnimation: HitAnimation;
 
   /** a new jump can start after the jump button is released */
-  private jumpReset: boolean;
+  //private jumpReset: boolean;
   /** Must be on a floor to start a jump */
-  private touchingFloor: boolean;
+  //private touchingFloor: boolean;
 
   /** How many mid air jumps can we do */
-  private midAirJump: number;
-  private readonly maxMidAirJumps = 1;
+  //private midAirJump: number;
+  //private readonly maxMidAirJumps = 1;
 
   private ridgeBody: RidgeBody;
 
@@ -52,30 +59,13 @@ export class PlayerController extends GameComponent {
     return SpriteId.Player;
   }
 
-  get facingRight(): boolean {
-    return this.facingDirection == Direction.Right;
-  }
-
-  get facingLeft(): boolean {
-    return this.facingDirection == Direction.Left;
-  }
-
   constructor(eng: PlatformEngine) {
     super(eng);
     this.sprite = new SpriteController2(eng);
 
-    this.teleportAnimation = new TeleportAnimation(this.eng);
-    this.walk = new WalkAnimation(this.eng);
-    this.shootAnimation = new ShootAnimation(this.eng);
-    this.jumpAnimation = new JumpAnimation(this.eng);
-    this.hitAnimation = new HitAnimation(this.eng);
-
-    this.facingDirection = Direction.Right;
-    this.movementDirection = Direction.Right;
-    this.running = false;
-    this.jumpAnimation = new JumpAnimation(eng);
-    this.touchingFloor = false;
-    this.midAirJump = 0;
+    // setup entity state
+    this.entityState = new EntityState(this.eng);
+    this.entityState.onStateChange = this.onStateChange;
 
     this.ridgeBody = new RidgeBody(
       this.eng,
@@ -84,18 +74,11 @@ export class PlayerController extends GameComponent {
       new rect([0, 64, 0, 64])
     );
     this.ridgeBody.onPosition = this.updateFromRidgeBodyPosition.bind(this);
-    this.ridgeBody.onCollision = this.onFloor.bind(this);
+    this.ridgeBody.onCollision = this.onCollision.bind(this);
     this.eng.physicsManager.addBody(this.ridgeBody);
   }
 
   reset(): void {
-    // reset state
-    this.facingDirection = Direction.Right;
-    this.movementDirection = Direction.Right;
-    this.running = false;
-    this.touchingFloor = false;
-    this.midAirJump = 0;
-
     // offset the sprite from the center to the top left
     this.sprite.leftOffset = 1;
     this.sprite.topOffset = -1;
@@ -119,12 +102,12 @@ export class PlayerController extends GameComponent {
     // add the ridge body back in
     this.eng.physicsManager.addBody(this.ridgeBody);
 
-    // initialize animations
-    this.teleportAnimation.initialize(this.sprite);
-    this.walk.initialize(this.sprite);
-    this.shootAnimation.initialize(this.sprite);
-    this.jumpAnimation.initialize(this.sprite);
-    this.hitAnimation.initialize(this.sprite);
+    // reset state
+    this.entityState.initialize(
+      this.sprite,
+      this.ridgeBody,
+      new EntityStateOptions()
+    );
   }
 
   initialize(): void {
@@ -151,15 +134,6 @@ export class PlayerController extends GameComponent {
       this.sprite.height
     );
     this.ridgeBody.active = true;
-
-    this.teleportAnimation.initialize(this.sprite);
-    this.walk.initialize(this.sprite);
-    this.shootAnimation.initialize(this.sprite);
-    this.jumpAnimation.initialize(this.sprite);
-    this.hitAnimation.initialize(this.sprite);
-
-    // setup the teleport animation
-    this.teleport(false);
   }
 
   loadPlayer(options: IPlayerOptions): void {
@@ -180,16 +154,24 @@ export class PlayerController extends GameComponent {
     this.setPosition(options.position.x, options.position.y);
     this.ridgeBody.showCollision = options.meta.get('debug') == 'true';
     this.ridgeBody.active = true;
-    // setup the teleport animation
-    this.teleport(false);
+
+    this.entityState.initialize(
+      this.sprite,
+      this.ridgeBody,
+      new EntityStateOptions()
+    );
+    // start by teleporting down
+    this.entityState.teleport(false);
   }
+
+  onStateChange(before: EntityStateFlags, after: EntityStateFlags): void {}
 
   handleUserAction(state: InputState): boolean {
     if (state.isReleased(UserAction.Up)) {
-      this.teleport(true);
+      this.entityState.teleport(true);
     }
     if (state.isReleased(UserAction.Down)) {
-      this.teleport(false);
+      this.entityState.teleport(false);
     }
 
     if (!this.ridgeBody.active) {
@@ -197,73 +179,58 @@ export class PlayerController extends GameComponent {
     }
 
     if (state.isDown(UserAction.Right)) {
-      this.walk.start(true);
-
-      this.facingDirection = Direction.Right;
-      this.movementDirection = Direction.Right;
-      this.running = true;
+      this.entityState.move(true);
     }
     if (state.isDown(UserAction.Left)) {
-      this.walk.start(false);
-      this.facingDirection = Direction.Left;
-      this.movementDirection = Direction.Left;
-      this.running = true;
+      this.entityState.move(false);
     }
     if (state.isReleased(UserAction.Right)) {
-      this.walk.stop();
-      this.running = false;
+      this.entityState.stopMoving();
     }
     if (state.isReleased(UserAction.Left)) {
-      this.walk.stop();
-      this.running = false;
+      this.entityState.stopMoving();
     }
 
     if (state.isReleased(UserAction.A)) {
-      this.shoot();
+      this.entityState.shoot();
     }
     if (state.isDown(UserAction.B)) {
-      if (!this.jumpReset) {
-        this.jumpReset = true;
-        this.jump();
-      }
+      this.entityState.jump();
     }
     if (state.isReleased(UserAction.B)) {
-      this.ridgeBody.velocity.y = 0;
-      this.jumpReset = false;
+      this.entityState.stopMoving();
     }
     return false;
   }
 
-  private teleport(up: boolean): void {
-    this.ridgeBody.active = false;
-
-    // update teleport position
-    this.teleportAnimation.groundLevel = this.ridgeBody.bottom;
-    this.teleportAnimation.xOffset = this.ridgeBody.left;
-    this.teleportAnimation.start(up).onDone(() => {
-      if (!this.teleportAnimation.isUp) {
-        this.ridgeBody.active = true;
+  private onCollision(collisions: Collision2D[]): void {
+    let hitGround = false;
+    let hitRightSide = false;
+    let hitLeftSide = false;
+    // see how we hit the collisions
+    for (let c of collisions) {
+      if (c.top == this.ridgeBody.bottom) {
+        hitGround = true;
       }
-    });
-  }
 
-  private onFloor(body: RidgeBody): void {
-    this.touchingFloor = true;
-    this.midAirJump = this.maxMidAirJumps;
-  }
-
-  private jump(): void {
-    if (this.touchingFloor || this.midAirJump > 0) {
-      // use your mid air jumps if we are not touching the floor
-      if (!this.touchingFloor) {
-        this.midAirJump--;
+      if (c.right == this.ridgeBody.left) {
+        hitLeftSide = true;
       }
-      this.ridgeBody.velocity.y = this.jumpVelocity;
-      this.jumpAnimation.start(false);
-      this.touchingFloor = false;
+      if (c.left == this.ridgeBody.right) {
+        hitRightSide = true;
+      }
     }
+
+    if (!hitGround && (hitLeftSide || hitRightSide)) {
+      this.entityState.slidingDown(hitRightSide);
+    } else if (hitGround) {
+      this.entityState.landed();
+    }
+    //this.touchingFloor = true;
+    //this.midAirJump = this.maxMidAirJumps;
   }
 
+  /*
   private shoot(): void {
     const facingRight = this.facingRight;
     this.shootAnimation.start(facingRight);
@@ -281,7 +248,8 @@ export class PlayerController extends GameComponent {
       velocity,
     });
   }
-
+*/
+  /*
   run(dt: number): void {
     if (!this.teleportAnimation.running && !this.teleportAnimation.isUp) {
       if (this.running) {
@@ -295,7 +263,7 @@ export class PlayerController extends GameComponent {
       }
     }
   }
-
+*/
   /**
    * Used to manually set the player's position.
    * This should only be done during setup and from then on the
@@ -337,8 +305,9 @@ export class PlayerController extends GameComponent {
   }
 
   hit(by: Collision2D): void {
-    this.ridgeBody.active = false;
+    this.entityState.die();
 
+    /*
     if (!this.hitAnimation.isRunning) {
       this.ridgeBody.active = false;
       this.hitAnimation.start(this.facingDirection == Direction.Right);
@@ -347,20 +316,11 @@ export class PlayerController extends GameComponent {
         console.debug('die');
       };
     }
+    */
   }
 
   update(dt: number): void {
-    this.run(dt);
-
-    // can't do anything when you are hit
-    if (!this.hitAnimation.isRunning) {
-      this.jumpAnimation.update(dt);
-      this.teleportAnimation.update(dt);
-      this.walk.update(dt);
-      this.shootAnimation.update(dt);
-    }
-    this.hitAnimation.update(dt);
-
+    this.entityState.update(dt);
     this.sprite.update(dt);
   }
 }

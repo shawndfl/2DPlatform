@@ -64,7 +64,6 @@ export class WalkAnimation extends AnimationComponent {
   }
 
   stop(): WalkAnimation {
-    this.sprite.spriteImage('default');
     this.curve.pause();
     return this;
   }
