@@ -1,26 +1,14 @@
 import { UserAction } from '../../core/UserAction';
 import { TextureAssets } from '../system/GameAssetManager';
-import { TeleportAnimation } from './TeleportAnimation';
-import { WalkAnimation } from './WalkAnimation';
 import { PlatformEngine } from '../PlatformEngine';
-
-import vec3 from '../../math/vec3';
 import { SpriteId } from '../data/SpriteId';
-import { ShootAnimation } from './ShootAnimation';
 import rect from '../../math/rect';
-import { JumpAnimation } from './JumpAnimation';
 import { InputState } from '../../core/InputState';
 import { RidgeBody } from '../../physics/RidgeBody';
-import { PixelsToMeters } from '../../systems/PhysicsManager';
-import { Direction } from './Direction';
-import { BulletType } from './BulletType';
 import { Collision2D } from '../../physics/Collision2D';
 import { GameComponent } from './GameComponent';
 import { SpriteController2 } from '../../graphics/SpriteController2';
-import vec2 from '../../math/vec2';
 import { IPlayerOptions } from '../data/ILevelData2';
-import { HitAnimation } from './HitAnimation';
-import { Curve } from '../../math/Curve';
 import {
   EntityState,
   EntityStateFlags,
@@ -32,6 +20,12 @@ export class PlayerController extends GameComponent {
 
   private entityState: EntityState;
   private ridgeBody: RidgeBody;
+
+  private _touchingGround: boolean;
+  private _collidingRight: boolean;
+  private _collidingLeft: boolean;
+  /** a new jump can start after the jump button is released */
+  private _jumpReady: boolean;
 
   // config options
   private readonly bulletSpeed = 3.0;
@@ -69,9 +63,11 @@ export class PlayerController extends GameComponent {
     this.sprite.spriteImage('default');
     this.sprite.xScale = 2.0;
     this.sprite.yScale = 2.0;
+    this._touchingGround = false;
 
     this.sprite.depth = 0.7;
 
+    this.ridgeBody.reset();
     // initial the player's position
     // and collision box size
     this.ridgeBody.set(
@@ -116,6 +112,8 @@ export class PlayerController extends GameComponent {
       this.sprite.height
     );
     this.ridgeBody.active = true;
+
+    this._touchingGround = false;
   }
 
   loadPlayer(options: IPlayerOptions): void {
@@ -177,73 +175,47 @@ export class PlayerController extends GameComponent {
       this.entityState.shoot();
     }
     if (state.isDown(UserAction.B)) {
-      this.entityState.jump();
+      if (this._jumpReady || this._jumpReady === undefined) {
+        this._jumpReady = false;
+        this.entityState.jump();
+      }
     }
     if (state.isReleased(UserAction.B)) {
-      this.entityState.stopMoving();
+      this._jumpReady = true;
+      this.entityState.stopJumping();
     }
     return false;
   }
 
   private onCollision(collisions: Collision2D[]): void {
-    let hitGround = false;
-    let hitRightSide = false;
-    let hitLeftSide = false;
+    this._touchingGround = false;
+    this._collidingRight = false;
+    this._collidingLeft = false;
+
     // see how we hit the collisions
     for (let c of collisions) {
       if (c.top == this.ridgeBody.bottom) {
-        hitGround = true;
+        this._touchingGround = true;
       }
 
       if (c.right == this.ridgeBody.left) {
-        hitLeftSide = true;
+        this._collidingLeft = true;
       }
       if (c.left == this.ridgeBody.right) {
-        hitRightSide = true;
+        this._collidingRight = true;
       }
     }
 
-    if (!hitGround && (hitLeftSide || hitRightSide)) {
-      this.entityState.slidingDown(hitRightSide);
-    } else if (hitGround) {
+    if (
+      !this._touchingGround &&
+      (this._collidingLeft || this._collidingRight)
+    ) {
+      this.entityState.slidingDown(this._collidingRight);
+    } else if (this._touchingGround) {
       this.entityState.landed();
     }
   }
 
-  /*
-  private shoot(): void {
-    const facingRight = this.facingRight;
-    this.shootAnimation.start(facingRight);
-
-    // get the start position of the bullet
-    const startPos = new vec3(this.ridgeBody.left, this.ridgeBody.bottom, 0);
-    startPos.y += 25;
-    startPos.x += facingRight ? 35 : -5;
-
-    const speed = this.bulletSpeed; // m/second
-    const velocity = new vec3(facingRight ? speed : -speed, 0, 0);
-    this.eng.bullets.addBullet({
-      bulletType: BulletType.PlayerBullet,
-      position: startPos,
-      velocity,
-    });
-  }
-*/
-  /*
-  run(dt: number): void {
-    if (!this.teleportAnimation.running && !this.teleportAnimation.isUp) {
-      if (this.running) {
-        if (this.facingRight) {
-          this.ridgeBody.instanceVelocity.x = PixelsToMeters * 500;
-        } else {
-          this.ridgeBody.instanceVelocity.x = -PixelsToMeters * 500;
-        }
-      } else {
-        this.ridgeBody.instanceVelocity.x = 0;
-      }
-    }
-  }
-*/
   /**
    * Used to manually set the player's position.
    * This should only be done during setup and from then on the

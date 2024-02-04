@@ -20,6 +20,7 @@ export class RidgeBody extends Collision2D {
   public customGravity: vec3;
 
   public maxVelocity: vec3;
+  public minVelocity: vec3;
 
   /** the change in position */
   private nextBounds: rect;
@@ -44,13 +45,23 @@ export class RidgeBody extends Collision2D {
     this.velocity = new vec3();
     this.acceleration = new vec3();
     this.instanceVelocity = new vec3();
-    this.maxVelocity = new vec3([1000, 1000, 1000]);
+    this.maxVelocity = new vec3(1000);
+    this.minVelocity = new vec3(-1000);
     this.force = new vec3();
     this.mass = 10;
     this.active = true;
   }
 
   private temp = new vec3();
+
+  reset(): void {
+    this._requiresUpdate = false;
+    this.instanceVelocity.reset();
+    this.acceleration.reset();
+    this.velocity.reset();
+    this.maxVelocity.set(1000, 1000, 1000);
+    this.minVelocity.set(-1000, -1000, -1000);
+  }
 
   update(dt: number): void {
     super.update(dt);
@@ -77,6 +88,7 @@ export class RidgeBody extends Collision2D {
 
     // calculate next values
     this.nextVelocity.add(adjustAcc.scale(t, this.temp));
+    this.nextVelocity.clamp(this.minVelocity, this.maxVelocity);
     this.nextPosition.add(this.nextVelocity.scale(t, this.temp));
     this.nextPosition.add(this.instanceVelocity.scale(t, this.temp));
     this.nextBounds = this.bounds.copy(this.nextBounds); // just used for initial allocation

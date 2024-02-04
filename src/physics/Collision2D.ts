@@ -9,7 +9,6 @@ export class Collision2D extends Component {
   private _bounds: rect;
   private _showCollision: boolean;
   protected _debugColor: vec4 = new vec4(0, 1, 0, 1);
-
   onCollision: (others: Collision2D[]) => void;
   onPosition: (left: number, top: number, collision: Collision2D) => void;
 

@@ -7,7 +7,6 @@ export class ShootAnimation extends AnimationComponent {
   private curve: Curve;
   private sprite: ISprite;
   private facingRight: boolean;
-  private _onDone: () => void;
 
   initialize(sprite: ISprite): void {
     this.sprite = sprite;
@@ -22,32 +21,27 @@ export class ShootAnimation extends AnimationComponent {
 
     this.curve.points(points);
     let lastValue = -1;
-    this.curve.onDone((curve) => {
-      if (this._onDone) {
-        this._onDone();
-      }
-    });
-    this.curve.onUpdate((value) => {
-      // wait for the value to change
-      if (value == lastValue) {
-        return;
-      }
-      lastValue = value;
 
-      this.sprite.flipDirection = this.facingRight
-        ? SpriteFlip.None
-        : SpriteFlip.XFlip;
-      if (value > 2) {
-        this.sprite.spriteImage('default');
-      } else {
-        this.sprite.spriteImage('ground.shoot.' + value);
-      }
-    });
-  }
+    this.curve
+      .onUpdate((value) => {
+        // wait for the value to change
+        if (value == lastValue) {
+          return;
+        }
+        lastValue = value;
 
-  onDone(done: () => void): ShootAnimation {
-    this._onDone = done;
-    return this;
+        this.sprite.flipDirection = this.facingRight
+          ? SpriteFlip.None
+          : SpriteFlip.XFlip;
+        if (value > 2) {
+          this.sprite.spriteImage('default');
+        } else {
+          this.sprite.spriteImage('ground.shoot.' + value);
+        }
+      })
+      .onDone((c) => {
+        this.raiseOnDone();
+      });
   }
 
   stop(): ShootAnimation {

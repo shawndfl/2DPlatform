@@ -13,38 +13,38 @@ export class JumpAnimation extends AnimationComponent {
   groundLevel: number;
   height: number;
 
-  set onDone(value: (curve: Curve) => void) {
-    this.curve.onDone(value);
-  }
-
   initialize(sprite: ISprite): void {
     this.sprite = sprite;
     this.curve = new Curve();
     const points: { p: number; t: number }[] = [];
     points.push({ p: 1, t: 0 });
-    points.push({ p: 2, t: 100 });
-    points.push({ p: 3, t: 150 });
-    points.push({ p: 4, t: 200 });
-    points.push({ p: 4, t: 250 });
+    points.push({ p: 2, t: 150 });
+    points.push({ p: 3, t: 250 });
+    points.push({ p: 4, t: 300 });
+    points.push({ p: 4, t: 400 });
 
     this.curve.points(points);
     let lastValue = -1;
-    this.curve.onUpdate((value) => {
-      // wait for the value to change
-      if (value == lastValue) {
-        return;
-      }
-      lastValue = value;
+    this.curve
+      .onUpdate((value) => {
+        // wait for the value to change
+        if (value == lastValue) {
+          return;
+        }
+        lastValue = value;
 
-      // animation sprites
-      this.sprite.flipDirection = this.facingRight
-        ? SpriteFlip.None
-        : SpriteFlip.XFlip;
-      this.sprite.spriteImage('jump.' + value);
-    });
+        // animation sprites
+        this.sprite.flipDirection = this.facingRight
+          ? SpriteFlip.None
+          : SpriteFlip.XFlip;
+        this.sprite.spriteImage('jump.' + value);
+      })
+      .onDone((c) => {
+        this.raiseOnDone();
+      });
   }
 
-  start(facingRight: boolean = true): void {
+  start(facingRight: boolean = true): JumpAnimation {
     this.facingRight = facingRight;
 
     if (!this.sprite) {
@@ -62,7 +62,10 @@ export class JumpAnimation extends AnimationComponent {
     this.sprite.spriteImage('jump.1');
   }
 
-  stop(): void {}
+  stop(): JumpAnimation {
+    this.curve.pause();
+    return this;
+  }
 
   update(dt: number): void {
     if (this.curve) {

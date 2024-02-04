@@ -1,7 +1,7 @@
 import mat3 from './mat3';
 import quat from './quat';
 
-import { epsilon } from './constants';
+import { clamp, epsilon } from './constants';
 
 export default class vec3 {
   get x(): number {
@@ -54,7 +54,7 @@ export default class vec3 {
   ) {
     if (values !== undefined) {
       if (typeof values === 'number') {
-        this.values[0] = values;
+        this.values[0] = this.values[1] = this.values[2] = values;
       } else if (Array.isArray(values)) {
         this.xyz = values;
       }
@@ -87,6 +87,12 @@ export default class vec3 {
     this.x = 0;
     this.y = 0;
     this.z = 0;
+  }
+
+  set(x: number, y: number, z: number): void {
+    this.x = x;
+    this.y = y;
+    this.z = z;
   }
 
   foreach(fn: (val: number) => void): void {
@@ -145,6 +151,14 @@ export default class vec3 {
     const z = this.z;
 
     return x * x + y * y + z * z;
+  }
+
+  clamp(min: vec3, max: vec3): vec3 {
+    this.x = clamp(this.x, min.x, max.x);
+    this.y = clamp(this.y, min.y, max.y);
+    this.z = clamp(this.z, min.z, max.z);
+
+    return this;
   }
 
   add(vector: vec3): vec3 {

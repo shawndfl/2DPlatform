@@ -7,9 +7,9 @@ import { Direction } from '../components/Direction';
 import { GameComponent } from '../components/GameComponent';
 import { HitAnimation } from '../components/HitAnimation';
 import { JumpAnimation } from '../components/JumpAnimation';
+import { RunAnimation } from '../components/RunAnimation';
 import { ShootAnimation } from '../components/ShootAnimation';
 import { TeleportAnimation } from '../components/TeleportAnimation';
-import { WalkAnimation } from '../components/WalkAnimation';
 
 /**
  * State an entity can be in
@@ -31,7 +31,7 @@ export enum EntityStateFlags {
 
 export class EntityStateOptions {
   runSpeed: number = 1;
-  runAcceleration: number = 1.5;
+  runAcceleration: number = 0.9;
   runMaxSpeed: number = 4;
   jumpSpeed: number = 3.5;
   midAirJumps: number = 1;
@@ -42,7 +42,7 @@ export class EntityStateOptions {
 export class EntityState extends GameComponent {
   private _state: EntityStateFlags;
   private teleportAnimation: TeleportAnimation;
-  private runAnimation: WalkAnimation;
+  private runAnimation: RunAnimation;
   private shootAnimation: ShootAnimation;
   private jumpAnimation: JumpAnimation;
   private hitAnimation: HitAnimation;
@@ -63,15 +63,11 @@ export class EntityState extends GameComponent {
    */
   private _facingDirection: Direction;
 
-  /** a new jump can start after the jump button is released */
-  private _jumpReset: boolean;
   /** Must be on a floor to start a jump */
-  private _touchingFloor: boolean;
   private _shooting: boolean;
 
   /** How many mid air jumps can we do */
   private _midAirJump: number;
-  private readonly maxMidAirJumps = 1;
 
   public get facingDirection(): Direction {
     return this._facingDirection;
@@ -97,13 +93,12 @@ export class EntityState extends GameComponent {
   constructor(eng: PlatformEngine) {
     super(eng);
     this.teleportAnimation = new TeleportAnimation(this.eng);
-    this.runAnimation = new WalkAnimation(this.eng);
+    this.runAnimation = new RunAnimation(this.eng);
     this.shootAnimation = new ShootAnimation(this.eng);
     this.jumpAnimation = new JumpAnimation(this.eng);
     this.hitAnimation = new HitAnimation(this.eng);
 
     this._facingDirection = Direction.Right;
-    this._touchingFloor = false;
     this._midAirJump = 0;
     this._shooting = false;
   }
@@ -118,8 +113,9 @@ export class EntityState extends GameComponent {
     this.ridgeBody = ridgeBody;
     this.options = options;
 
+    this.ridgeBody.maxVelocity = new vec3(options.runMaxSpeed, 1000, 1000);
+    this.ridgeBody.minVelocity = new vec3(-options.runMaxSpeed, -1000, -1000);
     this._facingDirection = Direction.Right;
-    this._touchingFloor = false;
     this._midAirJump = options.midAirJumps;
     this._shooting = false;
 
@@ -170,7 +166,6 @@ export class EntityState extends GameComponent {
         break;
       case EntityStateFlags.Idle:
         if (!this._shooting) {
-          this.ridgeBody.instanceVelocity.x = 0;
           this.sprite.spriteImage('default');
           this.changeState(EntityStateFlags.Idle);
         }
@@ -178,17 +173,39 @@ export class EntityState extends GameComponent {
       case EntityStateFlags.Running:
         break;
       case EntityStateFlags.Falling:
-        this.ridgeBody.instanceVelocity.x = 0;
-        this.sprite.spriteImage('default');
-        this.changeState(EntityStateFlags.Idle);
-        break;
       case EntityStateFlags.FirstJump:
-        break;
       case EntityStateFlags.MidAirJump:
-        break;
       case EntityStateFlags.SlidingDownWall:
         this.sprite.spriteImage('default');
+        this.jumpAnimation.stop();
         this.changeState(EntityStateFlags.Idle);
+        this._midAirJump = this.options.midAirJumps;
+        break;
+      case EntityStateFlags.Hit:
+      case EntityStateFlags.Recovery:
+      case EntityStateFlags.Dead:
+      case EntityStateFlags.TeleportUp:
+      case EntityStateFlags.TeleportDown:
+        break;
+      default:
+        console.error('unknown state!');
+    }
+  }
+
+  stopJumping(): void {
+    switch (this._state) {
+      case EntityStateFlags.Disable:
+        break;
+      case EntityStateFlags.Idle:
+        break;
+      case EntityStateFlags.Running:
+        break;
+      case EntityStateFlags.Falling:
+      case EntityStateFlags.FirstJump:
+      case EntityStateFlags.MidAirJump:
+      case EntityStateFlags.SlidingDownWall:
+        this.ridgeBody.velocity.y = 0;
+        this.changeState(EntityStateFlags.Falling);
         break;
       case EntityStateFlags.Hit:
       case EntityStateFlags.Recovery:
@@ -220,22 +237,12 @@ export class EntityState extends GameComponent {
         this.changeState(EntityStateFlags.Idle);
         break;
       case EntityStateFlags.Falling:
+      case EntityStateFlags.FirstJump:
+      case EntityStateFlags.MidAirJump:
+      case EntityStateFlags.SlidingDownWall:
         this.ridgeBody.velocity.x = 0;
         this.ridgeBody.instanceVelocity.x = 0;
         this.ridgeBody.acceleration.x = 0;
-        break;
-      case EntityStateFlags.FirstJump:
-        this.jumpAnimation.stop();
-        this.ridgeBody.velocity.y = 0;
-        this.changeState(EntityStateFlags.Falling);
-        break;
-      case EntityStateFlags.MidAirJump:
-        this.ridgeBody.velocity.y = 0;
-        this.changeState(EntityStateFlags.Falling);
-        break;
-      case EntityStateFlags.SlidingDownWall:
-        this.ridgeBody.velocity.y = 0;
-        this.changeState(EntityStateFlags.Falling);
         break;
       case EntityStateFlags.Hit:
       case EntityStateFlags.Recovery:
@@ -315,8 +322,6 @@ export class EntityState extends GameComponent {
         console.error('unknown state!');
     }
   }
-  landing(): void {}
-
   jump(): void {
     switch (this._state) {
       case EntityStateFlags.Disable:
@@ -325,16 +330,28 @@ export class EntityState extends GameComponent {
         this.changeState(EntityStateFlags.FirstJump);
         this.ridgeBody.velocity.y = this.options.jumpSpeed;
         this.jumpAnimation.start(this.facingRight);
+
         break;
       case EntityStateFlags.Running:
         this.changeState(EntityStateFlags.FirstJump);
         this.ridgeBody.velocity.y = this.options.jumpSpeed;
         this.runAnimation.stop();
         this.jumpAnimation.start(this.facingRight);
+
         break;
       case EntityStateFlags.Falling:
       case EntityStateFlags.FirstJump:
+        // we are starting a mid air jump
+        if (this._midAirJump > 0) {
+          this._midAirJump--;
+          this.changeState(EntityStateFlags.MidAirJump);
+          this.ridgeBody.velocity.y = this.options.jumpSpeed;
+          this.runAnimation.stop();
+          this.jumpAnimation.start(this.facingRight);
+        }
+        break;
       case EntityStateFlags.MidAirJump:
+
       case EntityStateFlags.SlidingDownWall:
       case EntityStateFlags.Hit:
       case EntityStateFlags.Recovery:
@@ -483,7 +500,7 @@ export class EntityState extends GameComponent {
         this.changeState(EntityStateFlags.Dead);
         this.hitAnimation
           .start(this._facingDirection == Direction.Right)
-          .onDone((c) => {
+          .onDone(() => {
             this.eng.sceneManager.setNextScene('level.2.0');
           });
         this.runAnimation.stop();

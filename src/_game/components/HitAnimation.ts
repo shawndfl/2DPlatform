@@ -30,23 +30,28 @@ export class HitAnimation extends AnimationComponent {
     this.curve.points(points);
 
     let lastValue = -1;
-    this.curve.onUpdate((value) => {
-      // wait for the value to change
-      if (value == lastValue) {
-        return;
-      }
-      lastValue = value;
+    this.curve
+      .onUpdate((value) => {
+        // wait for the value to change
+        if (value == lastValue) {
+          return;
+        }
+        lastValue = value;
 
-      // animation sprites
-      this.sprite.flipDirection = this.facingRight
-        ? SpriteFlip.None
-        : SpriteFlip.XFlip;
+        // animation sprites
+        this.sprite.flipDirection = this.facingRight
+          ? SpriteFlip.None
+          : SpriteFlip.XFlip;
 
-      this.sprite.spriteImage('hit.' + value);
+        this.sprite.spriteImage('hit.' + value);
 
-      const heightDiff = this.sprite.height - this._defaultHeight;
-      this.sprite.top = this._initialTop + heightDiff;
-    });
+        const heightDiff = this.sprite.height - this._defaultHeight;
+        this.sprite.top = this._initialTop + heightDiff;
+      })
+      .onDone((c) => {
+        this.raiseOnDone();
+      });
+
     // TODO fade when spriteInstanceController can be used
     this.curveFade = new Curve();
     this.curveFade.curve(CurveType.linear);
@@ -58,11 +63,6 @@ export class HitAnimation extends AnimationComponent {
     this.curveFade.onUpdate((value) => {
       //this.sprite.se
     });
-  }
-
-  onDone(value: (curve: Curve) => void): HitAnimation {
-    this.curve.onDone(value);
-    return this;
   }
 
   start(facingRight: boolean): HitAnimation {

@@ -1,9 +1,8 @@
 import { ISprite, SpriteFlip } from '../../graphics/ISprite';
-import { SpritBatchController } from '../../graphics/SpriteBatchController';
 import { Curve } from '../../math/Curve';
 import { AnimationComponent } from './AnimationComponent';
 
-export class WalkAnimation extends AnimationComponent {
+export class RunAnimation extends AnimationComponent {
   private curve: Curve;
   private sprite: ISprite;
   private firstOne: boolean;
@@ -63,12 +62,12 @@ export class WalkAnimation extends AnimationComponent {
     });
   }
 
-  stop(): WalkAnimation {
+  stop(): RunAnimation {
     this.curve.pause();
     return this;
   }
 
-  start(facingRight: boolean): WalkAnimation {
+  start(facingRight: boolean): RunAnimation {
     this.facingRight = facingRight;
 
     if (!this.sprite) {

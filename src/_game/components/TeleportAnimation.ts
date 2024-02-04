@@ -4,7 +4,6 @@ import { Curve, CurveType } from '../../math/Curve';
 import { AnimationComponent } from './AnimationComponent';
 
 export class TeleportAnimation extends AnimationComponent {
-  private _onDone: () => void;
   private goingUp: boolean;
   private curve: Curve;
   private curveMove: Curve;
@@ -46,9 +45,7 @@ export class TeleportAnimation extends AnimationComponent {
         this._isUp = true;
         this._running = false;
         // if we were going up then we are done here
-        if (this._onDone) {
-          this._onDone();
-        }
+        this.raiseOnDone();
       } else {
         // then start the animation
         this.curve.reverse(false).start(true);
@@ -82,18 +79,11 @@ export class TeleportAnimation extends AnimationComponent {
     this.curve.onDone((curve) => {
       if (!this.goingUp) {
         this._running = false;
-        if (this._onDone) {
-          this._onDone();
-        }
+        this.raiseOnDone();
       } else {
         this.curveMove.reverse(true).start(true);
       }
     });
-  }
-
-  onDone(done: () => void): TeleportAnimation {
-    this._onDone = done;
-    return this;
   }
 
   start(goingUp: boolean): TeleportAnimation {
