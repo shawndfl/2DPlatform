@@ -13,12 +13,10 @@ import { GameAssetManager } from './system/GameAssetManager';
  * or the game.
  */
 export class PlatformEngine extends Engine {
-  readonly editor: GameEditor;
   readonly player: PlayerController;
   readonly bullets: BulletManager;
   readonly urlParams: URLSearchParams;
 
-  private editorMode: boolean;
   private animationMode: boolean;
 
   constructor() {
@@ -26,7 +24,6 @@ export class PlatformEngine extends Engine {
     const queryString = window.location.search;
     this.urlParams = new URLSearchParams(queryString);
     this.player = new PlayerController(this);
-    this.editor = new GameEditor(this);
     this.bullets = new BulletManager(this);
   }
 
@@ -49,13 +46,6 @@ export class PlatformEngine extends Engine {
     await this.sceneManager.changeScene(
       this.urlParams.get('level') ?? 'level.2.0'
     );
-
-    // used for isolated feature debugger
-    //this.sceneManager.changeScene("levelRenderTest");
-    if (this.urlParams.get('editor')) {
-      await this.editor.initialize(document.getElementById('rootContainer'));
-      this.editorMode = true;
-    }
   }
 
   handleUserAction(state: InputState): boolean {
@@ -70,10 +60,6 @@ export class PlatformEngine extends Engine {
     this.sceneManager.update(dt);
     if (this.sceneManager.sceneReady) {
       this.physicsManager.update(dt);
-
-      if (this.editorMode) {
-        this.editor.update(dt);
-      }
 
       this.backgroundManager.update(dt);
       this.player.update(dt);

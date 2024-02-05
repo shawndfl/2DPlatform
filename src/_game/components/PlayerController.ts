@@ -14,6 +14,7 @@ import {
   EntityStateFlags,
   EntityStateOptions,
 } from '../data/EntityState';
+import { SpriteFlip } from '../../graphics/ISprite';
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
@@ -58,6 +59,7 @@ export class PlayerController extends GameComponent {
     // offset the sprite from the center to the top left
     this.sprite.leftOffset = 1;
     this.sprite.topOffset = -1;
+    this.sprite.flipDirection = SpriteFlip.None;
 
     // set the default image and double the scale
     this.sprite.spriteImage('default');

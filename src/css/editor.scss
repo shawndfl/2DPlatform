@@ -1,23 +1,11 @@
-.frames {
-    width: 200px;
-    height: calc(80vh - 3px);
-    border: 1px solid;
-    overflow: auto;
-
-    .list {
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-    }
-
-    .item {
-        width: calc(100% - 10px);
-        height: 30px;
-        border: 1px solid;
-        border-radius: 5px;
-        align-items: center;
-        display: flex;
-        padding: 0px 0px 0px 5px;
-        margin: 1px;
-    }
+#editor-container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 1;
+  .editor-canvas {
+    width: 100%;
+    height: 100%;
+    background-color: #ffffffff;
+  }
 }

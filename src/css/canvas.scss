@@ -1,16 +1,22 @@
 body {
-    margin: 0px;
-    padding: 0px;
-    overflow: hidden;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
 }
-.canvas-container {
+#game-container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 0;
+  .canvas-container {
     width: 100%;
     height: 100vh;
     margin: 0px;
-}
-.canvas {
-    background-color: lightgray;
-    margin:auto;
-    display: flex;
-    
+
+    .canvas {
+      background-color: lightgray;
+      margin: auto;
+      display: flex;
+    }
+  }
 }

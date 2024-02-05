@@ -1,11 +1,13 @@
 import './css/canvas.scss';
 import { PlatformEngine } from './_game/PlatformEngine';
-import { clamp } from './math/constants';
+import { GameEditor } from './_game/editor/GameEditor';
 
 /**
  * Create the only instance of a canvas controller
  */
 const engine = new PlatformEngine();
+const editor = new GameEditor(engine);
+
 /** time tracking variables */
 let previousTimeStamp: number;
 
@@ -24,16 +26,22 @@ function step(timestamp: number) {
   if (elapsed < 50) {
     // update the scene
     engine.update(elapsed);
+    editor.update(elapsed);
   }
   // request a new frame
   previousTimeStamp = timestamp;
 }
 
 /**
+ *  initialize the editor
+ */
+editor.initialize(document.getElementById('editor-container'));
+
+/**
  * Start the engine then request and animation frame
  */
 engine
-  .initialize(document.getElementById('rootContainer'))
+  .initialize(document.getElementById('game-container'))
   .then(() => {
     // request the first frame
     window.requestAnimationFrame(step);
