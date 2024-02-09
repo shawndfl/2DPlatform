@@ -57,8 +57,9 @@ export class PlatformEngine extends Engine {
   }
 
   gameUpdate(dt: number): void {
-    this.sceneManager.update(dt);
     if (this.sceneManager.sceneReady) {
+      this.sceneManager.update(dt);
+
       this.physicsManager.update(dt);
 
       this.backgroundManager.update(dt);

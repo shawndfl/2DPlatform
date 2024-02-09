@@ -4,6 +4,7 @@ import { GlBufferQuadInstance } from '../geometry/GlBufferQuadInstance';
 import { IQuadModel } from '../geometry/IQuadMode';
 import { toRadian } from '../math/constants';
 import mat2 from '../math/mat2';
+import mat4 from '../math/mat4';
 import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
 import vec4 from '../math/vec4';
@@ -196,7 +197,7 @@ export class SpriteInstanceCollection extends Component {
    * For testing
    * @param dt
    */
-  update(dt: number): void {
+  update(dt: number, projection?: mat4): void {
     if (this.quads.size == 0) {
       return;
     }
@@ -204,7 +205,7 @@ export class SpriteInstanceCollection extends Component {
     this.commitToBuffer();
 
     const view = this.eng.viewManager;
-    let projection = view.projection;
+    projection = projection ?? view.projection;
 
     this.shader.setSpriteSheet(this.spriteTexture);
     this.shader.enable();

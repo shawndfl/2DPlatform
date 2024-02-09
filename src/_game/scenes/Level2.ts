@@ -9,12 +9,14 @@ import { Collision2D } from '../../physics/Collision2D';
 
 import { BackgroundComponent } from '../../components/BackgroundComponet';
 import { CollisionFactory } from '../tiles/CollisionFactory';
+import { InputHud } from '../hud/inputHud';
 
 export class Level2 extends SceneComponent {
   private particleTest: ParticleTest;
   private collisions: Collision2D[];
   private updatableCollisions: Collision2D[];
   private levelData: LevelData2;
+  private inputHud: InputHud;
 
   get eng(): PlatformEngine {
     return super.eng as PlatformEngine;
@@ -24,10 +26,12 @@ export class Level2 extends SceneComponent {
     super(eng);
 
     this.particleTest = new ParticleTest(this.eng);
+    this.inputHud = new InputHud(eng);
   }
 
   async initialize(): Promise<void> {
     this.particleTest.initialize();
+    this.inputHud.initialize();
 
     // save the level data
     const data = new LevelData2(Level2Data);
@@ -94,6 +98,7 @@ export class Level2 extends SceneComponent {
   update(dt: number): void {
     //this.particleTest.update(dt);
     this.updatableCollisions.forEach((c) => c.update(dt));
+    this.inputHud.update(dt);
   }
 
   postUpdate(dt: number): void {}
