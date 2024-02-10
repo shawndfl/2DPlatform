@@ -150,10 +150,11 @@ export class PlayerController extends GameComponent {
 
   handleUserAction(state: InputState): boolean {
     if (state.isReleased(UserAction.Up)) {
-      this.entityState.teleport(true);
-    }
-    if (state.isReleased(UserAction.Down)) {
-      this.entityState.teleport(false);
+      if (this.entityState.state() == EntityStateFlags.Disable) {
+        this.entityState.teleport(false);
+      } else {
+        this.entityState.teleport(true);
+      }
     }
 
     if (!this.ridgeBody.active) {

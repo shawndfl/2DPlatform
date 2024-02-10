@@ -100,8 +100,7 @@ export class SpriteInstanceController extends Component implements ISprite {
   }
   get width(): number {
     if (this._collection.spriteTexture) {
-      const scale =
-        Math.abs(this._quad.maxTex.x - this._quad.minTex.x) * this._scale.x;
+      const scale = Math.abs(this._quad.maxTex.x - this._quad.minTex.x); // * this._scale.x;
       return scale * this._collection.spriteTexture.width;
     } else {
       return 0;
@@ -109,8 +108,7 @@ export class SpriteInstanceController extends Component implements ISprite {
   }
   get height(): number {
     if (this._collection.spriteTexture) {
-      const scale =
-        Math.abs(this._quad.maxTex.y - this._quad.minTex.y) * this._scale.y;
+      const scale = Math.abs(this._quad.maxTex.y - this._quad.minTex.y); // * this._scale.y;
       return scale * this._collection.spriteTexture.height;
     } else {
       return 0;

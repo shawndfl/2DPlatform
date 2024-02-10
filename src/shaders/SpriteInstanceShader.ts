@@ -12,13 +12,14 @@ attribute vec4 aInstanceWorld;
 attribute vec2 aOffset;
 attribute vec3 aTranslate;
 attribute vec4 aColorScale;
+attribute vec4 aTextureTransform;
 uniform mat4 uProj;
 varying mediump vec2 vTex;
 varying mediump vec4 vColorScale;
 varying mediump vec3 depth;
 
 void main() {
-    vTex = (aTex);
+    vTex = (aTex*aTextureTransform.xy) + aTextureTransform.zw;
     vColorScale = aColorScale;
 
     mat2 trans = mat2(aInstanceWorld.xyzw);

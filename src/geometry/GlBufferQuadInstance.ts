@@ -1,6 +1,7 @@
 import mat2 from '../math/mat2';
 import vec2 from '../math/vec2';
 import vec3 from '../math/vec3';
+import vec4 from '../math/vec4';
 import { IQuadModel } from './IQuadMode';
 
 /**
@@ -10,12 +11,10 @@ export class GlBufferQuadInstance {
   vertBuffer: WebGLBuffer;
   indexBuffer: WebGLBuffer;
   instanceBuffer: WebGLBuffer;
-  textureCoordBuffer: WebGLBuffer;
   vertArrayBufferGeometry: WebGLVertexArrayObject;
 
   verts: Float32Array;
   instances: Float32Array;
-  textureCoords: Float32Array;
   index: Uint16Array;
 
   pointersSet: boolean;
@@ -41,11 +40,9 @@ export class GlBufferQuadInstance {
     this.instanceCount = 0;
     this.vertArrayBufferGeometry = 0;
     this.instanceBuffer = 0;
-    this.textureCoordBuffer = 0;
     this.verts = new Float32Array();
     this.index = new Uint16Array();
     this.instances = new Float32Array();
-    this.textureCoords = new Float32Array();
   }
 
   /**
@@ -64,9 +61,6 @@ export class GlBufferQuadInstance {
 
     // instance buffer
     this.instanceBuffer = this.gl.createBuffer();
-
-    // used to hold the texture coordinates
-    this.textureCoordBuffer = this.gl.createBuffer();
   }
 
   /**
@@ -84,22 +78,19 @@ export class GlBufferQuadInstance {
     }
 
     // make sure the buffers have enough space for data needed to create each quad
-    if (this.verts.length < length * 3 * 4) {
-      this.verts = new Float32Array(length * 3 * 4);
+    // pos (x,y,z), tex (u,v) size of each float is 4
+    if (this.verts.length < length * (3 + 2) * 4) {
+      this.verts = new Float32Array(length * (3 + 2) * 4);
     }
 
     if (this.index.length < length * 6) {
       this.index = new Uint16Array(length * 6);
     }
 
-    // this will hold transform (mat2), offset (vec2) translation (vec3), and color(vec4)
-    // vec4 * 3 = 12 floats
-    if (this.instances.length < length * 4 * 2 * 3 * 4) {
-      this.instances = new Float32Array(length * 4 * 2 * 3 * 4);
-    }
-
-    if (this.textureCoords.length < length * 2 * 4) {
-      this.textureCoords = new Float32Array(length * 2 * 4);
+    // this will hold transform (mat2), offset (vec2) translation (vec3), color(vec4), and uvTransform(vec4)
+    // size of each float is 4
+    if (this.instances.length < length * (4 + 2 + 3 + 4 + 3) * 4) {
+      this.instances = new Float32Array(length * (4 + 2 + 3 + 4 + 3) * 4);
     }
 
     // reset counters
@@ -107,35 +98,43 @@ export class GlBufferQuadInstance {
 
     //               Building a quad
     //
-    //    Pos[-1, 1]                Texture [0,1]
-    //   p0---------p1 (max)      p0 ---------p1 (max)
+    //    Pos[-1, 1]               Texture [0,0]
+    //   p3---------p2 (max)      p0 ---------p2
     //   |        / |              |        / |
     //   |      /   |              |      /   |
     //   |    /     |              |    /     |
     //   |  /       |              |  /       |
-    //   p3---------p2             p3---------p2
-    //  (min)                      (min)
+    //   p0---------p1             p0---------p1(max)
+    //  (min)
     //
     let vertCount = 0;
     let vertIndex = 0;
     let indexIndex = 0;
     let instanceIndex = 0;
-    let textureCoordIndex = 0;
 
+    // pos x,y,z, u,v
     this.verts[vertIndex++] = -1;
     this.verts[vertIndex++] = -1;
     this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 1;
 
     this.verts[vertIndex++] = 1;
     this.verts[vertIndex++] = -1;
     this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 1;
 
     this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 0;
     this.verts[vertIndex++] = 1;
     this.verts[vertIndex++] = 0;
 
     this.verts[vertIndex++] = -1;
     this.verts[vertIndex++] = 1;
+    this.verts[vertIndex++] = 0;
+    this.verts[vertIndex++] = 0;
     this.verts[vertIndex++] = 0;
 
     this.index[indexIndex++] = vertCount + 0;
@@ -154,20 +153,12 @@ export class GlBufferQuadInstance {
       const translate = quad.translation ?? new vec3();
       const offset = quad.offset ?? new vec2();
       const color = quad.color;
-
-      // texture coordinates are stored in a separate buffer because
-      // they can be updated dynamically and will be different for each quad.
-      this.textureCoords[textureCoordIndex++] = quad.minTex.x;
-      this.textureCoords[textureCoordIndex++] = quad.maxTex.y;
-
-      this.textureCoords[textureCoordIndex++] = quad.maxTex.x;
-      this.textureCoords[textureCoordIndex++] = quad.maxTex.y;
-
-      this.textureCoords[textureCoordIndex++] = quad.maxTex.x;
-      this.textureCoords[textureCoordIndex++] = quad.minTex.y;
-
-      this.textureCoords[textureCoordIndex++] = quad.minTex.x;
-      this.textureCoords[textureCoordIndex++] = quad.minTex.y;
+      const uvTransform = new vec4([
+        quad.maxTex.x - quad.minTex.x,
+        quad.maxTex.y - quad.minTex.y,
+        quad.minTex.x,
+        quad.minTex.y,
+      ]);
 
       // rotate scale mat 2
       rotScale.foreach((val) => (this.instances[instanceIndex++] = val));
@@ -177,6 +168,8 @@ export class GlBufferQuadInstance {
       translate.foreach((val) => (this.instances[instanceIndex++] = val));
       // color scale vec4
       color.foreach((val) => (this.instances[instanceIndex++] = val));
+      // uv scale, uv translation vec4
+      uvTransform.foreach((val) => (this.instances[instanceIndex++] = val));
     }
 
     // bind the array buffer
@@ -188,15 +181,6 @@ export class GlBufferQuadInstance {
       this.gl.ARRAY_BUFFER,
       this.verts,
       this.gl.STATIC_DRAW,
-      0
-    );
-
-    // create a buffer for texture coordinates
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
-    this.gl.bufferData(
-      this.gl.ARRAY_BUFFER,
-      this.textureCoords,
-      this.gl.DYNAMIC_DRAW,
       0
     );
 
@@ -226,13 +210,16 @@ export class GlBufferQuadInstance {
     //  vec2 aOffset;
     //  vec3 aTranslate;
     //  vec4 aColorScale;
+    //  vec4 aTextureTransform
     if (!this.pointersSet) {
       this.positionAttribute();
       this.textureAttribute();
+      // instancing
       this.transformAttribute();
       this.offsetAttribute();
       this.translateAttribute();
       this.colorScaleAttribute();
+      this.uvTransformAttribute();
       this.pointersSet = true;
     }
     this.gl.bindVertexArray(null);
@@ -243,7 +230,7 @@ export class GlBufferQuadInstance {
     const numComponents = 3; // position x, y, z
     const type = this.gl.FLOAT;
     const normalize = false;
-    const stride = 3 * 4; // pos(x,y,x) * 4 byte float
+    const stride = (3 + 2) * 4; // pos(x,y,x) + tex(u,v) * 4 byte float
     const offset = 0;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertBuffer);
     this.gl.vertexAttribPointer(
@@ -262,9 +249,9 @@ export class GlBufferQuadInstance {
     const numComponents = 2; // texture u,v
     const type = this.gl.FLOAT;
     const normalize = false;
-    const stride = 2 * 4; // tx(u,v) * 4 byte float
-    const offset = 0;
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
+    const stride = (3 + 2) * 4; // pos(x,y,x) * 4 byte float
+    const offset = 3 * 4;
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertBuffer);
     this.gl.vertexAttribPointer(
       index,
       numComponents,
@@ -281,7 +268,7 @@ export class GlBufferQuadInstance {
     const numComponents = 4;
     const type = this.gl.FLOAT;
     const normalize = false;
-    const stride = (4 + 2 + 3 + 4) * 4; // (transform (mat2) + offset (vec2) + trans(vec3) + color(vec4)) * byte of float
+    const stride = (4 + 2 + 3 + 4 + 4) * 4; // (transform (mat2) + offset (vec2) + trans(vec3) + color(vec4) + uv(vec4)) * byte of float
     let offset = 0;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceBuffer);
     this.gl.vertexAttribPointer(
@@ -301,7 +288,7 @@ export class GlBufferQuadInstance {
     const numComponents = 2;
     const type = this.gl.FLOAT;
     const normalize = false;
-    const stride = (4 + 2 + 3 + 4) * 4; // (transform (mat2) + offset (vec2) + trans(vec3) + color(vec4)) * byte of float
+    const stride = (4 + 2 + 3 + 4 + 4) * 4; // (transform (mat2) + offset (vec2) + trans(vec3) + color(vec4) + uv(vec4)) * byte of float
     let offset = 4 * 4; // after mat2
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceBuffer);
     this.gl.vertexAttribPointer(
@@ -321,7 +308,7 @@ export class GlBufferQuadInstance {
     const numComponents = 3;
     const type = this.gl.FLOAT;
     const normalize = false;
-    const stride = (4 + 2 + 3 + 4) * 4; // (transform (mat2) + offset (vec2) + trans(vec3) + color(vec4)) * byte of float
+    const stride = (4 + 2 + 3 + 4 + 4) * 4; // (transform (mat2) + offset (vec2) + trans(vec3) + color(vec4) + uv(vec4)) * byte of float
     let offset = (4 + 2) * 4;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceBuffer);
     this.gl.vertexAttribPointer(
@@ -341,8 +328,28 @@ export class GlBufferQuadInstance {
     const numComponents = 4;
     const type = this.gl.FLOAT;
     const normalize = false;
-    const stride = (4 + 2 + 3 + 4) * 4; // (transform (mat2) + offset (vec2) + trans(vec3) + color(vec4)) * byte of float
+    const stride = (4 + 2 + 3 + 4 + 4) * 4; // (transform (mat2) + offset (vec2) + trans(vec3) + color(vec4) + uv(vec4)) * byte of float
     let offset = (4 + 2 + 3) * 4;
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceBuffer);
+    this.gl.vertexAttribPointer(
+      index,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset
+    );
+    this.gl.enableVertexAttribArray(index);
+    this.gl.vertexAttribDivisor(index, 1);
+  }
+
+  private uvTransformAttribute(): void {
+    const index = 6;
+    const numComponents = 4;
+    const type = this.gl.FLOAT;
+    const normalize = false;
+    const stride = (4 + 2 + 3 + 4 + 4) * 4; // (transform (mat2) + offset (vec2) + trans(vec3) + color(vec4) + uv(vec4)) * byte of float
+    let offset = (4 + 2 + 3 + 4) * 4;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceBuffer);
     this.gl.vertexAttribPointer(
       index,
@@ -386,11 +393,6 @@ export class GlBufferQuadInstance {
     if (this.indexBuffer) {
       this.gl.deleteBuffer(this.indexBuffer);
       this.indexBuffer = 0;
-    }
-
-    if (this.textureCoordBuffer) {
-      this.gl.deleteBuffer(this.textureCoordBuffer);
-      this.textureCoordBuffer = 0;
     }
 
     if (this.vertArrayBufferGeometry) {

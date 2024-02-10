@@ -36,7 +36,7 @@ export class EntityStateOptions {
   jumpSpeed: number = 3.5;
   midAirJumps: number = 1;
   midAirNudge: number = 1;
-  bulletSpeed: number = 6;
+  bulletSpeed: number = 5;
 }
 
 export class EntityState extends GameComponent {

@@ -1,6 +1,8 @@
 import { SpriteInstanceCollection } from '../../graphics/SpriteInstanceCollection';
 import { SpriteInstanceController } from '../../graphics/SpriteInstanceController';
+import vec2 from '../../math/vec2';
 import vec3 from '../../math/vec3';
+import { PlatformEngine } from '../PlatformEngine';
 import { GameComponent } from '../components/GameComponent';
 
 /**
@@ -13,6 +15,15 @@ export class ToggleButton extends GameComponent {
 
   get isOn(): boolean {
     return this._isOn;
+  }
+
+  set alpha(value: number) {
+    this.onSprite.alpha = value;
+    this.offSprite.alpha = value;
+  }
+
+  constructor(eng: PlatformEngine) {
+    super(eng);
   }
 
   initialize(id: string, collection: SpriteInstanceCollection): void {
@@ -30,7 +41,6 @@ export class ToggleButton extends GameComponent {
     this.offSprite.topOffset = 1;
     this.offSprite.xScale = 0.5;
     this.offSprite.yScale = 0.5;
-    this.offSprite.topOffset = 0.5;
     this.offSprite.visible = false;
   }
 
@@ -47,6 +57,28 @@ export class ToggleButton extends GameComponent {
     this._isOn = on;
     this.onSprite.visible = this._isOn;
     this.offSprite.visible = !this._isOn;
+  }
+
+  /**
+   * Is this toggle hit
+   * @param pos
+   * @returns
+   */
+  isHit(pos: vec2): boolean {
+    // hit on x axis
+    if (
+      pos.x >= this.onSprite.left &&
+      pos.x <= this.onSprite.left + this.onSprite.width
+    ) {
+      // hit on y axis
+      if (
+        pos.y <= this.onSprite.top + this.onSprite.height &&
+        pos.y >= this.onSprite.top
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   update(dt: number): void {}

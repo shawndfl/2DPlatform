@@ -10,6 +10,7 @@ import { Collision2D } from '../../physics/Collision2D';
 import { BackgroundComponent } from '../../components/BackgroundComponet';
 import { CollisionFactory } from '../tiles/CollisionFactory';
 import { InputHud } from '../hud/inputHud';
+import { UserAction } from '../../core/UserAction';
 
 export class Level2 extends SceneComponent {
   private particleTest: ParticleTest;
@@ -92,16 +93,19 @@ export class Level2 extends SceneComponent {
    * @returns
    */
   handleUserAction(action: InputState): boolean {
+    this.inputHud.handleUserAction(action);
+
     return false;
   }
 
   update(dt: number): void {
     //this.particleTest.update(dt);
     this.updatableCollisions.forEach((c) => c.update(dt));
-    this.inputHud.update(dt);
   }
 
-  postUpdate(dt: number): void {}
+  postUpdate(dt: number): void {
+    this.inputHud.update(dt);
+  }
 
   dispose(): void {
     this.eng.physicsManager.reset();

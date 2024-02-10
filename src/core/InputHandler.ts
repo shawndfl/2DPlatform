@@ -56,6 +56,7 @@ export class InputHandler extends Component {
    */
   touchCount: number;
 
+  private _injectState: InputState;
   private _gamepad: Gamepad;
   private boundConnectGamepad: (e: GamepadEvent) => void;
   private boundDisconnectGamepad: (e: GamepadEvent) => void;
@@ -84,6 +85,7 @@ export class InputHandler extends Component {
 
     this.buttonsDown = UserAction.None;
     this.buttonsReleased = UserAction.None;
+    this.inputDown = [false, false];
     this.hasGamePad = 'getGamepads' in navigator;
     console.debug('initializing input:');
 
@@ -111,14 +113,14 @@ export class InputHandler extends Component {
         }
         this.inputReleased = false;
         this.touchPoint[0].x = e.offsetX;
-        this.touchPoint[0].y = e.offsetY;
+        this.touchPoint[0].y = this.eng.height - e.offsetY;
         this.touchCount = 1;
       });
       window.addEventListener('mouseup', (e) => {
         this.inputDown = [false, false];
         this.inputReleased = true;
         this.touchPoint[0].x = e.offsetX;
-        this.touchPoint[0].y = e.offsetY;
+        this.touchPoint[0].y = this.eng.height - e.offsetY;
         this.touchCount = 1;
       });
     } else {
@@ -133,13 +135,17 @@ export class InputHandler extends Component {
 
           const t = e.touches[0].target as HTMLCanvasElement;
           this.touchPoint[0].x = e.touches[0].pageX - t.clientTop;
-          this.touchPoint[0].y = e.touches[0].screenY;
+          this.touchPoint[0].y = this.eng.height - e.touches[0].screenY;
           if (e.touches.length > 1) {
             this.touchPoint[1].x = e.touches[1].pageX - t.clientTop;
             this.touchPoint[1].y = e.touches[1].screenY;
           }
           this.touchCount = e.touches.length;
         }
+      });
+      window.addEventListener('touchend', (e) => {
+        this.inputDown = [false, false];
+        this.inputReleased = true;
       });
     }
 
@@ -155,6 +161,14 @@ export class InputHandler extends Component {
     state.inputDown = this.inputDown;
     state.touchPoint = this.touchPoint;
     return state;
+  }
+
+  /**
+   * Injects an input state that will be used for the next frame.
+   * @param state
+   */
+  injectSate(state: InputState): void {
+    this._injectState = state;
   }
 
   isTouchEnabled() {
@@ -257,6 +271,15 @@ export class InputHandler extends Component {
     // reset press actions
     this.buttonsReleased = UserAction.None;
     this.inputReleased = false;
+
+    if (this._injectState) {
+      this.buttonsDown = this._injectState.buttonsDown;
+      this.buttonsReleased = this._injectState.buttonsReleased;
+      this.inputReleased = this._injectState.inputReleased;
+      this.inputDown = this._injectState.inputDown;
+      this.touchPoint = this._injectState.touchPoint;
+    }
+    this._injectState = null;
   }
 
   connectGamepad(e: GamepadEvent): void {
