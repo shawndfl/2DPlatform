@@ -106,46 +106,73 @@ export class InputHandler extends Component {
     if (!this.isTouchEnabled()) {
       console.debug(' mouse enabled');
       window.addEventListener('mousedown', (e) => {
+        if (!(e.target instanceof HTMLCanvasElement)) {
+          return;
+        }
+        const canvas = e.target as HTMLCanvasElement;
+        const xScale = canvas.width / canvas.clientWidth;
+        const yScale = canvas.height / canvas.clientHeight;
+
         if (e.shiftKey) {
           this.inputDown = [false, true];
         } else {
           this.inputDown = [true, false];
         }
         this.inputReleased = false;
-        this.touchPoint[0].x = e.offsetX;
-        this.touchPoint[0].y = this.eng.height - e.offsetY;
+        this.touchPoint[0].x = e.offsetX * xScale;
+        this.touchPoint[0].y = canvas.height - e.offsetY * yScale;
         this.touchCount = 1;
+        e.preventDefault();
       });
       window.addEventListener('mouseup', (e) => {
+        if (!(e.target instanceof HTMLCanvasElement)) {
+          return;
+        }
+        const canvas = e.target as HTMLCanvasElement;
+        const xScale = canvas.width / canvas.clientWidth;
+        const yScale = canvas.height / canvas.clientHeight;
+
         this.inputDown = [false, false];
         this.inputReleased = true;
-        this.touchPoint[0].x = e.offsetX;
-        this.touchPoint[0].y = this.eng.height - e.offsetY;
+        this.touchPoint[0].x = e.offsetX * xScale;
+        this.touchPoint[0].y = canvas.height - e.offsetY * yScale;
         this.touchCount = 1;
+        e.preventDefault();
       });
     } else {
       console.debug(' touch enabled');
       window.addEventListener('touchstart', (e) => {
-        if (e.touches.length > 0 && e.touches[0].target === eng.gl.canvas) {
-          this.inputDown = [
-            e.touches.item(0) ? true : false,
-            e.touches.item(1) ? true : false,
-          ];
-          this.inputReleased = false;
-
-          const t = e.touches[0].target as HTMLCanvasElement;
-          this.touchPoint[0].x = e.touches[0].pageX - t.clientTop;
-          this.touchPoint[0].y = this.eng.height - e.touches[0].screenY;
-          if (e.touches.length > 1) {
-            this.touchPoint[1].x = e.touches[1].pageX - t.clientTop;
-            this.touchPoint[1].y = e.touches[1].screenY;
-          }
-          this.touchCount = e.touches.length;
+        if (e.touches.length == 0) {
+          return;
         }
+        if (!(e.target instanceof HTMLCanvasElement)) {
+          return;
+        }
+        const canvas = e.target as HTMLCanvasElement;
+        const xScale = canvas.width / canvas.clientWidth;
+        const yScale = canvas.height / canvas.clientHeight;
+        this.inputDown = [
+          e.touches.item(0) ? true : false,
+          e.touches.item(1) ? true : false,
+        ];
+        this.inputReleased = false;
+
+        this.touchPoint[0].x =
+          (e.touches[0].pageX - canvas.offsetLeft) * xScale;
+        this.touchPoint[0].y =
+          this.eng.height - (e.touches[0].screenY - canvas.offsetTop) * yScale;
+        if (e.touches.length > 1) {
+          this.touchPoint[1].x = e.touches[1].pageX * xScale;
+          this.touchPoint[1].y =
+            this.eng.height - e.touches[1].screenY * yScale;
+        }
+        this.touchCount = e.touches.length;
+        e.preventDefault();
       });
       window.addEventListener('touchend', (e) => {
         this.inputDown = [false, false];
         this.inputReleased = true;
+        e.preventDefault();
       });
     }
 
@@ -178,30 +205,37 @@ export class InputHandler extends Component {
   keydown(e: KeyboardEvent) {
     if (e.key == 'ArrowRight') {
       this.buttonsDown = this.buttonsDown | UserAction.Right;
+      e.preventDefault();
     }
 
     if (e.key == 'ArrowLeft') {
       this.buttonsDown = this.buttonsDown | UserAction.Left;
+      e.preventDefault();
     }
 
     if (e.key == 'ArrowUp') {
       this.buttonsDown = this.buttonsDown | UserAction.Up;
+      e.preventDefault();
     }
 
     if (e.key == 'ArrowDown') {
       this.buttonsDown = this.buttonsDown | UserAction.Down;
+      e.preventDefault();
     }
 
     if (e.key == ' ') {
       this.buttonsDown = this.buttonsDown | UserAction.A;
+      e.preventDefault();
     }
 
     if (e.key == 'b') {
       this.buttonsDown = this.buttonsDown | UserAction.B;
+      e.preventDefault();
     }
 
     if (e.key == 'Enter') {
       this.buttonsDown = this.buttonsDown | UserAction.Start;
+      e.preventDefault();
     }
 
     /*
@@ -218,36 +252,43 @@ export class InputHandler extends Component {
     if (e.key == 'ArrowRight') {
       this.buttonsDown = this.buttonsDown & ~UserAction.Right;
       this.buttonsReleased = this.buttonsReleased | UserAction.Right;
+      e.preventDefault();
     }
 
     if (e.key == 'ArrowLeft') {
       this.buttonsDown = this.buttonsDown & ~UserAction.Left;
       this.buttonsReleased = this.buttonsReleased | UserAction.Left;
+      e.preventDefault();
     }
 
     if (e.key == 'ArrowUp') {
       this.buttonsDown = this.buttonsDown & ~UserAction.Up;
       this.buttonsReleased = this.buttonsReleased | UserAction.Up;
+      e.preventDefault();
     }
 
     if (e.key == 'ArrowDown') {
       this.buttonsDown = this.buttonsDown & ~UserAction.Down;
       this.buttonsReleased = this.buttonsReleased | UserAction.Down;
+      e.preventDefault();
     }
 
     if (e.key == ' ') {
       this.buttonsDown = this.buttonsDown & ~UserAction.A;
       this.buttonsReleased = this.buttonsReleased | UserAction.A;
+      e.preventDefault();
     }
 
     if (e.key == 'b') {
       this.buttonsDown = this.buttonsDown & ~UserAction.B;
       this.buttonsReleased = this.buttonsReleased | UserAction.B;
+      e.preventDefault();
     }
 
     if (e.key == 'Enter') {
       this.buttonsDown = this.buttonsDown & ~UserAction.Start;
       this.buttonsReleased = this.buttonsReleased | UserAction.Start;
+      e.preventDefault();
     }
   }
 

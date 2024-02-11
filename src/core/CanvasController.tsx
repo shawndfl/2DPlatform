@@ -1,42 +1,70 @@
 import { Component } from '../components/Component';
+import { clamp } from '../math/constants';
 import { Engine } from './Engine';
+import REACT from 'jsx-dom';
+import '../css/canvas.scss';
+
 /**
  * This controller manages the canvas
  */
 export class CanvasController extends Component {
   private _glContext: WebGL2RenderingContext;
   private _container: HTMLElement;
+  private readonly defaultAspectRatio = 1.33333;
+  private errorHtml: HTMLElement;
+  private canvas: HTMLCanvasElement;
 
-  get gl() {
+  get gl(): WebGL2RenderingContext {
     return this._glContext;
   }
 
   constructor(eng: Engine) {
     super(eng);
-    this._container = document.createElement('div');
-    this._container.classList.add('canvas-container');
+    this._container = (<div class='canvas-container'></div>) as HTMLElement;
 
-    const canvas = document.createElement('canvas');
-    canvas.width = 800;
-    canvas.height = 600;
-    canvas.classList.add('canvas');
+    // add canvas
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = 800;
+    this.canvas.height = 600;
+    this.canvas.classList.add('canvas');
+    this._container.append(this.canvas);
 
-    this._container.append(canvas);
+    // add an error screen
+    this.errorHtml = (
+      <div class='game-error game-hidden'>Width too small, try landscape</div>
+    ) as HTMLElement;
+    this._container.append(this.errorHtml);
 
     window.addEventListener('resize', (e) => {
-      this.eng.resize(canvas.width, canvas.height);
+      const w = clamp(window.screen.width, 800, 1920);
+      const h = window.screen.height;
+      /*
+      if (window.screen.width < 800) {
+        this.errorHtml.classList.remove('game-hidden');
+        this.canvas.classList.add('game-hidden');
+      } else {
+        this.errorHtml.classList.add('game-hidden');
+        this.canvas.classList.remove('game-hidden');
+      }
+*/
+      this.eng.resize(this.canvas.width, this.canvas.height);
     });
 
     if (false) {
       /** @type {WebGL2RenderingContext} render context from this canvas*/
       // @ts-ignore
       this._glContext = (WebGLDebugUtils as any).makeDebugContext(
-        canvas.getContext('webgl2'),
+        this.canvas.getContext('webgl2'),
         this.logGlError.bind(this),
         this.logGLCall.bind(this)
       );
     } else {
-      this._glContext = canvas.getContext('webgl2');
+      this._glContext = this.canvas.getContext('webgl2');
+      if (!this._glContext) {
+        this.errorHtml.classList.remove('game-hidden');
+        this.errorHtml.innerHTML = 'webgl2 not supported!';
+        this.canvas.classList.add('game-hidden');
+      }
     }
     // Only continue if WebGL is available and working
     if (this.gl === null) {

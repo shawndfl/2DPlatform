@@ -16,5 +16,5 @@ export class Component {
     return this._eng;
   }
 
-  constructor(private readonly _eng: Engine) { }
+  constructor(private readonly _eng: Engine) {}
 }
