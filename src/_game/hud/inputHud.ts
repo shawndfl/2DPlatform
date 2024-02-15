@@ -37,14 +37,39 @@ export class InputHud extends GameComponent {
 
   initialize(): void {
     const spriteAsset = this.eng.assetManager.getTexture(TextureAssets.hud);
-    this.spriteCollection.initialize(spriteAsset.texture, spriteAsset.data);
+    //this.spriteCollection.initialize(spriteAsset.texture, spriteAsset.data);
 
-    this.upToggle.initialize('up', this.spriteCollection);
-    this.rightToggle.initialize('right', this.spriteCollection);
-    this.leftToggle.initialize('left', this.spriteCollection);
-    this.attackToggle.initialize('attack', this.spriteCollection);
-    this.jumpToggle.initialize('jump', this.spriteCollection);
-    this.startToggle.initialize('pause', this.spriteCollection);
+    this.upToggle.initialize('up', UserAction.Up, true, this.spriteCollection);
+    this.rightToggle.initialize(
+      'right',
+      UserAction.Right,
+      false,
+      this.spriteCollection
+    );
+    this.leftToggle.initialize(
+      'left',
+      UserAction.Left,
+      true,
+      this.spriteCollection
+    );
+    this.attackToggle.initialize(
+      'attack',
+      UserAction.A,
+      false,
+      this.spriteCollection
+    );
+    this.jumpToggle.initialize(
+      'jump',
+      UserAction.B,
+      false,
+      this.spriteCollection
+    );
+    this.startToggle.initialize(
+      'pause',
+      UserAction.Start,
+      false,
+      this.spriteCollection
+    );
 
     // set alpha
     this.upToggle.alpha = 0.5;
@@ -62,9 +87,9 @@ export class InputHud extends GameComponent {
     this.jumpToggle.toggle(false);
     this.startToggle.toggle(false);
 
-    this.leftToggle.setPosition(new vec3(10, 40, -0.5));
-    this.upToggle.setPosition(new vec3(74, 60, -0.5));
-    this.rightToggle.setPosition(new vec3(138, 40, -0.5));
+    this.leftToggle.setPosition(new vec3(10, 80, -0.5));
+    this.upToggle.setPosition(new vec3(74, 100, -0.5));
+    this.rightToggle.setPosition(new vec3(138, 80, -0.5));
 
     this.startToggle.setPosition(new vec3(400, 50, -0.5));
 
@@ -82,6 +107,7 @@ export class InputHud extends GameComponent {
   }
 
   handleUserAction(action: InputState): boolean {
+    /*
     //console.debug('input action ', action);
     if (action.inputReleased) {
       if (this.upToggle.isOn) {
@@ -149,11 +175,17 @@ export class InputHud extends GameComponent {
     this.attackToggle.toggle(action.isDown(UserAction.A));
     this.jumpToggle.toggle(action.isDown(UserAction.B));
     this.startToggle.toggle(action.isDown(UserAction.Start));
-
+*/
     return false;
   }
 
   update(dt: number): void {
-    this.spriteCollection.update(dt, this._projection);
+    //this.spriteCollection.update(dt, this._projection);
+    this.upToggle.update(dt, this._projection);
+    this.rightToggle.update(dt, this._projection);
+    this.leftToggle.update(dt, this._projection);
+    this.attackToggle.update(dt, this._projection);
+    this.jumpToggle.update(dt, this._projection);
+    this.startToggle.update(dt, this._projection);
   }
 }

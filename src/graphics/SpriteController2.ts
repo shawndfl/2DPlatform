@@ -215,7 +215,7 @@ export class SpriteController2 extends Component implements ISprite {
     }
   }
 
-  update(dt: number): void {
+  update(dt: number, projection?: mat4): void {
     if (!this._visible) {
       return;
     }
@@ -236,7 +236,7 @@ export class SpriteController2 extends Component implements ISprite {
 
       // set the project
       const view = this.eng.viewManager;
-      let projection = view.projection;
+      projection = projection ?? view.projection;
       this.eng.spriteShader.setProj(projection);
       this.eng.spriteShader.setWorld(this._world);
       this.eng.spriteShader.setOffset(this.quad.offset);

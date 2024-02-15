@@ -15,14 +15,11 @@ import { GameAssetManager } from './system/GameAssetManager';
 export class PlatformEngine extends Engine {
   readonly player: PlayerController;
   readonly bullets: BulletManager;
-  readonly urlParams: URLSearchParams;
 
   private animationMode: boolean;
 
   constructor() {
     super();
-    const queryString = window.location.search;
-    this.urlParams = new URLSearchParams(queryString);
     this.player = new PlayerController(this);
     this.bullets = new BulletManager(this);
   }

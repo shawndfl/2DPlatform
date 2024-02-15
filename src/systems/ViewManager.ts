@@ -164,4 +164,8 @@ export class ViewManager extends Component {
   }
 
   update(dt: number) {}
+
+  resize(width: number, height: number): void {
+    this.updateProjection();
+  }
 }

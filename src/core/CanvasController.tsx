@@ -38,6 +38,8 @@ export class CanvasController extends Component {
     window.addEventListener('resize', (e) => {
       const w = clamp(window.screen.width, 800, 1920);
       const h = window.screen.height;
+      //this.canvas.width = w;
+      //this.canvas.height = w * 0.75;
       /*
       if (window.screen.width < 800) {
         this.errorHtml.classList.remove('game-hidden');
@@ -50,7 +52,7 @@ export class CanvasController extends Component {
       this.eng.resize(this.canvas.width, this.canvas.height);
     });
 
-    if (false) {
+    if (this.eng.urlParams.get('debug')) {
       /** @type {WebGL2RenderingContext} render context from this canvas*/
       // @ts-ignore
       this._glContext = (WebGLDebugUtils as any).makeDebugContext(
@@ -80,16 +82,20 @@ export class CanvasController extends Component {
   }
 
   logGlError(error: string, functionName: string, args: any) {
-    console.error(
+    const errorString =
       'GL error: ' +
-        error +
-        ' in gl.' +
-        functionName +
-        '(' +
-        // @ts-ignore
-        (WebGLDebugUtils as any).glFunctionArgsToString(functionName, args) +
-        ')'
-    );
+      error +
+      ' in gl.' +
+      functionName +
+      '(' +
+      // @ts-ignore
+      (WebGLDebugUtils as any).glFunctionArgsToString(functionName, args) +
+      ')';
+    this.errorHtml.classList.remove('game-hidden');
+    this.errorHtml.innerHTML += errorString + '<br>';
+    this.canvas.classList.add('game-hidden');
+
+    console.error(errorString);
   }
 
   logGLCall(functionName: string, args: any) {

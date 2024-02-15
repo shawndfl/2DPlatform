@@ -15,7 +15,6 @@ body {
   height: 100%;
   text-align: center;
   z-index: 10;
-  font-size: 64px;
   align-content: center;
   word-wrap: break-word;
   margin: auto;
@@ -30,11 +29,13 @@ body {
   left: 0px;
   z-index: 0;
   .canvas-container {
-    height: 100vh;
+    height: 85vh;
     margin: 0px;
+    padding: 0px;
 
     .canvas {
       height: 100%;
+      width: 100%;
       margin: auto;
       background-color: lightgray;
       margin: auto;

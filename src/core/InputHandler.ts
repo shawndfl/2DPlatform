@@ -1,15 +1,37 @@
 import { Component } from '../components/Component';
-import vec2 from '../math/vec2';
+import rect from '../math/rect';
 import { Engine } from './Engine';
 import { GamepadInteraction, InputMappings } from './InputMappings';
 import { InputState } from './InputState';
 import { UserAction } from './UserAction';
 
+const MouseId = 999;
+
+interface TouchAction {
+  /** touch region */
+  bounds: rect;
+  /** the action to perform */
+  action: UserAction;
+}
+
+interface TouchRect {
+  /** a way to look up this touch rect */
+  name: string;
+  /** id of the touch point or mouseId */
+  touchId: number;
+  /** touch region */
+  bounds: rect;
+  /** the action to perform */
+  action: UserAction;
+  /** is the state of the touch down right now */
+  isDown: boolean;
+}
+
 /**
  * Translates keyboard and gamepad events to game actions
  */
 export class InputHandler extends Component {
-  hasGamePad: boolean;
+  private _hasGamePad: boolean;
 
   /**
    * Used to map logical buttons to real keyboard or game pad buttons.
@@ -22,9 +44,14 @@ export class InputHandler extends Component {
   inputMappings: InputMappings;
 
   /**
+   * touch location
+   */
+  private _touchRect: Map<string, TouchRect> = new Map<string, TouchRect>();
+
+  /**
    * Name of the game pad
    */
-  gamePadType: string;
+  private _gamePadType: string;
 
   /**
    * logical buttons
@@ -36,27 +63,6 @@ export class InputHandler extends Component {
    */
   buttonsReleased: UserAction;
 
-  /**
-   * The first two touch points or mouse left botton and mouse left+shift mouse button
-   */
-  inputDown: [boolean, boolean];
-
-  /**
-   * Only true for one frame when the mouse is released or touch point lifted
-   */
-  inputReleased: boolean;
-
-  /**
-   * Capture two touch points if they are there.
-   */
-  touchPoint: [vec2, vec2];
-
-  /**
-   * how many touch points are there.
-   */
-  touchCount: number;
-
-  private _injectState: InputState;
   private _gamepad: Gamepad;
   private boundConnectGamepad: (e: GamepadEvent) => void;
   private boundDisconnectGamepad: (e: GamepadEvent) => void;
@@ -85,12 +91,9 @@ export class InputHandler extends Component {
 
     this.buttonsDown = UserAction.None;
     this.buttonsReleased = UserAction.None;
-    this.inputDown = [false, false];
-    this.hasGamePad = 'getGamepads' in navigator;
+    this._hasGamePad = 'getGamepads' in navigator;
     console.debug('initializing input:');
 
-    this.touchPoint = [vec2.zero, vec2.zero];
-    this.touchCount = 0;
     this.inputMappings = {
       gamePadMapping: new Map<string, GamepadInteraction[]>(),
     };
@@ -103,99 +106,138 @@ export class InputHandler extends Component {
       this.keyup(e);
     });
 
-    if (!this.isTouchEnabled()) {
-      console.debug(' mouse enabled');
-      window.addEventListener('mousedown', (e) => {
-        if (!(e.target instanceof HTMLCanvasElement)) {
-          return;
-        }
-        const canvas = e.target as HTMLCanvasElement;
-        const xScale = canvas.width / canvas.clientWidth;
-        const yScale = canvas.height / canvas.clientHeight;
+    console.debug(' mouse enabled');
+    window.addEventListener('mousedown', (e) => {
+      if (!(e.target instanceof HTMLCanvasElement)) {
+        return;
+      }
+      const canvas = e.target as HTMLCanvasElement;
+      const xScale = canvas.width / canvas.clientWidth;
+      const yScale = canvas.height / canvas.clientHeight;
 
-        if (e.shiftKey) {
-          this.inputDown = [false, true];
-        } else {
-          this.inputDown = [true, false];
-        }
-        this.inputReleased = false;
-        this.touchPoint[0].x = e.offsetX * xScale;
-        this.touchPoint[0].y = canvas.height - e.offsetY * yScale;
-        this.touchCount = 1;
-        e.preventDefault();
-      });
-      window.addEventListener('mouseup', (e) => {
-        if (!(e.target instanceof HTMLCanvasElement)) {
-          return;
-        }
-        const canvas = e.target as HTMLCanvasElement;
-        const xScale = canvas.width / canvas.clientWidth;
-        const yScale = canvas.height / canvas.clientHeight;
+      const x = e.offsetX * xScale;
+      const y = canvas.height - e.offsetY * yScale;
+      this.pointerDown(MouseId, x, y);
 
-        this.inputDown = [false, false];
-        this.inputReleased = true;
-        this.touchPoint[0].x = e.offsetX * xScale;
-        this.touchPoint[0].y = canvas.height - e.offsetY * yScale;
-        this.touchCount = 1;
-        e.preventDefault();
-      });
-    } else {
-      console.debug(' touch enabled');
-      window.addEventListener('touchstart', (e) => {
-        if (e.touches.length == 0) {
-          return;
-        }
-        if (!(e.target instanceof HTMLCanvasElement)) {
-          return;
-        }
-        const canvas = e.target as HTMLCanvasElement;
-        const xScale = canvas.width / canvas.clientWidth;
-        const yScale = canvas.height / canvas.clientHeight;
-        this.inputDown = [
-          e.touches.item(0) ? true : false,
-          e.touches.item(1) ? true : false,
-        ];
-        this.inputReleased = false;
+      e.preventDefault();
+    });
+    window.addEventListener('mouseup', (e) => {
+      if (!(e.target instanceof HTMLCanvasElement)) {
+        return;
+      }
+      const canvas = e.target as HTMLCanvasElement;
+      const xScale = canvas.width / canvas.clientWidth;
+      const yScale = canvas.height / canvas.clientHeight;
 
-        this.touchPoint[0].x =
-          (e.touches[0].pageX - canvas.offsetLeft) * xScale;
-        this.touchPoint[0].y =
-          this.eng.height - (e.touches[0].screenY - canvas.offsetTop) * yScale;
-        if (e.touches.length > 1) {
-          this.touchPoint[1].x = e.touches[1].pageX * xScale;
-          this.touchPoint[1].y =
-            this.eng.height - e.touches[1].screenY * yScale;
-        }
-        this.touchCount = e.touches.length;
-        e.preventDefault();
-      });
-      window.addEventListener('touchend', (e) => {
-        this.inputDown = [false, false];
-        this.inputReleased = true;
-        e.preventDefault();
-      });
-    }
+      const x = e.offsetX * xScale;
+      const y = canvas.height - e.offsetY * yScale;
+      this.pointerUp(MouseId, x, y);
+
+      e.preventDefault();
+    });
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length == 0) {
+        return;
+      }
+      if (!(e.target instanceof HTMLCanvasElement)) {
+        return;
+      }
+      const canvas = e.target as HTMLCanvasElement;
+      const xScale = canvas.width / canvas.clientWidth;
+      const yScale = canvas.height / canvas.clientHeight;
+
+      for (let touch of e.touches) {
+        const x = touch.pageX * xScale;
+        const y = canvas.height - touch.pageY * yScale;
+        this.pointerDown(touch.identifier, x, y);
+      }
+    });
+    window.addEventListener('touchend', (e) => {
+      const canvas = e.target as HTMLCanvasElement;
+      const xScale = canvas.width / canvas.clientWidth;
+      const yScale = canvas.height / canvas.clientHeight;
+
+      for (let touch of e.changedTouches) {
+        const x = touch.pageX * xScale;
+        const y = canvas.height - touch.pageY * yScale;
+        this.pointerUp(touch.identifier, x, y);
+      }
+      e.preventDefault();
+    });
 
     this.resetInput();
     this.loadMapping();
   }
 
+  /**
+   * Removes a touch rect
+   * @param name
+   */
+  removeTouchRect(name: string): void {
+    this._touchRect.delete(name);
+  }
+
+  /**
+   * Add a touch rect
+   * @param name
+   * @param touchRect
+   */
+  setTouchRect(name: string, touchRect: TouchRect): void {
+    touchRect.name = name;
+    this._touchRect.set(name, touchRect);
+  }
+
+  /**
+   * When something is touched set the buttonsDown for
+   * the touch rect
+   * @param x
+   * @param y
+   */
+  pointerDown(id: number, x: number, y: number): void {
+    const touchRect = this.getTouchRect(x, y);
+    // set when down
+    if (touchRect) {
+      this.buttonsDown = this.buttonsDown | touchRect.action;
+    }
+    console.debug('pointer Down: ' + id + ': ', x, y);
+  }
+
+  pointerUp(id: number, x: number, y: number): void {
+    const touchRect = this.getTouchRect(x, y);
+    // set when released
+    if (touchRect) {
+      this.buttonsDown = this.buttonsDown & ~touchRect.action;
+      this.buttonsReleased = this.buttonsReleased | touchRect.action;
+    }
+    console.debug('pointer up: ' + id + ': ', x, y);
+  }
+
+  /**
+   * Get the touch rect that this point hits
+   * @param x
+   * @param y
+   * @returns
+   */
+  getTouchRect(x: number, y: number): TouchRect {
+    let touchRect: TouchRect;
+    // return a touch rect
+    this._touchRect.forEach((v) => {
+      if (v.bounds.pointInside(x, y)) {
+        touchRect = v;
+      }
+    });
+    return touchRect;
+  }
+
+  /**
+   * Get a copy of the input state from this input handler
+   * @returns
+   */
   getInputState(): InputState {
     const state = new InputState();
     state.buttonsDown = this.buttonsDown;
     state.buttonsReleased = this.buttonsReleased;
-    state.inputReleased = this.inputReleased;
-    state.inputDown = this.inputDown;
-    state.touchPoint = this.touchPoint;
     return state;
-  }
-
-  /**
-   * Injects an input state that will be used for the next frame.
-   * @param state
-   */
-  injectSate(state: InputState): void {
-    this._injectState = state;
   }
 
   isTouchEnabled() {
@@ -237,15 +279,6 @@ export class InputHandler extends Component {
       this.buttonsDown = this.buttonsDown | UserAction.Start;
       e.preventDefault();
     }
-
-    /*
-    console.debug(
-      'keyDown ' +
-        this.buttonsDown +
-        ' ' +
-        this.getInputState().isDown(UserAction.B)
-    );
-    */
   }
 
   keyup(e: KeyboardEvent) {
@@ -311,16 +344,6 @@ export class InputHandler extends Component {
   postUpdate(dt: number) {
     // reset press actions
     this.buttonsReleased = UserAction.None;
-    this.inputReleased = false;
-
-    if (this._injectState) {
-      this.buttonsDown = this._injectState.buttonsDown;
-      this.buttonsReleased = this._injectState.buttonsReleased;
-      this.inputReleased = this._injectState.inputReleased;
-      this.inputDown = this._injectState.inputDown;
-      this.touchPoint = this._injectState.touchPoint;
-    }
-    this._injectState = null;
   }
 
   connectGamepad(e: GamepadEvent): void {
@@ -359,15 +382,15 @@ export class InputHandler extends Component {
     this.gamepadPolling += dt;
 
     if (this.gamepadPolling > 1500) {
-      this.hasGamePad = navigator.getGamepads()[0] != null;
+      this._hasGamePad = navigator.getGamepads()[0] != null;
 
-      if (this.hasGamePad && !this._gamepad) {
+      if (this._hasGamePad && !this._gamepad) {
         this.connectGamepad(
           new GamepadEvent('gamepadConnect', {
             gamepad: navigator.getGamepads()[0],
           })
         );
-      } else if (!this.hasGamePad && this._gamepad) {
+      } else if (!this._hasGamePad && this._gamepad) {
         this.disconnectGamepad(
           new GamepadEvent('gamepadDisconnect', { gamepad: this._gamepad })
         );
@@ -380,8 +403,8 @@ export class InputHandler extends Component {
     this.buttonsDown = UserAction.None;
     this.buttonsReleased = UserAction.None;
 
-    this.hasGamePad = 'getGamepads' in navigator;
-    if (this.hasGamePad) {
+    this._hasGamePad = 'getGamepads' in navigator;
+    if (this._hasGamePad) {
       console.debug(' gamepad supported ', navigator.getGamepads());
 
       window.removeEventListener('gamepadconnected', this.boundConnectGamepad);

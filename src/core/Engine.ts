@@ -26,6 +26,7 @@ import { SceneComponent } from '../components/SceneComponent';
  */
 export abstract class Engine {
   readonly input: InputHandler;
+  readonly urlParams: URLSearchParams;
 
   readonly spritePerspectiveShader: SpritePerspectiveShader;
   readonly spriteShader: SpriteShader;
@@ -55,11 +56,18 @@ export abstract class Engine {
     return this.gl.canvas.height;
   }
 
+  get clientHeight(): number {
+    return (this.gl.canvas as HTMLCanvasElement).clientHeight;
+  }
+
   get gl(): WebGL2RenderingContext {
     return this.canvasController.gl;
   }
 
   constructor() {
+    const queryString = window.location.search;
+    this.urlParams = new URLSearchParams(queryString);
+
     // create the canvas with the gl context so everything downstream can now use it
     this.canvasController = new CanvasController(this);
     this.random = new Random(1001);
@@ -189,7 +197,10 @@ export abstract class Engine {
     this.input.postUpdate(dt);
   }
 
-  resize(width: number, height: number): void {}
+  resize(width: number, height: number): void {
+    //this.gl.viewport(0, 0, width, height);
+    this.viewManager.resize(width, height);
+  }
 
   dispose() {}
 }
