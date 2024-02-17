@@ -26,6 +26,7 @@ function step(timestamp: number) {
   if (elapsed < 50) {
     // update the scene
     engine.update(elapsed);
+    // update the editor
     editor.update(elapsed);
   }
   // request a new frame
@@ -43,6 +44,8 @@ editor.initialize(document.getElementById('editor-container'));
 engine
   .initialize(document.getElementById('game-container'))
   .then(() => {
+    // let the editor know the game is ready
+    editor.onGameInitialized();
     // request the first frame
     window.requestAnimationFrame(step);
   })

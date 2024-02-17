@@ -4,7 +4,7 @@ import vec2 from '../../math/vec2';
 /**
  * This is the raw level data from json
  */
-interface ILevelData2 {
+export interface ILevelData {
   size: [number, number];
   player: {
     pos: [number, number];
@@ -59,14 +59,14 @@ export interface ICollision {
 /**
  * This is the level data that will be used in code.
  */
-export class LevelData2 {
+export class LevelData {
   size: vec2;
   player: IPlayerOptions;
   entities: IEntity[];
   collision: ICollision[];
   backgrounds: IBackgrounds[];
 
-  constructor(data: ILevelData2) {
+  constructor(data: ILevelData) {
     this.entities = [];
     this.collision = [];
     this.backgrounds = [];

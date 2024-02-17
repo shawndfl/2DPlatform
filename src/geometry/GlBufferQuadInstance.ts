@@ -366,13 +366,15 @@ export class GlBufferQuadInstance {
   /**
    * Enable vertex attributes and element buffer
    */
-  enable() {
+  enable(): boolean {
     if (!this.buffersCreated) {
-      console.error('buffers were not created!');
+      console.debug('buffers were not created!');
+      return false;
     } else {
       // the vertex and index buffer are grouped with this so we only need
       // to enable this array buffer
       this.gl.bindVertexArray(this.vertArrayBufferGeometry);
+      return true;
     }
   }
 

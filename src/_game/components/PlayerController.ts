@@ -8,7 +8,7 @@ import { RidgeBody } from '../../physics/RidgeBody';
 import { Collision2D } from '../../physics/Collision2D';
 import { GameComponent } from './GameComponent';
 import { SpriteController2 } from '../../graphics/SpriteController2';
-import { IPlayerOptions } from '../data/ILevelData2';
+import { IPlayerOptions } from '../data/ILevelData';
 import {
   EntityState,
   EntityStateFlags,

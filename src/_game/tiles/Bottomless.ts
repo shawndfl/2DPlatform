@@ -6,7 +6,7 @@ import { Collision2D } from '../../physics/Collision2D';
 import { PlatformEngine } from '../PlatformEngine';
 import { PlayerController } from '../components/PlayerController';
 
-import { ICollision } from '../data/ILevelData2';
+import { ICollision } from '../data/ILevelData';
 import { CollisionBox, ICollisionBoxOptions } from './CollisionBox';
 
 export interface IBottomlessOptions extends ICollisionBoxOptions {}

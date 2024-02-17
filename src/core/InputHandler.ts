@@ -97,18 +97,24 @@ export class InputHandler extends Component {
     this.inputMappings = {
       gamePadMapping: new Map<string, GamepadInteraction[]>(),
     };
+    const htmlCanvas = this.eng.canvasController.canvas;
 
     window.addEventListener('keydown', (e) => {
+      if (e.target != htmlCanvas) {
+        return;
+      }
       this.keydown(e);
     });
     window.addEventListener('keyup', (e) => {
+      if (e.target != htmlCanvas) {
+        return;
+      }
       console.debug('key up ' + e.key);
       this.keyup(e);
     });
 
-    console.debug(' mouse enabled');
     window.addEventListener('mousedown', (e) => {
-      if (!(e.target instanceof HTMLCanvasElement)) {
+      if (e.target != htmlCanvas) {
         return;
       }
       const canvas = e.target as HTMLCanvasElement;
@@ -122,9 +128,10 @@ export class InputHandler extends Component {
       e.preventDefault();
     });
     window.addEventListener('mouseup', (e) => {
-      if (!(e.target instanceof HTMLCanvasElement)) {
+      if (e.target != htmlCanvas) {
         return;
       }
+
       const canvas = e.target as HTMLCanvasElement;
       const xScale = canvas.width / canvas.clientWidth;
       const yScale = canvas.height / canvas.clientHeight;
@@ -136,10 +143,7 @@ export class InputHandler extends Component {
       e.preventDefault();
     });
     window.addEventListener('touchstart', (e) => {
-      if (e.touches.length == 0) {
-        return;
-      }
-      if (!(e.target instanceof HTMLCanvasElement)) {
+      if (e.target != htmlCanvas) {
         return;
       }
       const canvas = e.target as HTMLCanvasElement;
@@ -153,6 +157,18 @@ export class InputHandler extends Component {
       }
     });
     window.addEventListener('touchend', (e) => {
+      const canvas = e.target as HTMLCanvasElement;
+      const xScale = canvas.width / canvas.clientWidth;
+      const yScale = canvas.height / canvas.clientHeight;
+
+      for (let touch of e.changedTouches) {
+        const x = touch.pageX * xScale;
+        const y = canvas.height - touch.pageY * yScale;
+        this.pointerUp(touch.identifier, x, y);
+      }
+      e.preventDefault();
+    });
+    window.addEventListener('touchcancel', (e) => {
       const canvas = e.target as HTMLCanvasElement;
       const xScale = canvas.width / canvas.clientWidth;
       const yScale = canvas.height / canvas.clientHeight;

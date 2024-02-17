@@ -12,7 +12,11 @@ export class CanvasController extends Component {
   private _container: HTMLElement;
   private readonly defaultAspectRatio = 1.33333;
   private errorHtml: HTMLElement;
-  private canvas: HTMLCanvasElement;
+  private _canvas: HTMLCanvasElement;
+
+  get canvas(): HTMLElement {
+    return this._canvas;
+  }
 
   get gl(): WebGL2RenderingContext {
     return this._glContext;
@@ -23,11 +27,11 @@ export class CanvasController extends Component {
     this._container = (<div class='canvas-container'></div>) as HTMLElement;
 
     // add canvas
-    this.canvas = document.createElement('canvas');
-    this.canvas.width = 800;
-    this.canvas.height = 600;
-    this.canvas.classList.add('canvas');
-    this._container.append(this.canvas);
+    this._canvas = document.createElement('canvas');
+    this._canvas.width = 800;
+    this._canvas.height = 600;
+    this._canvas.classList.add('canvas');
+    this._container.append(this._canvas);
 
     // add an error screen
     this.errorHtml = (
@@ -38,34 +42,34 @@ export class CanvasController extends Component {
     window.addEventListener('resize', (e) => {
       const w = clamp(window.screen.width, 800, 1920);
       const h = window.screen.height;
-      //this.canvas.width = w;
-      //this.canvas.height = w * 0.75;
+      //this._canvas.width = w;
+      //this._canvas.height = w * 0.75;
       /*
       if (window.screen.width < 800) {
         this.errorHtml.classList.remove('game-hidden');
-        this.canvas.classList.add('game-hidden');
+        this._canvas.classList.add('game-hidden');
       } else {
         this.errorHtml.classList.add('game-hidden');
-        this.canvas.classList.remove('game-hidden');
+        this._canvas.classList.remove('game-hidden');
       }
 */
-      this.eng.resize(this.canvas.width, this.canvas.height);
+      this.eng.resize(this._canvas.width, this._canvas.height);
     });
 
     if (this.eng.urlParams.get('debug')) {
       /** @type {WebGL2RenderingContext} render context from this canvas*/
       // @ts-ignore
       this._glContext = (WebGLDebugUtils as any).makeDebugContext(
-        this.canvas.getContext('webgl2'),
+        this._canvas.getContext('webgl2'),
         this.logGlError.bind(this),
         this.logGLCall.bind(this)
       );
     } else {
-      this._glContext = this.canvas.getContext('webgl2');
+      this._glContext = this._canvas.getContext('webgl2');
       if (!this._glContext) {
         this.errorHtml.classList.remove('game-hidden');
         this.errorHtml.innerHTML = 'webgl2 not supported!';
-        this.canvas.classList.add('game-hidden');
+        this._canvas.classList.add('game-hidden');
       }
     }
     // Only continue if WebGL is available and working
@@ -91,11 +95,15 @@ export class CanvasController extends Component {
       // @ts-ignore
       (WebGLDebugUtils as any).glFunctionArgsToString(functionName, args) +
       ')';
-    this.errorHtml.classList.remove('game-hidden');
-    this.errorHtml.innerHTML += errorString + '<br>';
-    this.canvas.classList.add('game-hidden');
+    this.error(errorString);
+  }
 
-    console.error(errorString);
+  error(e: string): void {
+    this.errorHtml.classList.remove('game-hidden');
+    this.errorHtml.innerHTML += e + '<br>';
+    this._canvas.classList.add('game-hidden');
+
+    console.error(e);
   }
 
   logGLCall(functionName: string, args: any) {

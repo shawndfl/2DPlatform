@@ -86,6 +86,10 @@ export class SpriteInstanceCollection extends Component {
     this.shader = new SpriteInstanceShader(eng.gl, 'instancing');
     this.buffer = new GlBufferQuadInstance(eng.gl);
     this.quads = new Map<string, IQuadModel>();
+
+    //if (this.gl.MAX_VERTEX_ATTRIBS < 1) {
+    //this.eng.canvasController.error('max attri ' + this.gl.MAX_VERTEX_ATTRIBS);
+    //}
   }
 
   /**
@@ -213,7 +217,9 @@ export class SpriteInstanceCollection extends Component {
     // set the project
     this.shader.setProj(projection);
 
-    this.buffer.enable();
+    if (!this.buffer.enable()) {
+      this.eng.canvasController.error('error with buffer');
+    }
     const type = this.gl.UNSIGNED_SHORT;
 
     this.gl.drawElementsInstanced(

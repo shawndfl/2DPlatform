@@ -3,7 +3,7 @@ import Level2Data from '../assets/level2/level2.json';
 import { PlatformEngine } from '../PlatformEngine';
 
 import { InputState } from '../../core/InputState';
-import { LevelData2 } from '../data/ILevelData2';
+import { LevelData } from '../data/ILevelData';
 import { ParticleTest } from '../samples/ParticleTest';
 import { Collision2D } from '../../physics/Collision2D';
 
@@ -16,7 +16,7 @@ export class Level2 extends SceneComponent {
   private particleTest: ParticleTest;
   private collisions: Collision2D[];
   private updatableCollisions: Collision2D[];
-  private levelData: LevelData2;
+  private levelData: LevelData;
   private inputHud: InputHud;
 
   get eng(): PlatformEngine {
@@ -35,7 +35,7 @@ export class Level2 extends SceneComponent {
     this.inputHud.initialize();
 
     // save the level data
-    const data = new LevelData2(Level2Data);
+    const data = new LevelData(Level2Data);
     this.levelData = data;
     console.debug(this.levelData);
 

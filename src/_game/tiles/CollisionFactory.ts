@@ -3,7 +3,7 @@ import vec2 from '../../math/vec2';
 import vec4 from '../../math/vec4';
 import { Collision2D } from '../../physics/Collision2D';
 import { PlatformEngine } from '../PlatformEngine';
-import { ICollision } from '../data/ILevelData2';
+import { ICollision } from '../data/ILevelData';
 import { Bottomless, IBottomlessOptions } from './Bottomless';
 import { CollisionBox, ICollisionBoxOptions } from './CollisionBox';
 import { Elevator, IElevatorOptions } from './Elevator';

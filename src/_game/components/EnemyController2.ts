@@ -8,7 +8,7 @@ import { Collision2D } from '../../physics/Collision2D';
 import { RidgeBody } from '../../physics/RidgeBody';
 import { PixelsToMeters } from '../../systems/PhysicsManager';
 import { PlatformEngine } from '../PlatformEngine';
-import { IEntity } from '../data/ILevelData2';
+import { IEntity } from '../data/ILevelData';
 import { BulletController } from './BulletController';
 import { Direction } from './Direction';
 import { GameComponent } from './GameComponent';

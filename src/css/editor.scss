@@ -1,11 +1,46 @@
+@import './color.scss';
+
 #editor-container {
   position: absolute;
+  width: 100%;
   top: 0px;
   left: 0px;
   z-index: 1;
+  display: flex;
+  height: 100%;
   .editor-canvas {
     width: 100%;
     height: 100%;
-    background-color: #ffffffff;
+    background-color: $main;
+    canvas: {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+.editor-entities {
+  width: 300px;
+  overflow: auto;
+  background-color: $main;
+  height: 100%;
+  .item {
+    width: calc(100% - 6px);
+    height: 50px;
+    border-bottom: solid 1px $secondary;
+    margin: 2px;
+    display: flex;
+    .color {
+      width: 16px;
+      height: 16px;
+    }
+    .title {
+      font-size: 24px;
+      margin-top: auto;
+      margin-bottom: auto;
+      padding-left: 10px;
+    }
+    &:hover {
+      background-color: $dark-accent;
+    }
   }
 }

@@ -28,18 +28,19 @@ body {
   top: 0px;
   left: 0px;
   z-index: 0;
-  .canvas-container {
-    height: 85vh;
-    margin: 0px;
-    padding: 0px;
+}
 
-    .canvas {
-      height: 100%;
-      width: 100%;
-      margin: auto;
-      background-color: lightgray;
-      margin: auto;
-      display: flex;
-    }
+.canvas-container {
+  height: 85vh;
+  margin: 0px;
+  padding: 0px;
+
+  .canvas {
+    height: 100%;
+    width: 100%;
+    margin: auto;
+    background-color: lightgray;
+    margin: auto;
+    display: flex;
   }
 }
