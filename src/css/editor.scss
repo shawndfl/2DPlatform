@@ -18,6 +18,26 @@
     }
   }
 }
+
+.prim-button {
+  border-radius: 15px;
+  width: 64px;
+  height: 48px;
+  box-shadow: 2px 4px $dropShadow;
+  border: 0px;
+  background-color: $accent;
+  color: $main;
+  &:hover {
+    background-color: $dark-accent;
+  }
+}
+
+.play-button-container {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 10;
+}
 .editor-entities {
   width: 300px;
   overflow: auto;

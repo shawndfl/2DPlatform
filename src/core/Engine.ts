@@ -48,6 +48,12 @@ export abstract class Engine {
   readonly backgroundManager: BackgroundManager;
   readonly sceneManager: SceneManager;
 
+  /**
+   * Is this active. This is used if the editor is running
+   * and we want the main loop and window key events to not run.
+   */
+  isActive: boolean;
+
   get width(): number {
     return this.gl.canvas.width;
   }
@@ -67,6 +73,7 @@ export abstract class Engine {
   constructor() {
     const queryString = window.location.search;
     this.urlParams = new URLSearchParams(queryString);
+    this.isActive = true;
 
     // create the canvas with the gl context so everything downstream can now use it
     this.canvasController = new CanvasController(this);
@@ -173,6 +180,11 @@ export abstract class Engine {
   }
 
   update(dt: number): void {
+    // if this is not active skip update
+    if (!this.isActive) {
+      return;
+    }
+
     // handle gamepad polling
     this.input.preUpdate(dt);
 

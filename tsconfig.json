@@ -2,10 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "noImplicitAny": true,
-    "types": [
-      "node",
-      "jest"
-    ],
+    "types": ["node", "jest"],
     "jsx": "react-jsx",
     "jsxImportSource": "jsx-dom",
     "module": "commonjs",
@@ -13,10 +10,7 @@
     "outDir": "lib",
     "sourceMap": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "./src/**/*.ts",
-    "./__tests__/**/*.ts"
-  ]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./__tests__/**/*.ts"]
 }

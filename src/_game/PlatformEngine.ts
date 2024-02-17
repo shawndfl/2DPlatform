@@ -3,6 +3,7 @@ import { InputState } from '../core/InputState';
 import { AssetManager } from '../systems/AssetManager';
 import { SceneManager } from '../systems/SceneManager';
 import { PlayerController } from './components/PlayerController';
+import { LevelData } from './data/ILevelData';
 import { GameEditor } from './editor/GameEditor';
 import { SceneFactory } from './scenes/SceneFactory';
 import { BulletManager } from './system/BulletManager';
@@ -15,8 +16,6 @@ import { GameAssetManager } from './system/GameAssetManager';
 export class PlatformEngine extends Engine {
   readonly player: PlayerController;
   readonly bullets: BulletManager;
-
-  private animationMode: boolean;
 
   constructor() {
     super();
@@ -44,6 +43,8 @@ export class PlatformEngine extends Engine {
       this.urlParams.get('level') ?? 'level.2.0'
     );
   }
+
+  loadLevel(level: LevelData): void {}
 
   handleUserAction(state: InputState): boolean {
     return (

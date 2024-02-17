@@ -56,6 +56,9 @@ export interface ICollision {
   meta: Map<string, string>;
 }
 
+export const DefaultLevelWidth = 1920 * 8;
+export const DefaultLevelHeight = 1020;
+
 /**
  * This is the level data that will be used in code.
  */
@@ -97,5 +100,16 @@ export class LevelData {
         type: e.type,
       });
     });
+  }
+
+  reset(): void {
+    this.size = new vec2(DefaultLevelWidth, DefaultLevelHeight);
+    this.player = {
+      position: new vec2(10, 100),
+      meta: new Map<string, string>(),
+    };
+    this.entities = [];
+    this.collision = [];
+    this.backgrounds = [];
   }
 }

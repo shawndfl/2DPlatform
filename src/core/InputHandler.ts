@@ -100,13 +100,13 @@ export class InputHandler extends Component {
     const htmlCanvas = this.eng.canvasController.canvas;
 
     window.addEventListener('keydown', (e) => {
-      if (e.target != htmlCanvas) {
+      if (!this.eng.isActive) {
         return;
       }
       this.keydown(e);
     });
     window.addEventListener('keyup', (e) => {
-      if (e.target != htmlCanvas) {
+      if (!this.eng.isActive) {
         return;
       }
       console.debug('key up ' + e.key);
@@ -114,7 +114,7 @@ export class InputHandler extends Component {
     });
 
     window.addEventListener('mousedown', (e) => {
-      if (e.target != htmlCanvas) {
+      if (!this.eng.isActive) {
         return;
       }
       const canvas = e.target as HTMLCanvasElement;
@@ -128,7 +128,7 @@ export class InputHandler extends Component {
       e.preventDefault();
     });
     window.addEventListener('mouseup', (e) => {
-      if (e.target != htmlCanvas) {
+      if (!this.eng.isActive) {
         return;
       }
 
@@ -143,7 +143,7 @@ export class InputHandler extends Component {
       e.preventDefault();
     });
     window.addEventListener('touchstart', (e) => {
-      if (e.target != htmlCanvas) {
+      if (!this.eng.isActive) {
         return;
       }
       const canvas = e.target as HTMLCanvasElement;
@@ -157,6 +157,9 @@ export class InputHandler extends Component {
       }
     });
     window.addEventListener('touchend', (e) => {
+      if (!this.eng.isActive) {
+        return;
+      }
       const canvas = e.target as HTMLCanvasElement;
       const xScale = canvas.width / canvas.clientWidth;
       const yScale = canvas.height / canvas.clientHeight;
@@ -169,6 +172,10 @@ export class InputHandler extends Component {
       e.preventDefault();
     });
     window.addEventListener('touchcancel', (e) => {
+      if (!this.eng.isActive) {
+        return;
+      }
+
       const canvas = e.target as HTMLCanvasElement;
       const xScale = canvas.width / canvas.clientWidth;
       const yScale = canvas.height / canvas.clientHeight;

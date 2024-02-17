@@ -27,4 +27,12 @@ export class EditorEntityList extends EditorComponent {
     this.container.append(newItem.container);
     return newItem;
   }
+
+  show(show: boolean): void {
+    if (show) {
+      this.container.classList.remove('game-hidden');
+    } else {
+      this.container.classList.add('game-hidden');
+    }
+  }
 }

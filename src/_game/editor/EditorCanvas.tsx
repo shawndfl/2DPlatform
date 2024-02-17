@@ -1,7 +1,12 @@
 import REACT from 'jsx-dom';
 import { EditorCollision } from './EditorCollision';
 import { EditorComponent } from './EditorComponent';
-import { ICollision, ILevelData, LevelData } from '../data/ILevelData';
+import {
+  DefaultLevelHeight,
+  DefaultLevelWidth,
+  ICollision,
+  LevelData,
+} from '../data/ILevelData';
 
 export class EditorCanvas extends EditorComponent {
   private _canvas: HTMLCanvasElement;
@@ -17,19 +22,33 @@ export class EditorCanvas extends EditorComponent {
   async initialize(): Promise<void> {
     this.container = (<div class='editor-canvas'></div>) as HTMLElement;
     this._canvas = document.createElement('canvas');
-    this._canvas.width = 800;
-    this._canvas.height = 600;
+    this._canvas.width = DefaultLevelWidth;
+    this._canvas.height = DefaultLevelHeight;
     this.context = this._canvas.getContext('2d');
+
     this._canvas.classList.add('editor-canvas', 'canvas');
     this.container.append(this._canvas);
-    this.canvas.addEventListener('mousemove', (e) => {
-      console.debug('click ', e);
-    });
+    this.canvas.addEventListener('mousemove', (e) => {});
   }
 
-  loadLevel(data: ILevelData) {
-    this.levelData = new LevelData(data);
+  /**
+   * Create a new level
+   */
+  newLevel(): void {
+    this.levelData.reset();
+    this.loadLevel(this.levelData);
+  }
+
+  /**
+   * Load a level
+   * @param data
+   */
+  loadLevel(data: LevelData) {
+    this.levelData = data;
     this.collisions.clear();
+
+    this._canvas.width = data.size.x;
+    this._canvas.height = data.size.y;
 
     this.levelData.collision.forEach((c) => {
       this.createCollision(c);
@@ -44,12 +63,26 @@ export class EditorCanvas extends EditorComponent {
     return editorCollision;
   }
 
+  show(show: boolean): void {
+    if (show) {
+      this.container.classList.remove('game-hidden');
+    } else {
+      this.container.classList.add('game-hidden');
+    }
+  }
+
   draw(): void {
     this.context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    this.context.fillStyle = '#505050';
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.collisions.forEach((c) => {
       c.draw(this.context);
     });
   }
 
-  saveLevel(): void {}
+  saveLevel(): void {
+    const storage = window.localStorage;
+    storage.setItem('level', JSON.stringify(this.levelData));
+    console.debug('saved');
+  }
 }
