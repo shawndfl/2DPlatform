@@ -3,17 +3,30 @@ import { ISceneFactory } from '../interfaces/ISceneFactory';
 import { Engine } from '../core/Engine';
 import { Component } from '../components/Component';
 
+/**
+ * Manages scene loading and switching.
+ */
 export class SceneManager extends Component {
   private _activeScene: SceneComponent;
-
-  private _nextScene: string;
+  private _nextSceneType: string;
+  private _sceneType: string;
   private _sceneReady: boolean;
+
+  /**
+   * Called when a scene is loaded
+   */
+  OnSceneLoaded: (scene: SceneComponent) => Promise<void>;
 
   get sceneReady(): boolean {
     return this._sceneReady;
   }
+
   get scene(): SceneComponent {
     return this._activeScene;
+  }
+
+  get sceneType(): string {
+    return this._sceneType;
   }
 
   constructor(eng: Engine, private _sceneFactory: ISceneFactory) {
@@ -25,11 +38,22 @@ export class SceneManager extends Component {
   }
 
   /**
-   * This is used to change the scene on the next update.
-   * @param scene
+   * resets the scene by  disposing it and reinitializing it.
    */
-  setNextScene(scene: string): void {
-    this._nextScene = scene;
+  resetScene(): void {
+    this.setNextScene(this._sceneType);
+  }
+
+  /**
+   * This is used to change the scene on the next update.
+   * @param sceneType
+   * @param switchNow - should the scene be switched now or wait until the next update.
+   */
+  setNextScene(sceneType: string, switchNow?: boolean): void {
+    this._nextSceneType = sceneType;
+    if (switchNow) {
+      this.changeScene(this._nextSceneType);
+    }
   }
 
   /**
@@ -37,9 +61,10 @@ export class SceneManager extends Component {
    * everything else should use setNextScene()
    * @param newScene
    */
-  async changeScene(type: string): Promise<boolean> {
+  private async changeScene(type: string): Promise<boolean> {
+    this._sceneType = type;
     this._sceneReady = false;
-    this._nextScene = '';
+    this._nextSceneType = '';
 
     const scene = this._sceneFactory.createScene(type);
     if (!scene) {
@@ -63,8 +88,8 @@ export class SceneManager extends Component {
    * @param dt
    */
   update(dt: number) {
-    if (this._nextScene) {
-      this.changeScene(this._nextScene);
+    if (this._nextSceneType) {
+      this.changeScene(this._nextSceneType);
     }
 
     if (this._sceneReady) {

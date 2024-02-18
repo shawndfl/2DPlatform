@@ -23,7 +23,12 @@ export class Level2 extends SceneComponent {
     return super.eng as PlatformEngine;
   }
 
-  constructor(eng: PlatformEngine) {
+  /**
+   *
+   * @param eng
+   * @param _type - Format is <level.[embed | local].##.##>
+   */
+  constructor(eng: PlatformEngine, protected _type: string) {
     super(eng);
 
     this.particleTest = new ParticleTest(this.eng);
@@ -35,9 +40,9 @@ export class Level2 extends SceneComponent {
     this.inputHud.initialize();
 
     // save the level data
-    const data = new LevelData(Level2Data);
+
+    const data = this.getLevelData();
     this.levelData = data;
-    console.debug(this.levelData);
 
     // set the view and the limits
     this.eng.viewManager.setXLimits(0, data.size.x);
@@ -85,6 +90,12 @@ export class Level2 extends SceneComponent {
 
     // wait for all images to load
     await Promise.all(promises);
+  }
+
+  private getLevelData(): LevelData {
+    const data = new LevelData(Level2Data);
+    console.debug(data);
+    return data;
   }
 
   /**

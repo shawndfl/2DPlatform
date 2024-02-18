@@ -6,6 +6,7 @@ import { InputState } from './InputState';
 import { UserAction } from './UserAction';
 
 const MouseId = 999;
+const NoId = -1;
 
 interface TouchAction {
   /** touch region */
@@ -97,7 +98,6 @@ export class InputHandler extends Component {
     this.inputMappings = {
       gamePadMapping: new Map<string, GamepadInteraction[]>(),
     };
-    const htmlCanvas = this.eng.canvasController.canvas;
 
     window.addEventListener('keydown', (e) => {
       if (!this.eng.isActive) {
@@ -117,7 +117,8 @@ export class InputHandler extends Component {
       if (!this.eng.isActive) {
         return;
       }
-      const canvas = e.target as HTMLCanvasElement;
+
+      const canvas = this.eng.canvasController.canvas;
       const xScale = canvas.width / canvas.clientWidth;
       const yScale = canvas.height / canvas.clientHeight;
 
@@ -132,7 +133,7 @@ export class InputHandler extends Component {
         return;
       }
 
-      const canvas = e.target as HTMLCanvasElement;
+      const canvas = this.eng.canvasController.canvas;
       const xScale = canvas.width / canvas.clientWidth;
       const yScale = canvas.height / canvas.clientHeight;
 
@@ -146,7 +147,7 @@ export class InputHandler extends Component {
       if (!this.eng.isActive) {
         return;
       }
-      const canvas = e.target as HTMLCanvasElement;
+      const canvas = this.eng.canvasController.canvas;
       const xScale = canvas.width / canvas.clientWidth;
       const yScale = canvas.height / canvas.clientHeight;
 
@@ -160,7 +161,7 @@ export class InputHandler extends Component {
       if (!this.eng.isActive) {
         return;
       }
-      const canvas = e.target as HTMLCanvasElement;
+      const canvas = this.eng.canvasController.canvas;
       const xScale = canvas.width / canvas.clientWidth;
       const yScale = canvas.height / canvas.clientHeight;
 
@@ -176,7 +177,7 @@ export class InputHandler extends Component {
         return;
       }
 
-      const canvas = e.target as HTMLCanvasElement;
+      const canvas = this.eng.canvasController.canvas;
       const xScale = canvas.width / canvas.clientWidth;
       const yScale = canvas.height / canvas.clientHeight;
 
@@ -221,18 +222,30 @@ export class InputHandler extends Component {
     // set when down
     if (touchRect) {
       this.buttonsDown = this.buttonsDown | touchRect.action;
+      touchRect.touchId = id;
     }
     console.debug('pointer Down: ' + id + ': ', x, y);
   }
 
   pointerUp(id: number, x: number, y: number): void {
-    const touchRect = this.getTouchRect(x, y);
+    const touchRect = this.getTouchById(id);
     // set when released
     if (touchRect) {
       this.buttonsDown = this.buttonsDown & ~touchRect.action;
       this.buttonsReleased = this.buttonsReleased | touchRect.action;
+      touchRect.touchId = NoId;
     }
     console.debug('pointer up: ' + id + ': ', x, y);
+  }
+
+  getTouchById(id: number): TouchRect {
+    let touchRect: TouchRect;
+    this._touchRect.forEach((t) => {
+      if (t.touchId == id) {
+        touchRect = t;
+      }
+    });
+    return touchRect;
   }
 
   /**
