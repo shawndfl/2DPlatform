@@ -1,5 +1,4 @@
 import { SceneComponent } from '../../components/SceneComponent';
-import Level2Data from '../assets/level2/level2.json';
 import { PlatformEngine } from '../PlatformEngine';
 
 import { InputState } from '../../core/InputState';
@@ -23,10 +22,14 @@ export class Level2 extends SceneComponent {
     return super.eng as PlatformEngine;
   }
 
+  get sceneData(): LevelData {
+    return this.levelData;
+  }
+
   /**
    *
    * @param eng
-   * @param _type - Format is <level.[embed | local].##.##>
+   * @param _type - Format is level##
    */
   constructor(eng: PlatformEngine, protected _type: string) {
     super(eng);
@@ -39,9 +42,8 @@ export class Level2 extends SceneComponent {
     this.particleTest.initialize();
     this.inputHud.initialize();
 
-    // save the level data
-
-    const data = this.getLevelData();
+    // load the level data
+    const data = await this.getLevelData();
     this.levelData = data;
 
     // set the view and the limits
@@ -92,8 +94,28 @@ export class Level2 extends SceneComponent {
     await Promise.all(promises);
   }
 
-  private getLevelData(): LevelData {
-    const data = new LevelData(Level2Data);
+  private async getLevelData(): Promise<LevelData> {
+    let data: LevelData;
+    // level1
+    // level1*
+
+    console.debug('loading scene type: ' + this._type);
+
+    // an '*' after this means it's in local storage
+    if (this._type.endsWith('*')) {
+      const storage = window.localStorage;
+      const dataJson = JSON.parse(storage.getItem(this._type));
+      data = new LevelData(dataJson);
+    }
+    // load the remotely
+    else {
+      const results = await this.eng.remote.loadFile(
+        'assets/' + this._type + '/level.json'
+      );
+      const dataJson = JSON.parse(results);
+      data = new LevelData(dataJson);
+    }
+
     console.debug(data);
     return data;
   }

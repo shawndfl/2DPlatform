@@ -31,7 +31,7 @@ export interface ILevelData {
 }
 
 export interface IPlayerOptions {
-  position: vec2;
+  pos: vec2;
   meta: Map<string, string>;
 }
 
@@ -77,7 +77,7 @@ export class LevelData {
     this.size = new vec2(data.size);
     this.player = {
       meta: new Map<string, string>(data.player.meta),
-      position: new vec2(data.player.pos),
+      pos: new vec2(data.player.pos),
     };
 
     data.entities.forEach((e) => {
@@ -105,11 +105,26 @@ export class LevelData {
   reset(): void {
     this.size = new vec2(DefaultLevelWidth, DefaultLevelHeight);
     this.player = {
-      position: new vec2(10, 100),
+      pos: new vec2(10, 100),
       meta: new Map<string, string>(),
     };
     this.entities = [];
     this.collision = [];
     this.backgrounds = [];
+  }
+
+  serialize(): string {
+    const str = JSON.stringify(this, (_, value) => {
+      if (value instanceof vec2) {
+        return [value.x, value.y];
+      } else if (value instanceof rect) {
+        return [value.left, value.width, value.top, value.height];
+      } else if (value instanceof Map) {
+        return Array.from(value.entries());
+      } else {
+        return value;
+      }
+    });
+    return str;
   }
 }

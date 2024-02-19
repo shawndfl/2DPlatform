@@ -133,7 +133,7 @@ export class PlayerController extends GameComponent {
     this.sprite.yScale = 2.0;
     this.sprite.depth = 0.7;
 
-    this.setPosition(options.position.x, options.position.y);
+    this.setPosition(options.pos.x, options.pos.y);
     this.ridgeBody.showCollision = options.meta.get('debug') == 'true';
     this.ridgeBody.active = true;
 

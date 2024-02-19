@@ -34,20 +34,16 @@ function step(timestamp: number) {
 }
 
 /**
- *  initialize the editor
- */
-editor.initialize(document.getElementById('editor-container'));
-
-/**
  * Start the engine then request and animation frame
  */
 engine
   .initialize(document.getElementById('game-container'))
   .then(() => {
-    // let the editor know the game is ready
-    editor.onGameInitialized();
-    // request the first frame
-    window.requestAnimationFrame(step);
+    // initialize the editor
+    editor
+      .initialize(document.getElementById('editor-container'))
+      // then request the first animation frame
+      .then(() => window.requestAnimationFrame(step));
   })
   .catch((e) => {
     console.error('Error initializing ', e);

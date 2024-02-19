@@ -29,6 +29,10 @@ export class SceneManager extends Component {
     return this._sceneType;
   }
 
+  get sceneData(): any {
+    return this._activeScene?.sceneData;
+  }
+
   constructor(eng: Engine, private _sceneFactory: ISceneFactory) {
     super(eng);
   }
@@ -45,15 +49,29 @@ export class SceneManager extends Component {
   }
 
   /**
+   * Gets the name of a storage level.
+   * This is the sceneType with a '*' after it.
+   * @returns
+   */
+  getStorageLevelName(): string {
+    return this._sceneType + '*';
+  }
+
+  /**
+   * Load the storage level. This is a level that is
+   * stored in local storage not embedded in the release.
+   */
+  loadStorageLevel(): void {
+    this._nextSceneType = this.getStorageLevelName();
+  }
+
+  /**
    * This is used to change the scene on the next update.
    * @param sceneType
    * @param switchNow - should the scene be switched now or wait until the next update.
    */
-  setNextScene(sceneType: string, switchNow?: boolean): void {
-    this._nextSceneType = sceneType;
-    if (switchNow) {
-      this.changeScene(this._nextSceneType);
-    }
+  setNextScene(type: string): void {
+    this._nextSceneType = type;
   }
 
   /**
@@ -61,7 +79,7 @@ export class SceneManager extends Component {
    * everything else should use setNextScene()
    * @param newScene
    */
-  private async changeScene(type: string): Promise<boolean> {
+  async changeScene(type: string): Promise<boolean> {
     this._sceneType = type;
     this._sceneReady = false;
     this._nextSceneType = '';

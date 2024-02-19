@@ -501,7 +501,7 @@ export class EntityState extends GameComponent {
         this.hitAnimation
           .start(this._facingDirection == Direction.Right)
           .onDone(() => {
-            this.eng.sceneManager.setNextScene('level.2.0');
+            this.eng.sceneManager.resetScene();
           });
         this.runAnimation.stop();
         this.ridgeBody.active = false;

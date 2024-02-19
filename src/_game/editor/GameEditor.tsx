@@ -3,7 +3,6 @@ import { EditorEntityList } from './EditorEntityList';
 import { EditorCanvas } from './EditorCanvas';
 import { PlayButton } from './PlayButton';
 import '../../css/editor.scss';
-import Level2Data from '../assets/level2/level2.json';
 
 import REACT from 'jsx-dom';
 import { LevelData } from '../data/ILevelData';
@@ -52,14 +51,11 @@ export class GameEditor extends GameComponent {
     });
 
     await this._canvas.initialize();
-    this._canvas.loadLevel(new LevelData(Level2Data));
+    this._canvas.loadLevel(this.eng.sceneManager.sceneData);
     root.append(this._canvas.container, this.playButton.createHtml());
 
     this._ready = true;
   }
-
-  onGameInitialized(): void {}
-
   /**
    * toggling play button. This will hide the editor
    * except for the play/pause button. This will also
@@ -73,6 +69,8 @@ export class GameEditor extends GameComponent {
 
     // enable the game
     this.eng.isActive = this._isPlaying;
+    this.saveLevel();
+    this.eng.sceneManager.loadStorageLevel();
   }
 
   saveLevel(): void {

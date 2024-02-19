@@ -39,9 +39,8 @@ export class PlatformEngine extends Engine {
     await this.bullets.initialize();
 
     // load the first scene
-    this.sceneManager.setNextScene(
-      this.urlParams.get('level') ?? 'level.2.0',
-      true
+    await this.sceneManager.changeScene(
+      this.urlParams.get('level') ?? 'level2'
     );
   }
 

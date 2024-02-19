@@ -7,6 +7,8 @@ import {
   ICollision,
   LevelData,
 } from '../data/ILevelData';
+import vec2 from '../../math/vec2';
+import rect from '../../math/rect';
 
 export class EditorCanvas extends EditorComponent {
   private _canvas: HTMLCanvasElement;
@@ -81,8 +83,9 @@ export class EditorCanvas extends EditorComponent {
   }
 
   saveLevel(): void {
+    const sceneType = this.editor.eng.sceneManager.sceneType;
     const storage = window.localStorage;
-    storage.setItem('level', JSON.stringify(this.levelData));
+    storage.setItem(sceneType + '*', this.levelData.serialize());
     console.debug('saved');
   }
 }

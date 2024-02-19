@@ -18,6 +18,7 @@ import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
 import { BackgroundManager } from '../systems/BackgroundManager';
 import { SceneManager } from '../systems/SceneManager';
 import { SceneComponent } from '../components/SceneComponent';
+import { ResourceLoader } from '../utilities/LoadRemote';
 
 /**
  * The engine for this game. There is one instance of this
@@ -47,6 +48,7 @@ export abstract class Engine {
   readonly annotationManager: AnnotationManager;
   readonly backgroundManager: BackgroundManager;
   readonly sceneManager: SceneManager;
+  readonly remote: ResourceLoader;
 
   /**
    * Is this active. This is used if the editor is running
@@ -79,7 +81,7 @@ export abstract class Engine {
     this.canvasController = new CanvasController(this);
     this.random = new Random(1001);
     this.gameManager = new GameManager(this);
-
+    this.remote = new ResourceLoader();
     this.input = new InputHandler(this);
     this.dialogManager = new DialogManager(this);
     this.soundManager = new SoundManager();

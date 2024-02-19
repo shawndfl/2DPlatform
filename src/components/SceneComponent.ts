@@ -7,6 +7,11 @@ import { Engine } from '../core/Engine';
  */
 export abstract class SceneComponent extends Component {
   /**
+   * Gets custom scene data
+   */
+  abstract get sceneData(): any;
+
+  /**
    * constructor
    * @param eng
    */
