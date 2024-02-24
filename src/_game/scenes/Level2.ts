@@ -10,6 +10,7 @@ import { BackgroundComponent } from '../../components/BackgroundComponet';
 import { CollisionFactory } from '../tiles/CollisionFactory';
 import { InputHud } from '../hud/inputHud';
 import { UserAction } from '../../core/UserAction';
+import { EntityFactory } from '../tiles/EntityFactory';
 
 export class Level2 extends SceneComponent {
   private particleTest: ParticleTest;
@@ -88,6 +89,11 @@ export class Level2 extends SceneComponent {
       promises.push(bg.initialize(bgData.image, data.size));
 
       this.eng.backgroundManager.addBackground(bg);
+    }
+
+    for (let i = 0; i < data.entities.length; i++) {
+      const entity = data.entities[i];
+      const component = EntityFactory.create(this.eng, entity);
     }
 
     // wait for all images to load

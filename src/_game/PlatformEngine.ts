@@ -7,6 +7,7 @@ import { LevelData } from './data/ILevelData';
 import { GameEditor } from './editor/GameEditor';
 import { SceneFactory } from './scenes/SceneFactory';
 import { BulletManager } from './system/BulletManager';
+import { EnemyManager } from './system/EnemyManager';
 import { GameAssetManager } from './system/GameAssetManager';
 
 /**
@@ -16,11 +17,13 @@ import { GameAssetManager } from './system/GameAssetManager';
 export class PlatformEngine extends Engine {
   readonly player: PlayerController;
   readonly bullets: BulletManager;
+  readonly enemies: EnemyManager;
 
   constructor() {
     super();
     this.player = new PlayerController(this);
     this.bullets = new BulletManager(this);
+    this.enemies = new EnemyManager(this);
   }
 
   createSceneManager(): SceneManager {
@@ -35,6 +38,8 @@ export class PlatformEngine extends Engine {
     await super.initialize(root);
 
     this.player.initialize();
+
+    await this.enemies.initialize();
 
     await this.bullets.initialize();
 
@@ -62,6 +67,7 @@ export class PlatformEngine extends Engine {
       this.player.update(dt);
 
       this.bullets.update(dt);
+      this.enemies.update(dt);
       this.particleManager.update(dt);
       this.dialogManager.update(dt);
       this.textManager.update(dt);

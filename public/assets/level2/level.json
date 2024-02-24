@@ -17,9 +17,10 @@
     "entities":[
         {
             "type":"enemy",
-            "pos": [100, 10],
+            "pos": [300, 150],
             "meta": [
-                ["health", "100"]
+                ["health", "100"],
+                ["sprite", "default"]
             ]
         }
     ],

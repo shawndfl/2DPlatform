@@ -40,10 +40,6 @@ export class Collision2D extends Component {
     return this._requiresUpdate;
   }
 
-  public getMetaHelp(): string[] {
-    return null;
-  }
-
   public get debugColor(): Readonly<vec4> {
     return this._debugColor;
   }
@@ -89,7 +85,7 @@ export class Collision2D extends Component {
   ) {
     super(eng);
     this._id = id;
-    this.setBounds(bounds ?? new rect());
+    this._bounds = bounds ? bounds.copy() : new rect();
   }
 
   setId(id: string): void {
@@ -114,7 +110,12 @@ export class Collision2D extends Component {
   }
 
   public setBounds(bounds?: Readonly<rect>): void {
-    this._bounds = bounds?.copy() ?? new rect();
+    if (!this._bounds) {
+      this._bounds = new rect();
+    }
+    if (bounds) {
+      this.set(bounds.left, bounds.width, bounds.top, bounds.height);
+    }
   }
 
   /**
