@@ -67,6 +67,7 @@ export class PhysicsManager extends Component {
   }
 
   addBody(body: RidgeBody): void {
+    this.collisions.push(body);
     this.ridgeBodies.push(body);
   }
 

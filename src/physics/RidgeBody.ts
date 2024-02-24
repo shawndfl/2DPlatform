@@ -144,6 +144,17 @@ export class RidgeBody extends Collision2D {
     // check all collision and see if we should be stopped
     for (let i = 0; i < collisions.length; i++) {
       const c = collisions[i];
+
+      // don't collide with yourself
+      if (c === this) {
+        continue;
+      }
+
+      // make sure the type matched the mask
+      if ((c.collisionType & this.collideMask) == 0) {
+        continue;
+      }
+
       //if (c.id == 'topBack' && b2.intersects(c.bounds)) {
       //  console.debug('got it');
       //}

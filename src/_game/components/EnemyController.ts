@@ -10,6 +10,7 @@ import { Collision2D } from '../../physics/Collision2D';
 import { RidgeBody } from '../../physics/RidgeBody';
 import { PixelsToMeters } from '../../systems/PhysicsManager';
 import { PlatformEngine } from '../PlatformEngine';
+import { CollisionType } from '../data/CollisionTypes';
 import { ICollision, IEntity } from '../data/ILevelData';
 import { BulletController } from './BulletController';
 import { Direction } from './Direction';
@@ -85,6 +86,12 @@ export class EnemyController extends GameComponent {
       this,
       new rect([0, 64, 0, 64])
     );
+    this.ridgeBody.collideMask =
+      CollisionType.enemy |
+      CollisionType.playerBullet |
+      CollisionType.default |
+      CollisionType.player;
+    this.ridgeBody.collisionType = CollisionType.enemy;
 
     this.ridgeBody.showCollision = true;
 

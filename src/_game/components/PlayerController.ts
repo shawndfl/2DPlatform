@@ -15,6 +15,7 @@ import {
   EntityStateOptions,
 } from '../data/EntityState';
 import { SpriteFlip } from '../../graphics/ISprite';
+import { CollisionType } from '../data/CollisionTypes';
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
@@ -50,6 +51,10 @@ export class PlayerController extends GameComponent {
       this,
       new rect([0, 64, 0, 64])
     );
+    this.ridgeBody.collideMask =
+      CollisionType.enemy | CollisionType.enemyBullet | CollisionType.default;
+    this.ridgeBody.collisionType = CollisionType.player;
+
     this.ridgeBody.onPosition = this.updateFromRidgeBodyPosition.bind(this);
     this.ridgeBody.onCollision = this.onCollision.bind(this);
     this.eng.physicsManager.addBody(this.ridgeBody);

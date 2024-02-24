@@ -7,6 +7,7 @@ import { Collision2D } from '../../physics/Collision2D';
 import { RidgeBody } from '../../physics/RidgeBody';
 import { MetersToPixels } from '../../systems/PhysicsManager';
 import { PlatformEngine } from '../PlatformEngine';
+import { CollisionType } from '../data/CollisionTypes';
 import { BulletOptions } from '../system/BulletManager';
 import { BulletType } from './BulletType';
 import { GameComponent } from './GameComponent';
@@ -31,6 +32,7 @@ export class BulletController extends GameComponent {
     super(eng);
     this._id = id;
     this._ridgeBody = new RidgeBody(eng, id, this);
+
     this._ridgeBody.onPosition = this.onPositionChange.bind(this);
     this._ridgeBody.onCollision = this.onCollision.bind(this);
     this._ridgeBody.active = false;
@@ -60,6 +62,15 @@ export class BulletController extends GameComponent {
     this._options.position.copy(this._ridgeBody.position);
     this._options.velocity.copy(this._ridgeBody.instanceVelocity);
     this._bulletType = this._options.bulletType;
+
+    if (this._options.bulletType == BulletType.EnemyBullet) {
+      this._ridgeBody.collisionType = CollisionType.enemyBullet;
+      this._ridgeBody.collideMask =
+        CollisionType.default | CollisionType.player;
+    } else if (this._options.bulletType == BulletType.PlayerBullet) {
+      this._ridgeBody.collisionType = CollisionType.playerBullet;
+      this._ridgeBody.collideMask = CollisionType.default | CollisionType.enemy;
+    }
 
     this._ridgeBody.setId(this._id);
 

@@ -9,6 +9,18 @@ export class Collision2D extends Component {
   private _bounds: rect;
   private _showCollision: boolean;
   protected _debugColor: vec4 = new vec4(0, 1, 0, 1);
+
+  /**
+   * What collisionType can this collide with.
+   */
+  collideMask: number = 0xffffff;
+
+  /**
+   * This type must match the collision mask of the other
+   * collider for the collision to be tested.
+   */
+  collisionType: number = 0x000001;
+
   onCollision: (others: Collision2D[]) => void;
   onPosition: (left: number, top: number, collision: Collision2D) => void;
 
