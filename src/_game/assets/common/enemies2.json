@@ -1,0 +1,73 @@
+{
+  "tileHeight": 24,
+  "tileWidth": 16,
+  "tileSpacing": 1,
+  "tileOffset": 0,
+  "tiles": [
+    {
+      "id": "teleport.1",
+      "loc": [9, 80, 16, 48],
+      "offset": [0, -0]
+    },
+    {
+      "id": "teleport.2",
+      "loc": [25, 80, 22, 48],
+      "offset": [0, 0]
+    },
+    {
+      "id": "teleport.3",
+      "loc": [51, 80, 32, 48],
+      "offset": [0, 0]
+    },
+    {
+      "id": "teleport.4",
+      "loc": [85, 80, 32, 48],
+      "offset": [0, 0]
+    },
+    {
+      "id": "teleport.5",
+      "loc": [119, 80, 32, 48],
+      "offset": [0, 0]
+    },
+    {
+      "id": "teleport.6",
+      "loc": [152, 80, 32, 48],
+      "offset": [0, 0]
+    },
+    {
+      "id": "teleport.7",
+      "loc": [186, 80, 32, 48],
+      "offset": [0, 0]
+    },
+    {
+      "id": "default",
+      "loc": [221, 94, 32, 35],
+      "offset": [0, 0]
+    },
+    {
+      "id": "ground.shot.1",
+      "loc": [284, 94, 32, 35],
+      "offset": [0, 0, 0]
+    },
+    {
+      "id": "ground.shot.2",
+      "loc": [293, 94, 32, 35],
+      "offset": [0, 0, -3]
+    },
+    {
+      "id": "hit.1",
+      "loc": [363, 91, 32, 39],
+      "offset": [0, 0, -3]
+    },
+    {
+      "id": "hit.2",
+      "loc": [331, 94, 32, 35],
+      "offset": [0, 0, -3]
+    },
+    {
+      "id": "particle.1",
+      "loc": [32, 160, 32, 35],
+      "offset": [0, 0, 0]
+    }
+    ]
+}

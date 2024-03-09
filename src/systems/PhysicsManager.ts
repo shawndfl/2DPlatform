@@ -73,6 +73,8 @@ export class PhysicsManager extends Component {
 
   removeBody(body: RidgeBody): void {
     this.ridgeBodies = this.ridgeBodies.filter((r) => r.id != body.id);
+    this.collisions = this.collisions.filter((c) => c.id != body.id);
+    body.showCollision = false;
   }
 
   update(dt: number): void {

@@ -30,6 +30,10 @@ export class EnemyManager extends GameComponent {
     this._spriteCollection.initialize(textureAsset.texture, textureAsset.data);
   }
 
+  reset(): void {
+    this._active.forEach((e) => e.dispose());
+  }
+
   addEnemy(enemy: EnemyController): void {
     this._active.set(enemy.id, enemy);
   }

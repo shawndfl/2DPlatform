@@ -14,7 +14,7 @@ export class HitAnimation extends AnimationComponent {
     return this.curve.isRunning();
   }
 
-  initialize(sprite: ISprite): void {
+  initialize(sprite: ISprite, delayAfterHit: number = 0): void {
     this.sprite = sprite;
     this.facingRight = true;
 
@@ -26,7 +26,7 @@ export class HitAnimation extends AnimationComponent {
     points.push({ p: 1, t: 0 });
     points.push({ p: 2, t: 100 });
     points.push({ p: 3, t: 200 });
-    points.push({ p: 3, t: 1500 });
+    points.push({ p: 3, t: 300 + delayAfterHit });
     this.curve.points(points);
 
     let lastValue = -1;

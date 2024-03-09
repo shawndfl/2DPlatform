@@ -37,6 +37,8 @@ export class EntityStateOptions {
   midAirJumps: number = 1;
   midAirNudge: number = 1;
   bulletSpeed: number = 5;
+  dieDelayMs: number = 0;
+  facingDirection: Direction = Direction.Left;
 }
 
 export class EntityState extends GameComponent {
@@ -115,7 +117,7 @@ export class EntityState extends GameComponent {
 
     this.ridgeBody.maxVelocity = new vec3(options.runMaxSpeed, 1000, 1000);
     this.ridgeBody.minVelocity = new vec3(-options.runMaxSpeed, -1000, -1000);
-    this._facingDirection = Direction.Right;
+    this._facingDirection = options.facingDirection;
     this._midAirJump = options.midAirJumps;
     this._shooting = false;
 
@@ -124,7 +126,33 @@ export class EntityState extends GameComponent {
     this.runAnimation.initialize(this.sprite);
     this.shootAnimation.initialize(this.sprite);
     this.jumpAnimation.initialize(this.sprite);
-    this.hitAnimation.initialize(this.sprite);
+    this.hitAnimation.initialize(this.sprite, this.options.dieDelayMs);
+  }
+
+  idle(): void {
+    switch (this._state) {
+      case EntityStateFlags.Disable:
+        break;
+      case EntityStateFlags.Idle:
+        break;
+      case EntityStateFlags.Running:
+        this.ridgeBody.velocity.y = 0;
+        this.runAnimation.stop();
+        this.changeState(EntityStateFlags.Idle);
+        break;
+      case EntityStateFlags.Falling:
+      case EntityStateFlags.FirstJump:
+      case EntityStateFlags.MidAirJump:
+      case EntityStateFlags.SlidingDownWall:
+      case EntityStateFlags.Hit:
+      case EntityStateFlags.Recovery:
+      case EntityStateFlags.Dead:
+      case EntityStateFlags.TeleportUp:
+      case EntityStateFlags.TeleportDown:
+        break;
+      default:
+        console.error('unknown state!');
+    }
   }
 
   falling(): void {
@@ -364,7 +392,7 @@ export class EntityState extends GameComponent {
     }
   }
 
-  shoot(): void {
+  shoot(bulletType: BulletType): void {
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -382,7 +410,7 @@ export class EntityState extends GameComponent {
         const speed = this.options.bulletSpeed; // m/second
         const velocity = new vec3(this.facingRight ? speed : -speed, 0, 0);
         this.eng.bullets.addBullet({
-          bulletType: BulletType.PlayerBullet,
+          bulletType,
           position: startPos,
           velocity,
         });

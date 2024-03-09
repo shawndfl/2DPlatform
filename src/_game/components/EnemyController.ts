@@ -1,18 +1,19 @@
 import { ISprite, SpriteFlip } from '../../graphics/ISprite';
-import { SpritBaseController } from '../../graphics/SpriteBaseController';
-import { SpritBatchController } from '../../graphics/SpriteBatchController';
 import { SpriteInstanceController } from '../../graphics/SpriteInstanceController';
 import rect from '../../math/rect';
 import vec2 from '../../math/vec2';
-import vec3 from '../../math/vec3';
-import vec4 from '../../math/vec4';
 import { Collision2D } from '../../physics/Collision2D';
 import { RidgeBody } from '../../physics/RidgeBody';
-import { PixelsToMeters } from '../../systems/PhysicsManager';
 import { PlatformEngine } from '../PlatformEngine';
 import { CollisionType } from '../data/CollisionTypes';
-import { ICollision, IEntity } from '../data/ILevelData';
+import {
+  EntityState,
+  EntityStateFlags,
+  EntityStateOptions,
+} from '../data/EntityState';
 import { BulletController } from './BulletController';
+import { BulletType } from './BulletType';
+import { DecisionAction, DecisionMaker } from './DecisionMaker';
 import { Direction } from './Direction';
 import { GameComponent } from './GameComponent';
 import { HitAnimation } from './HitAnimation';
@@ -29,12 +30,12 @@ export interface EnemyControllerOptions {
 
 export class EnemyController extends GameComponent {
   private facingDirection: Direction;
-  private movementDirection: Direction;
-  private shootAnimation: ShootAnimation;
   private ridgeBody: RidgeBody;
-  private teleportAnimation: TeleportAnimation;
-  private hitAnimation: HitAnimation;
   private sprite: ISprite;
+  protected isActive: boolean;
+  protected decision: DecisionMaker;
+  private entityState: EntityState;
+  private entityStateOptions: EntityStateOptions;
 
   public get id(): string {
     return this._options.id;
@@ -63,6 +64,9 @@ export class EnemyController extends GameComponent {
       this._options.id = this.eng.random.getUuid();
     }
 
+    this.decision = new DecisionMaker(this.eng);
+    this.decision.onDecide = this.runAction.bind(this);
+
     // set up the sprite
     this.sprite = new SpriteInstanceController(
       this.id,
@@ -75,17 +79,14 @@ export class EnemyController extends GameComponent {
     this.sprite.xScale = 1;
     this.sprite.yScale = 1;
 
-    // create the animations
-    this.teleportAnimation = new TeleportAnimation(this.eng);
-    this.shootAnimation = new ShootAnimation(this.eng);
-    this.hitAnimation = new HitAnimation(this.eng);
-
+    // build the ridge body
     this.ridgeBody = new RidgeBody(
       this.eng,
       this.id,
       this,
       new rect([0, 64, 0, 64])
     );
+
     this.ridgeBody.collideMask =
       CollisionType.enemy |
       CollisionType.playerBullet |
@@ -94,8 +95,6 @@ export class EnemyController extends GameComponent {
     this.ridgeBody.collisionType = CollisionType.enemy;
 
     this.ridgeBody.showCollision = true;
-
-    this.sprite.spriteImage('teleport.1'); //default
 
     this.sprite.flipDirection = SpriteFlip.XFlip; // face the left
     this.sprite.xScale = 1.0;
@@ -110,7 +109,7 @@ export class EnemyController extends GameComponent {
     // set the position in pixels
     this.ridgeBody.setPos(this.entity.pos.x, this.entity.pos.y);
 
-    const collisionHeight = 64;
+    const collisionHeight = 70;
     const collisionWidth = 64;
 
     // set the bounds for collision in pixels
@@ -123,58 +122,96 @@ export class EnemyController extends GameComponent {
       ])
     );
 
+    // update the sprite as the ridge body moves
     this.ridgeBody.onPosition = (left, top) => {
       // update the screen position.
       this.sprite.left = left; // + this.sprite.width * 0.5;
       this.sprite.top = top; // - this.sprite.height * 0.5;
     };
 
-    this.ridgeBody.onCollision = (other) => {
-      console.debug('Enemy colliding with ', other);
+    this.ridgeBody.onCollision = (others: Collision2D[]) => {
+      for (let c of others) {
+        // is this a bullet
+        if (c.tag instanceof BulletController) {
+          const bullet = c.tag as BulletController;
+
+          // only the player bullets can hit the enemy
+          if (
+            bullet.bulletType === BulletType.PlayerBullet ||
+            bullet.bulletType === BulletType.PlayerBomb
+          ) {
+            this.hit(bullet);
+          }
+        }
+      }
     };
 
     // make this something you can collide with
     this.eng.physicsManager.addBody(this.ridgeBody);
 
-    this.teleportAnimation.initialize(this.sprite);
-    this.shootAnimation.initialize(this.sprite);
-    this.hitAnimation.initialize(this.sprite);
+    // setup entity state
+    this.entityState = new EntityState(this.eng);
+    this.entityState.onStateChange = this.onStateChange;
+    this.entityStateOptions = new EntityStateOptions();
+    this.entityStateOptions.dieDelayMs = 1200;
+    this.entityState.initialize(
+      this.sprite,
+      this.ridgeBody,
+      this.entityStateOptions
+    );
 
-    // initial enemy
-    this.teleport(false);
+    // start by teleporting down
+    this.entityState.teleport(false);
 
     // add this enemy
     this.eng.enemies.addEnemy(this);
   }
 
-  run(dt: number): void {
-    if (!this.teleportAnimation.running && !this.teleportAnimation.isUp) {
+  /**
+   * Handle state changes
+   * @param before
+   * @param after
+   */
+  onStateChange(before: EntityStateFlags, after: EntityStateFlags): void {}
+
+  runAction(action: DecisionAction): void {
+    if (this.entityState.state() == EntityStateFlags.Disable) {
+      return;
+    }
+    switch (action) {
+      case DecisionAction.Idle:
+        this.entityState.idle();
+        break;
+      case DecisionAction.Jump:
+        this.entityState.jump();
+        break;
+      case DecisionAction.Shoot:
+        this.entityState.shoot(BulletType.EnemyBullet);
+        break;
     }
   }
 
-  private teleport(up: boolean): void {
-    this.ridgeBody.active = false;
-
-    // update teleport position
-    this.teleportAnimation.groundLevel = this.sprite.top;
-    this.teleportAnimation.xOffset = this.sprite.left;
-    this.teleportAnimation.start(up).onDone(() => {
-      if (!this.teleportAnimation.isUp) {
-        this.ridgeBody.active = true;
-      }
-    });
+  hit(bullet: BulletController): void {
+    this.entityState.hit();
+    /*
+    this.hitAnimation
+      .start(this.facingDirection == Direction.Right)
+      .onDone(() => {
+        this.dispose();
+      });
+      */
   }
 
-  hit(bullet: BulletController): void {
-    console.debug('hit ' + bullet.bulletType);
-    this.hitAnimation.start(this.facingDirection == Direction.Right);
+  dispose(): void {
+    if (this.sprite) {
+      this.sprite.visible = false;
+    }
+    this.eng.physicsManager.removeBody(this.ridgeBody);
+    this.isActive = false;
   }
 
   update(dt: number) {
-    this.run(dt);
-
-    this.teleportAnimation.update(dt);
-    this.shootAnimation.update(dt);
-    this.hitAnimation.update(dt);
+    this.decision.update(dt);
+    this.entityState.update(dt);
   }
 }

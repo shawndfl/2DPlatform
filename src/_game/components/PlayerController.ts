@@ -16,11 +16,15 @@ import {
 } from '../data/EntityState';
 import { SpriteFlip } from '../../graphics/ISprite';
 import { CollisionType } from '../data/CollisionTypes';
+import { EnemyController } from './EnemyController';
+import { Direction } from './Direction';
+import { BulletType } from './BulletType';
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
 
   private entityState: EntityState;
+  private entityStateOptions: EntityStateOptions;
   private ridgeBody: RidgeBody;
 
   private _touchingGround: boolean;
@@ -44,6 +48,9 @@ export class PlayerController extends GameComponent {
     // setup entity state
     this.entityState = new EntityState(this.eng);
     this.entityState.onStateChange = this.onStateChange;
+    this.entityStateOptions = new EntityStateOptions();
+    this.entityStateOptions.dieDelayMs = 1200;
+    this.entityStateOptions.facingDirection = Direction.Right;
 
     this.ridgeBody = new RidgeBody(
       this.eng,
@@ -91,7 +98,7 @@ export class PlayerController extends GameComponent {
     this.entityState.initialize(
       this.sprite,
       this.ridgeBody,
-      new EntityStateOptions()
+      this.entityStateOptions
     );
   }
 
@@ -145,7 +152,7 @@ export class PlayerController extends GameComponent {
     this.entityState.initialize(
       this.sprite,
       this.ridgeBody,
-      new EntityStateOptions()
+      this.entityStateOptions
     );
     // start by teleporting down
     this.entityState.teleport(false);
@@ -180,7 +187,7 @@ export class PlayerController extends GameComponent {
     }
 
     if (state.isReleased(UserAction.A)) {
-      this.entityState.shoot();
+      this.entityState.shoot(BulletType.PlayerBullet);
     }
     if (state.isDown(UserAction.B)) {
       if (this._jumpReady || this._jumpReady === undefined) {
@@ -202,6 +209,9 @@ export class PlayerController extends GameComponent {
 
     // see how we hit the collisions
     for (let c of collisions) {
+      if (c.tag instanceof EnemyController) {
+        console.debug('hit and enemy!!');
+      }
       if (c.top == this.ridgeBody.bottom) {
         this._touchingGround = true;
       }
