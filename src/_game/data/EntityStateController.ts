@@ -10,6 +10,19 @@ import { JumpAnimation } from '../components/JumpAnimation';
 import { RunAnimation } from '../components/RunAnimation';
 import { ShootAnimation } from '../components/ShootAnimation';
 import { TeleportAnimation } from '../components/TeleportAnimation';
+import { IEntityState } from './IEntityState';
+import { StateDead } from './StateDead';
+import { StateDisable } from './StateDisable';
+import { StateFalling } from './StateFalling';
+import { StateFirstJump } from './StateFirstJump';
+import { StateHit } from './StateHit';
+import { StateIdle } from './StateIdle';
+import { StateMidAirJump } from './StateMidAirJump';
+import { StateRecovery } from './StateRecovery';
+import { StateRunning } from './StateRunning';
+import { StateSlidingDownWall } from './StateSlidingDownWall';
+import { StateTeleportDown } from './StateTeleportDown';
+import { StateTeleportUp } from './StateTeleportUp';
 
 /**
  * State an entity can be in
@@ -41,7 +54,7 @@ export class EntityStateOptions {
   facingDirection: Direction = Direction.Left;
 }
 
-export class EntityState extends GameComponent {
+export class EntityStateController extends GameComponent {
   private _state: EntityStateFlags;
   private teleportAnimation: TeleportAnimation;
   private runAnimation: RunAnimation;
@@ -50,6 +63,22 @@ export class EntityState extends GameComponent {
   private hitAnimation: HitAnimation;
 
   private options: EntityStateOptions;
+
+  //State
+  private stateDisable: StateDisable;
+  private stateIdle: StateIdle;
+  private stateRunning: StateRunning;
+  private stateFalling: StateFalling;
+  private stateFirstJump: StateFirstJump;
+  private stateMidAirJump: StateMidAirJump;
+  private stateSlidingDownWall: StateSlidingDownWall;
+  private stateHit: StateHit;
+  private stateRecovery: StateRecovery;
+  private stateDead: StateDead;
+  private stateTeleportUp: StateTeleportUp;
+  private stateTeleportDown: StateTeleportDown;
+
+  private currentState: IEntityState;
 
   /**
    * Sprite that we will be animating
@@ -100,6 +129,22 @@ export class EntityState extends GameComponent {
     this.jumpAnimation = new JumpAnimation(this.eng);
     this.hitAnimation = new HitAnimation(this.eng);
 
+    // create state
+    this.stateDisable = new StateDisable(this);
+    this.stateIdle = new StateIdle(this);
+    this.stateRunning = new StateRunning(this);
+    this.stateFalling = new StateFalling(this);
+    this.stateFirstJump = new StateFirstJump(this);
+    this.stateMidAirJump = new StateMidAirJump(this);
+    this.stateSlidingDownWall = new StateSlidingDownWall(this);
+    this.stateHit = new StateHit(this);
+    this.stateRecovery = new StateRecovery(this);
+    this.stateDead = new StateDead(this);
+    this.stateTeleportUp = new StateTeleportUp(this);
+    this.stateTeleportDown = new StateTeleportDown(this);
+
+    this.currentState = this.stateDisable;
+
     this._facingDirection = Direction.Right;
     this._midAirJump = 0;
     this._shooting = false;
@@ -110,7 +155,7 @@ export class EntityState extends GameComponent {
     ridgeBody: RidgeBody,
     options: EntityStateOptions
   ): void {
-    this.changeState(EntityStateFlags.Idle);
+    this.changeState(EntityStateFlags.Disable);
     this.sprite = sprite;
     this.ridgeBody = ridgeBody;
     this.options = options;
@@ -136,6 +181,7 @@ export class EntityState extends GameComponent {
   }
 
   idle(): void {
+    this.currentState.idle();
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -169,6 +215,7 @@ export class EntityState extends GameComponent {
   }
 
   falling(): void {
+    this.currentState.falling();
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -202,6 +249,7 @@ export class EntityState extends GameComponent {
    * The entity is now on the ground
    */
   landed(): void {
+    this.currentState.landed();
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -234,6 +282,7 @@ export class EntityState extends GameComponent {
   }
 
   stopJumping(): void {
+    this.currentState.stopJumping();
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -264,6 +313,7 @@ export class EntityState extends GameComponent {
    * @returns
    */
   stopMoving(): void {
+    this.currentState.stopMoving();
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -297,6 +347,7 @@ export class EntityState extends GameComponent {
   }
 
   slidingDown(right: boolean): void {
+    this.currentState.slidingDown(right);
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -327,6 +378,8 @@ export class EntityState extends GameComponent {
   }
 
   move(right: boolean): void {
+    this.currentState.move(right);
+
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -364,6 +417,7 @@ export class EntityState extends GameComponent {
     }
   }
   jump(): void {
+    this.currentState.jump();
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -406,6 +460,7 @@ export class EntityState extends GameComponent {
   }
 
   shoot(bulletType: BulletType): void {
+    this.currentState.shoot(bulletType);
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -458,6 +513,7 @@ export class EntityState extends GameComponent {
   }
 
   teleport(up: boolean): void {
+    this.currentState.teleport(up);
     switch (this._state) {
       case EntityStateFlags.Disable:
       case EntityStateFlags.Idle:
@@ -505,6 +561,7 @@ export class EntityState extends GameComponent {
   }
 
   hit(animationComplete: () => void): void {
+    this.currentState.hit(animationComplete);
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -530,7 +587,8 @@ export class EntityState extends GameComponent {
     }
   }
 
-  die(animationDone: () => void): void {
+  die(animationComplete: () => void): void {
+    this.currentState.die(animationComplete);
     switch (this._state) {
       case EntityStateFlags.Disable:
         break;
@@ -545,7 +603,7 @@ export class EntityState extends GameComponent {
         this.changeState(EntityStateFlags.Dead);
         this.hitAnimation
           .start(this._facingDirection == Direction.Right)
-          .onDone(animationDone);
+          .onDone(animationComplete);
         this.runAnimation.stop();
         this.ridgeBody.active = false;
         break;
@@ -558,7 +616,7 @@ export class EntityState extends GameComponent {
     }
   }
 
-  private changeState(nextState: EntityStateFlags): void {
+  public changeState(nextState: EntityStateFlags): void {
     // make sure we set the shooting flag
     let next = nextState;
     if (this.onStateChange) {

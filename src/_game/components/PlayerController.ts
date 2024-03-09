@@ -10,10 +10,10 @@ import { GameComponent } from './GameComponent';
 import { SpriteController2 } from '../../graphics/SpriteController2';
 import { IPlayerOptions } from '../data/ILevelData';
 import {
-  EntityState,
+  EntityStateController,
   EntityStateFlags,
   EntityStateOptions,
-} from '../data/EntityState';
+} from '../data/EntityStateController';
 import { SpriteFlip } from '../../graphics/ISprite';
 import { CollisionType } from '../data/CollisionTypes';
 import { EnemyController } from './EnemyController';
@@ -24,7 +24,7 @@ import { BulletController } from './BulletController';
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
 
-  private entityState: EntityState;
+  private entityState: EntityStateController;
   private entityStateOptions: EntityStateOptions;
   private ridgeBody: RidgeBody;
 
@@ -46,13 +46,6 @@ export class PlayerController extends GameComponent {
     super(eng);
     this.sprite = new SpriteController2(eng);
 
-    // setup entity state
-    this.entityState = new EntityState(this.eng);
-    this.entityState.onStateChange = this.onStateChange;
-    this.entityStateOptions = new EntityStateOptions();
-    this.entityStateOptions.dieDelayMs = 1200;
-    this.entityStateOptions.facingDirection = Direction.Right;
-
     this.ridgeBody = new RidgeBody(
       this.eng,
       'player',
@@ -66,6 +59,8 @@ export class PlayerController extends GameComponent {
     this.ridgeBody.onPosition = this.updateFromRidgeBodyPosition.bind(this);
     this.ridgeBody.onCollision = this.onCollision.bind(this);
     this.eng.physicsManager.addBody(this.ridgeBody);
+
+    this.createEntityState();
   }
 
   reset(): void {
@@ -101,7 +96,7 @@ export class PlayerController extends GameComponent {
 
   createEntityState(): void {
     // setup entity state
-    this.entityState = new EntityState(this.eng);
+    this.entityState = new EntityStateController(this.eng);
     this.entityState.onStateChange = this.onStateChange;
     this.entityStateOptions = new EntityStateOptions();
     this.entityStateOptions.dieDelayMs = 100;

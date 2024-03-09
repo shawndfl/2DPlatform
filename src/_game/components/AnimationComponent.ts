@@ -1,6 +1,4 @@
 import { ISprite } from '../../graphics/ISprite';
-import { SpritBatchController } from '../../graphics/SpriteBatchController';
-import { EntityState } from '../data/EntityState';
 import { GameComponent } from './GameComponent';
 
 /**

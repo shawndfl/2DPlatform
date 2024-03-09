@@ -7,10 +7,10 @@ import { RidgeBody } from '../../physics/RidgeBody';
 import { PlatformEngine } from '../PlatformEngine';
 import { CollisionType } from '../data/CollisionTypes';
 import {
-  EntityState,
+  EntityStateController,
   EntityStateFlags,
   EntityStateOptions,
-} from '../data/EntityState';
+} from '../data/EntityStateController';
 import { BulletController } from './BulletController';
 import { BulletType } from './BulletType';
 import { DecisionAction, DecisionMaker } from './DecisionMaker';
@@ -34,7 +34,7 @@ export class EnemyController extends GameComponent {
   private sprite: ISprite;
   protected isActive: boolean;
   protected decision: DecisionMaker;
-  private entityState: EntityState;
+  private entityState: EntityStateController;
   private entityStateOptions: EntityStateOptions;
 
   public get id(): string {
@@ -135,7 +135,7 @@ export class EnemyController extends GameComponent {
     this.eng.physicsManager.addBody(this.ridgeBody);
 
     // setup entity state
-    this.entityState = new EntityState(this.eng);
+    this.entityState = new EntityStateController(this.eng);
     this.entityState.onStateChange = this.onStateChange;
     this.entityStateOptions = new EntityStateOptions();
     this.entityStateOptions.dieDelayMs = 100;
