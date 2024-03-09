@@ -29,7 +29,7 @@ export class Bottomless extends CollisionBox {
     for (let other of others) {
       if (other.tag instanceof PlayerController) {
         const player = other.tag as PlayerController;
-        player.hit(this);
+        player.hitByDeath(this);
         break;
       }
     }

@@ -129,22 +129,7 @@ export class EnemyController extends GameComponent {
       this.sprite.top = top; // - this.sprite.height * 0.5;
     };
 
-    this.ridgeBody.onCollision = (others: Collision2D[]) => {
-      for (let c of others) {
-        // is this a bullet
-        if (c.tag instanceof BulletController) {
-          const bullet = c.tag as BulletController;
-
-          // only the player bullets can hit the enemy
-          if (
-            bullet.bulletType === BulletType.PlayerBullet ||
-            bullet.bulletType === BulletType.PlayerBomb
-          ) {
-            this.hit(bullet);
-          }
-        }
-      }
-    };
+    this.ridgeBody.onCollision = this.onCollision.bind(this);
 
     // make this something you can collide with
     this.eng.physicsManager.addBody(this.ridgeBody);
@@ -153,7 +138,7 @@ export class EnemyController extends GameComponent {
     this.entityState = new EntityState(this.eng);
     this.entityState.onStateChange = this.onStateChange;
     this.entityStateOptions = new EntityStateOptions();
-    this.entityStateOptions.dieDelayMs = 1200;
+    this.entityStateOptions.dieDelayMs = 100;
     this.entityState.initialize(
       this.sprite,
       this.ridgeBody,
@@ -167,6 +152,47 @@ export class EnemyController extends GameComponent {
     this.eng.enemies.addEnemy(this);
   }
 
+  onCollision(others: Collision2D[]): void {
+    let touchingGround = false;
+    let collidingRight = false;
+    let collidingLeft = false;
+
+    for (let c of others) {
+      // is this a bullet
+      if (c.tag instanceof BulletController) {
+        const bullet = c.tag as BulletController;
+
+        // only the player bullets can hit the enemy
+        if (
+          bullet.bulletType === BulletType.PlayerBullet ||
+          bullet.bulletType === BulletType.PlayerBomb
+        ) {
+          this.hit(bullet);
+        }
+      }
+
+      if (c.tag instanceof EnemyController) {
+        console.debug('hit and enemy!!');
+      }
+      if (c.top == this.ridgeBody.bottom) {
+        touchingGround = true;
+      }
+
+      if (c.right == this.ridgeBody.left) {
+        collidingLeft = true;
+      }
+      if (c.left == this.ridgeBody.right) {
+        collidingRight = true;
+      }
+    }
+
+    if (!touchingGround && (collidingLeft || collidingRight)) {
+      this.entityState.slidingDown(collidingRight);
+    } else if (touchingGround) {
+      this.entityState.landed();
+    }
+  }
+
   /**
    * Handle state changes
    * @param before
@@ -175,7 +201,10 @@ export class EnemyController extends GameComponent {
   onStateChange(before: EntityStateFlags, after: EntityStateFlags): void {}
 
   runAction(action: DecisionAction): void {
-    if (this.entityState.state() == EntityStateFlags.Disable) {
+    if (
+      this.entityState.state() == EntityStateFlags.Disable ||
+      this.isActive == false
+    ) {
       return;
     }
     switch (action) {
@@ -192,14 +221,11 @@ export class EnemyController extends GameComponent {
   }
 
   hit(bullet: BulletController): void {
-    this.entityState.hit();
-    /*
-    this.hitAnimation
-      .start(this.facingDirection == Direction.Right)
-      .onDone(() => {
-        this.dispose();
-      });
-      */
+    this.isActive = false;
+
+    this.entityState.hit(() => {
+      this.dispose();
+    });
   }
 
   dispose(): void {

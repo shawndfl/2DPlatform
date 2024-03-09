@@ -16,7 +16,6 @@ export class RidgeBody extends Collision2D {
   public instanceVelocity: vec3;
   public force: vec3;
   public mass: number;
-  public active: boolean;
   public customGravity: vec3;
 
   public maxVelocity: vec3;
@@ -145,8 +144,8 @@ export class RidgeBody extends Collision2D {
     for (let i = 0; i < collisions.length; i++) {
       const c = collisions[i];
 
-      // don't collide with yourself
-      if (c === this) {
+      // don't collide with yourself or anything that is not active
+      if (c === this || !c.active) {
         continue;
       }
 

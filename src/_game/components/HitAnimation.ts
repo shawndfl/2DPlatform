@@ -10,6 +10,10 @@ export class HitAnimation extends AnimationComponent {
   private _initialTop: number;
   private _defaultHeight: number;
 
+  public get initialTop(): number {
+    return this._initialTop;
+  }
+
   public get isRunning(): boolean {
     return this.curve.isRunning();
   }

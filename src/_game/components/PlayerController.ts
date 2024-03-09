@@ -19,6 +19,7 @@ import { CollisionType } from '../data/CollisionTypes';
 import { EnemyController } from './EnemyController';
 import { Direction } from './Direction';
 import { BulletType } from './BulletType';
+import { BulletController } from './BulletController';
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
@@ -95,6 +96,17 @@ export class PlayerController extends GameComponent {
     this.eng.physicsManager.addBody(this.ridgeBody);
 
     // reset state
+    this.createEntityState();
+  }
+
+  createEntityState(): void {
+    // setup entity state
+    this.entityState = new EntityState(this.eng);
+    this.entityState.onStateChange = this.onStateChange;
+    this.entityStateOptions = new EntityStateOptions();
+    this.entityStateOptions.dieDelayMs = 100;
+    this.entityStateOptions.facingDirection = Direction.Right;
+
     this.entityState.initialize(
       this.sprite,
       this.ridgeBody,
@@ -149,11 +161,7 @@ export class PlayerController extends GameComponent {
     this.ridgeBody.showCollision = options.meta.get('debug') == 'true';
     this.ridgeBody.active = true;
 
-    this.entityState.initialize(
-      this.sprite,
-      this.ridgeBody,
-      this.entityStateOptions
-    );
+    this.createEntityState();
     // start by teleporting down
     this.entityState.teleport(false);
   }
@@ -209,6 +217,15 @@ export class PlayerController extends GameComponent {
 
     // see how we hit the collisions
     for (let c of collisions) {
+      if (c.tag instanceof BulletController) {
+        const bullet = c.tag as BulletController;
+
+        // only the player bullets can hit the enemy
+        if (bullet.bulletType === BulletType.EnemyBullet) {
+          this.hitByBullet(bullet);
+        }
+      }
+
       if (c.tag instanceof EnemyController) {
         console.debug('hit and enemy!!');
       }
@@ -274,8 +291,17 @@ export class PlayerController extends GameComponent {
     //console.debug('player: pos ' + this.screenPosition);
   }
 
-  hit(by: Collision2D): void {
-    this.entityState.die();
+  hitByDeath(other: Collision2D): void {
+    this.entityState.die(() => {
+      this.eng.sceneManager.resetScene();
+    });
+  }
+
+  hitByBullet(bullet: BulletController): void {
+    this.entityState.hit(() => {
+      //TODO reduce health
+      this.entityState.idle();
+    });
 
     /*
     if (!this.hitAnimation.isRunning) {
