@@ -1,9 +1,14 @@
 import { BulletType } from '../components/BulletType';
-import { EntityStateController } from './EntityStateController';
+import { EntityStateActions } from './EntityStateActions';
+import { EntityStateController, EntityStateFlags } from './EntityStateController';
 import { IEntityState } from './IEntityState';
 
 export class StateRecovery implements IEntityState {
-  constructor(private _controller: EntityStateController) {}
+  constructor(private _controller: EntityStateController, private actions: EntityStateActions) {}
+
+  get type(): EntityStateFlags {
+    return EntityStateFlags.Recovery;
+  }
 
   get controller(): EntityStateController {
     return this._controller;
@@ -13,11 +18,10 @@ export class StateRecovery implements IEntityState {
     throw new Error('Method not implemented.');
   }
   idle(): void {
-    throw new Error('Method not implemented.');
+    this.actions.idle();
+    this.controller.setState(EntityStateFlags.Idle);
   }
-  falling(): void {
-    throw new Error('Method not implemented.');
-  }
+
   landed(): void {
     throw new Error('Method not implemented.');
   }

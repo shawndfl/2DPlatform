@@ -1,51 +1,59 @@
+import { SpriteFlip } from '../../graphics/ISprite';
 import { BulletType } from '../components/BulletType';
-import { EntityStateController } from './EntityStateController';
+import { Direction } from '../components/Direction';
+import { EntityStateActions } from './EntityStateActions';
+import { EntityStateController, EntityStateFlags } from './EntityStateController';
 import { IEntityState } from './IEntityState';
 
 export class StateIdle implements IEntityState {
-  constructor(private _controller: EntityStateController) {}
+  constructor(private _controller: EntityStateController, private actions: EntityStateActions) {}
+
+  get type(): EntityStateFlags {
+    return EntityStateFlags.Idle;
+  }
 
   get controller(): EntityStateController {
     return this._controller;
   }
 
   disabled(): void {
-    throw new Error('Method not implemented.');
+    this.controller.setState(EntityStateFlags.TeleportUp);
+    this.actions.teleport(true, () => {
+      this.controller.setState(EntityStateFlags.Disable);
+    });
   }
-  idle(): void {
-    throw new Error('Method not implemented.');
-  }
-  falling(): void {
-    throw new Error('Method not implemented.');
-  }
-  landed(): void {
-    throw new Error('Method not implemented.');
-  }
-  stopJumping(): void {
-    throw new Error('Method not implemented.');
-  }
-  stopMoving(): void {
-    throw new Error('Method not implemented.');
-  }
-  slidingDown(right: boolean): void {
-    throw new Error('Method not implemented.');
-  }
+  idle(): void {}
+
+  landed(): void {}
+  stopJumping(): void {}
+  stopMoving(): void {}
+  slidingDown(right: boolean): void {}
   move(right: boolean): void {
-    throw new Error('Method not implemented.');
+    this.controller.setState(EntityStateFlags.Running);
+    this.actions.move(right, false);
   }
   jump(): void {
-    throw new Error('Method not implemented.');
+    this.actions.jump();
+    this.controller.setState(EntityStateFlags.FirstJump);
   }
   shoot(bulletType: BulletType): void {
-    throw new Error('Method not implemented.');
+    this.actions.shoot(bulletType);
   }
+
   teleport(up: boolean): void {
-    throw new Error('Method not implemented.');
+    this.controller.setState(up ? EntityStateFlags.TeleportUp : EntityStateFlags.TeleportDown);
+
+    this.actions.teleport(up, () => {
+      if (up) {
+        this._controller.setState(EntityStateFlags.Disable);
+      } else {
+        this._controller.setState(EntityStateFlags.Idle);
+      }
+    });
   }
   hit(animationComplete: () => void): void {
-    throw new Error('Method not implemented.');
+    this.controller.setState(EntityStateFlags.Hit);
+    this.actions.hit(animationComplete);
   }
-  die(animationComplete: () => void): void {
-    throw new Error('Method not implemented.');
-  }
+  die(animationComplete: () => void): void {}
 }

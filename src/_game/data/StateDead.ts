@@ -1,12 +1,17 @@
 import { BulletType } from '../components/BulletType';
-import { EntityStateController } from './EntityStateController';
+import { EntityStateActions } from './EntityStateActions';
+import { EntityStateController, EntityStateFlags } from './EntityStateController';
 import { IEntityState } from './IEntityState';
 
 export class StateDead implements IEntityState {
-  constructor(private _controller: EntityStateController) {}
+  constructor(private _controller: EntityStateController, private actions: EntityStateActions) {}
 
   get controller(): EntityStateController {
     return this._controller;
+  }
+
+  get type(): EntityStateFlags {
+    return EntityStateFlags.Dead;
   }
 
   disabled(): void {
@@ -15,9 +20,7 @@ export class StateDead implements IEntityState {
   idle(): void {
     throw new Error('Method not implemented.');
   }
-  falling(): void {
-    throw new Error('Method not implemented.');
-  }
+
   landed(): void {
     throw new Error('Method not implemented.');
   }

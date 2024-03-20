@@ -43,16 +43,15 @@ export class HitAnimation extends AnimationComponent {
         lastValue = value;
 
         // animation sprites
-        this.sprite.flipDirection = this.facingRight
-          ? SpriteFlip.None
-          : SpriteFlip.XFlip;
+        this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
 
         this.sprite.spriteImage('hit.' + value);
 
         const heightDiff = this.sprite.height - this._defaultHeight;
-        this.sprite.top = this._initialTop + heightDiff;
+        this.sprite.top = this._initialTop + heightDiff * 2;
       })
       .onDone((c) => {
+        this.sprite.top = this._initialTop;
         this.raiseOnDone();
       });
 
@@ -72,6 +71,9 @@ export class HitAnimation extends AnimationComponent {
   start(facingRight: boolean): HitAnimation {
     this.facingRight = facingRight;
     this._initialTop = this.sprite.top;
+
+    // save the default height
+    this.sprite.spriteImage('default');
     this._defaultHeight = this.sprite.height;
 
     if (!this.sprite) {
@@ -84,16 +86,13 @@ export class HitAnimation extends AnimationComponent {
       this.curve.start(true);
 
       // set the first frame
-      this.sprite.flipDirection = this.facingRight
-        ? SpriteFlip.None
-        : SpriteFlip.XFlip;
+      this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
       this.sprite.spriteImage('hit.1');
     }
     return this;
   }
 
   stop(): HitAnimation {
-    this.sprite.spriteImage('default');
     this.curve.pause();
     return this;
   }

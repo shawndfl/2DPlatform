@@ -30,9 +30,7 @@ export class ShootAnimation extends AnimationComponent {
         }
         lastValue = value;
 
-        this.sprite.flipDirection = this.facingRight
-          ? SpriteFlip.None
-          : SpriteFlip.XFlip;
+        this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
         if (value > 2) {
           this.sprite.spriteImage('default');
         } else {
@@ -45,7 +43,6 @@ export class ShootAnimation extends AnimationComponent {
   }
 
   stop(): ShootAnimation {
-    this.sprite.spriteImage('default');
     this.curve.pause();
     return this;
   }
@@ -62,9 +59,7 @@ export class ShootAnimation extends AnimationComponent {
     this.curve.start(true);
 
     // set the first frame
-    this.sprite.flipDirection = this.facingRight
-      ? SpriteFlip.None
-      : SpriteFlip.XFlip;
+    this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
     this.sprite.spriteImage('ground.shoot.1');
 
     return this;

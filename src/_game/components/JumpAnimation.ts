@@ -34,9 +34,9 @@ export class JumpAnimation extends AnimationComponent {
         lastValue = value;
 
         // animation sprites
-        this.sprite.flipDirection = this.facingRight
-          ? SpriteFlip.None
-          : SpriteFlip.XFlip;
+        if (this.facingRight !== undefined) {
+          this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
+        }
         this.sprite.spriteImage('jump.' + value);
       })
       .onDone((c) => {
@@ -44,7 +44,7 @@ export class JumpAnimation extends AnimationComponent {
       });
   }
 
-  start(facingRight: boolean = true): JumpAnimation {
+  start(facingRight?: boolean): JumpAnimation {
     this.facingRight = facingRight;
 
     if (!this.sprite) {
@@ -55,9 +55,9 @@ export class JumpAnimation extends AnimationComponent {
     this.curve.start(true);
 
     // set the first frame
-    this.sprite.flipDirection = this.facingRight
-      ? SpriteFlip.None
-      : SpriteFlip.XFlip;
+    if (this.facingRight !== undefined) {
+      this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
+    }
 
     this.sprite.spriteImage('jump.1');
   }

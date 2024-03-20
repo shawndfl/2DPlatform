@@ -1,51 +1,44 @@
+import { SpriteFlip } from '../../graphics/ISprite';
 import { BulletType } from '../components/BulletType';
-import { EntityStateController } from './EntityStateController';
+import { Direction } from '../components/Direction';
+import { EntityStateActions } from './EntityStateActions';
+import { EntityStateController, EntityStateFlags } from './EntityStateController';
 import { IEntityState } from './IEntityState';
 
 export class StateFirstJump implements IEntityState {
-  constructor(private _controller: EntityStateController) {}
+  constructor(private _controller: EntityStateController, private actions: EntityStateActions) {}
+
+  get type(): EntityStateFlags {
+    return EntityStateFlags.FirstJump;
+  }
 
   get controller(): EntityStateController {
     return this._controller;
   }
 
-  disabled(): void {
-    throw new Error('Method not implemented.');
-  }
-  idle(): void {
-    throw new Error('Method not implemented.');
-  }
-  falling(): void {
-    throw new Error('Method not implemented.');
-  }
+  disabled(): void {}
+  idle(): void {}
+
   landed(): void {
-    throw new Error('Method not implemented.');
+    this.actions.landed();
+    this.controller.setState(EntityStateFlags.Idle);
   }
   stopJumping(): void {
-    throw new Error('Method not implemented.');
+    this.actions.stopJumping();
+    this.controller.setState(EntityStateFlags.Falling);
   }
-  stopMoving(): void {
-    throw new Error('Method not implemented.');
-  }
-  slidingDown(right: boolean): void {
-    throw new Error('Method not implemented.');
-  }
+  stopMoving(): void {}
+  slidingDown(right: boolean): void {}
   move(right: boolean): void {
-    throw new Error('Method not implemented.');
+    this.actions.move(right, true);
   }
   jump(): void {
-    throw new Error('Method not implemented.');
+    //Mid air jump is handled in falling, because as soon as the jump is released
+    // we will move into the falling state
   }
-  shoot(bulletType: BulletType): void {
-    throw new Error('Method not implemented.');
-  }
-  teleport(up: boolean): void {
-    throw new Error('Method not implemented.');
-  }
-  hit(animationComplete: () => void): void {
-    throw new Error('Method not implemented.');
-  }
-  die(animationComplete: () => void): void {
-    throw new Error('Method not implemented.');
-  }
+
+  shoot(bulletType: BulletType): void {}
+  teleport(up: boolean): void {}
+  hit(animationComplete: () => void): void {}
+  die(animationComplete: () => void): void {}
 }

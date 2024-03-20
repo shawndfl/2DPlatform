@@ -1,5 +1,8 @@
 import { BulletType } from '../components/BulletType';
-import { EntityStateController } from './EntityStateController';
+import {
+  EntityStateController,
+  EntityStateFlags,
+} from './EntityStateController';
 
 /**
  * This interface is used by the player or enemy controller
@@ -11,6 +14,11 @@ export interface IEntityState {
   get controller(): EntityStateController;
 
   /**
+   * get the state flag
+   */
+  get type(): EntityStateFlags;
+
+  /**
    * The entity is disabled
    */
   disabled(): void;
@@ -19,11 +27,6 @@ export interface IEntityState {
    * The entity is not doing anything or just finished an action and is waiting
    */
   idle(): void;
-
-  /**
-   * The entity walked off an edge
-   */
-  falling(): void;
 
   /**
    * The entity is now on the ground
