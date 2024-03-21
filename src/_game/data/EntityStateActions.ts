@@ -148,23 +148,53 @@ export class EntityStateActions extends GameComponent {
    * @returns
    */
   stopMoving(): void {
-    this.sprite.spriteImage('default');
     this.reset();
+  }
+
+  /**
+   * Sets the default image
+   */
+  setDefault(): void {
+    this.sprite.spriteImage('default');
   }
 
   slidingDown(right: boolean): void {
     //TODO
   }
 
-  move(right: boolean, inAir: boolean): void {
+  faceDirection(right: boolean): void {
     this._facingDirection = right ? Direction.Right : Direction.Left;
-    this.sprite.flipDirection = right ? SpriteFlip.None : SpriteFlip.XFlip;
+  }
+
+  move(inAir: boolean, bulletType: BulletType = BulletType.None): void {
+    this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
 
     if (inAir) {
-      this.ridgeBody.instanceVelocity.x = right ? this.options.midAirNudgeSpeed : -this.options.midAirNudgeSpeed;
+      this.ridgeBody.instanceVelocity.x = this.facingRight
+        ? this.options.midAirNudgeSpeed
+        : -this.options.midAirNudgeSpeed;
     } else {
-      this.ridgeBody.instanceVelocity.x = right ? this.options.runSpeed : -this.options.runSpeed;
+      this.ridgeBody.instanceVelocity.x = this.facingRight ? this.options.runSpeed : -this.options.runSpeed;
       this.runAnimation.start(this.facingRight);
+    }
+
+    if (bulletType != BulletType.None) {
+      this.runAnimation.shooting(true);
+      this.shooting = true;
+      const startPos = new vec3(this.ridgeBody.left, this.ridgeBody.bottom, 0);
+      startPos.y += 45;
+      startPos.x += this.ridgeBody.width * 0.5;
+      startPos.z = this.sprite.depth - 0.001;
+
+      const speed = this.options.bulletSpeed; // m/second
+      const velocity = new vec3(this.facingRight ? speed : -speed, 0, 0);
+      this.eng.bullets.addBullet({
+        bulletType,
+        position: startPos,
+        velocity,
+      });
+    } else {
+      this.runAnimation.shooting(false);
     }
   }
 

@@ -1,4 +1,4 @@
-export const epsilon = 0.00001;
+export const epsilon = 0.0001;
 
 //
 // Custom math functions
@@ -49,8 +49,8 @@ export function toDegrees(a: number): number {
  * @param {Number} b The second number to test.
  * @returns {Boolean} True if the numbers are approximately equal, false otherwise.
  */
-export function equals(a: number, b: number): boolean {
-  return Math.abs(a - b) <= epsilon * Math.max(1.0, Math.abs(a), Math.abs(b));
+export function equals(a: number, b: number, threshold: number = epsilon): boolean {
+  return Math.abs(a - b) <= threshold * Math.max(1.0, Math.abs(a), Math.abs(b));
 }
 
 /**

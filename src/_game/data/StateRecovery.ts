@@ -15,41 +15,41 @@ export class StateRecovery implements IEntityState {
   }
 
   disabled(): void {
-    throw new Error('Method not implemented.');
+    this.controller.setState(EntityStateFlags.TeleportUp);
+    this.actions.teleport(true, () => {
+      this.controller.setState(EntityStateFlags.Disable);
+    });
   }
-  idle(): void {
-    this.actions.idle();
-    this.controller.setState(EntityStateFlags.Idle);
-  }
+  idle(): void {}
 
-  landed(): void {
-    throw new Error('Method not implemented.');
-  }
-  stopJumping(): void {
-    throw new Error('Method not implemented.');
-  }
-  stopMoving(): void {
-    throw new Error('Method not implemented.');
-  }
-  slidingDown(right: boolean): void {
-    throw new Error('Method not implemented.');
-  }
+  landed(): void {}
+  stopJumping(): void {}
+  stopMoving(): void {}
+  slidingDown(right: boolean): void {}
   move(right: boolean): void {
-    throw new Error('Method not implemented.');
+    this.controller.setState(EntityStateFlags.Running);
+    this.actions.faceDirection(right);
+    this.actions.move(false);
   }
   jump(): void {
-    throw new Error('Method not implemented.');
+    this.actions.jump();
+    this.controller.setState(EntityStateFlags.FirstJump);
   }
   shoot(bulletType: BulletType): void {
-    throw new Error('Method not implemented.');
+    this.actions.shoot(bulletType);
   }
+
   teleport(up: boolean): void {
-    throw new Error('Method not implemented.');
+    this.controller.setState(up ? EntityStateFlags.TeleportUp : EntityStateFlags.TeleportDown);
+
+    this.actions.teleport(up, () => {
+      if (up) {
+        this._controller.setState(EntityStateFlags.Disable);
+      } else {
+        this._controller.setState(EntityStateFlags.Idle);
+      }
+    });
   }
-  hit(animationComplete: () => void): void {
-    throw new Error('Method not implemented.');
-  }
-  die(animationComplete: () => void): void {
-    throw new Error('Method not implemented.');
-  }
+  hit(animationComplete: () => void): void {}
+  die(animationComplete: () => void): void {}
 }

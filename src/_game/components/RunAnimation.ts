@@ -7,6 +7,8 @@ export class RunAnimation extends AnimationComponent {
   private sprite: ISprite;
   private firstOne: boolean;
   private facingRight: boolean;
+  private isShooting: boolean;
+  private defaultHeight: number;
 
   public touchingFloor: boolean;
 
@@ -14,6 +16,8 @@ export class RunAnimation extends AnimationComponent {
     this.sprite = sprite;
     this.curve = new Curve();
     const points: { p: number; t: number }[] = [];
+
+    this.defaultHeight = this.sprite.height;
 
     this.touchingFloor = true;
     this.firstOne = true;
@@ -46,16 +50,17 @@ export class RunAnimation extends AnimationComponent {
         value++;
       }
       value = value > 10 ? 2 : value;
-      this.sprite.flipDirection = this.facingRight
-        ? SpriteFlip.None
-        : SpriteFlip.XFlip;
+      this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
 
       if (this.touchingFloor) {
-        this.sprite.spriteImage('run.' + value);
+        //if (this.isShooting) {
+        this.sprite.spriteImage('run.shoot.' + value);
+        //} else {
+        //this.sprite.spriteImage('run.' + value);
+        //}
       } else {
         this.sprite.spriteImage('jump.5');
       }
-
       if (value >= 10) {
         this.firstOne = false;
       }
@@ -65,6 +70,10 @@ export class RunAnimation extends AnimationComponent {
   stop(): RunAnimation {
     this.curve.pause();
     return this;
+  }
+
+  shooting(shooting: boolean): void {
+    this.isShooting = shooting;
   }
 
   start(facingRight: boolean): RunAnimation {
@@ -81,9 +90,7 @@ export class RunAnimation extends AnimationComponent {
       this.curve.repeat(-1).start(true);
 
       // set the first frame
-      this.sprite.flipDirection = this.facingRight
-        ? SpriteFlip.None
-        : SpriteFlip.XFlip;
+      this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
 
       if (this.touchingFloor) {
         this.sprite.spriteImage('run.1');

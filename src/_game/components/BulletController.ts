@@ -50,10 +50,7 @@ export class BulletController extends GameComponent {
     return this._ridgeBody.position;
   }
 
-  initialize(
-    spriteCollection: SpriteInstanceCollection,
-    options: BulletOptions
-  ): void {
+  initialize(spriteCollection: SpriteInstanceCollection, options: BulletOptions): void {
     // lazy create sprite controllers
     if (!this.sprite) {
       this.sprite = new SpriteInstanceController(this._id, spriteCollection);
@@ -65,8 +62,7 @@ export class BulletController extends GameComponent {
 
     if (this._options.bulletType == BulletType.EnemyBullet) {
       this._ridgeBody.collisionType = CollisionType.enemyBullet;
-      this._ridgeBody.collideMask =
-        CollisionType.default | CollisionType.player;
+      this._ridgeBody.collideMask = CollisionType.default | CollisionType.player;
     } else if (this._options.bulletType == BulletType.PlayerBullet) {
       this._ridgeBody.collisionType = CollisionType.playerBullet;
       this._ridgeBody.collideMask = CollisionType.default | CollisionType.enemy;
@@ -84,12 +80,7 @@ export class BulletController extends GameComponent {
     this.sprite.depth = options.position.z;
 
     // set bounds in pixels
-    this._ridgeBody.set(
-      this._options.position.x,
-      this.sprite.width,
-      this._options.position.y,
-      this.sprite.height
-    );
+    this._ridgeBody.set(this._options.position.x, this.sprite.width, this._options.position.y, this.sprite.height);
     this._ridgeBody.active = true;
     this._active = true;
     this.sprite.visible = true;
@@ -107,6 +98,14 @@ export class BulletController extends GameComponent {
     }
     this.sprite.left = left;
     this.sprite.top = top;
+
+    if (this.sprite.left < this.eng.viewManager.left - 100) {
+      this.destroy();
+    }
+
+    if (this.sprite.left > this.eng.viewManager.right + 100) {
+      this.destroy();
+    }
   }
 
   onCollision(collisions: Collision2D[]): void {

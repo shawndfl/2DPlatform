@@ -34,11 +34,18 @@ export class StateMidAirJump implements IEntityState {
   stopMoving(): void {}
   slidingDown(right: boolean): void {}
   move(right: boolean): void {
-    this.actions.move(right, true);
+    this.actions.faceDirection(right);
+    this.actions.move(true);
   }
   jump(): void {}
   shoot(bulletType: BulletType): void {}
   teleport(up: boolean): void {}
-  hit(animationComplete: () => void): void {}
-  die(animationComplete: () => void): void {}
+  hit(animationComplete: () => void): void {
+    this.controller.setState(EntityStateFlags.Hit);
+    this.actions.hit(animationComplete);
+  }
+  die(animationComplete: () => void): void {
+    this.controller.setState(EntityStateFlags.Dead);
+    this.actions.die(animationComplete);
+  }
 }

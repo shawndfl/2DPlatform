@@ -29,7 +29,8 @@ export class StateFalling implements IEntityState {
   }
   slidingDown(right: boolean): void {}
   move(right: boolean): void {
-    this.actions.move(right, true);
+    this.actions.faceDirection(right);
+    this.actions.move(true);
   }
   jump(): void {
     this.actions.jump();
@@ -37,6 +38,12 @@ export class StateFalling implements IEntityState {
   }
   shoot(bulletType: BulletType): void {}
   teleport(up: boolean): void {}
-  hit(animationComplete: () => void): void {}
-  die(animationComplete: () => void): void {}
+  hit(animationComplete: () => void): void {
+    this.controller.setState(EntityStateFlags.Hit);
+    this.actions.hit(animationComplete);
+  }
+  die(animationComplete: () => void): void {
+    this.controller.setState(EntityStateFlags.Dead);
+    this.actions.die(animationComplete);
+  }
 }

@@ -30,7 +30,8 @@ export class StateIdle implements IEntityState {
   slidingDown(right: boolean): void {}
   move(right: boolean): void {
     this.controller.setState(EntityStateFlags.Running);
-    this.actions.move(right, false);
+    this.actions.faceDirection(right);
+    this.actions.move(false);
   }
   jump(): void {
     this.actions.jump();
@@ -55,5 +56,8 @@ export class StateIdle implements IEntityState {
     this.controller.setState(EntityStateFlags.Hit);
     this.actions.hit(animationComplete);
   }
-  die(animationComplete: () => void): void {}
+  die(animationComplete: () => void): void {
+    this.controller.setState(EntityStateFlags.Dead);
+    this.actions.die(animationComplete);
+  }
 }

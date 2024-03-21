@@ -29,5 +29,8 @@ export class StateHit implements IEntityState {
   shoot(bulletType: BulletType): void {}
   teleport(up: boolean): void {}
   hit(animationComplete: () => void): void {}
-  die(animationComplete: () => void): void {}
+  die(animationComplete: () => void): void {
+    this.controller.setState(EntityStateFlags.Dead);
+    this.actions.die(animationComplete);
+  }
 }

@@ -30,7 +30,8 @@ export class StateFirstJump implements IEntityState {
   stopMoving(): void {}
   slidingDown(right: boolean): void {}
   move(right: boolean): void {
-    this.actions.move(right, true);
+    this.actions.faceDirection(right);
+    this.actions.move(true);
   }
   jump(): void {
     //Mid air jump is handled in falling, because as soon as the jump is released
@@ -39,6 +40,12 @@ export class StateFirstJump implements IEntityState {
 
   shoot(bulletType: BulletType): void {}
   teleport(up: boolean): void {}
-  hit(animationComplete: () => void): void {}
-  die(animationComplete: () => void): void {}
+  hit(animationComplete: () => void): void {
+    this.controller.setState(EntityStateFlags.Hit);
+    this.actions.hit(animationComplete);
+  }
+  die(animationComplete: () => void): void {
+    this.controller.setState(EntityStateFlags.Dead);
+    this.actions.die(animationComplete);
+  }
 }

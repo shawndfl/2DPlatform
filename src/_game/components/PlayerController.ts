@@ -16,6 +16,7 @@ import { EnemyController } from './EnemyController';
 import { Direction } from './Direction';
 import { BulletType } from './BulletType';
 import { BulletController } from './BulletController';
+import { equals } from '../../math/constants';
 
 export class PlayerController extends GameComponent {
   private sprite: SpriteController2;
@@ -196,9 +197,9 @@ export class PlayerController extends GameComponent {
       }
 
       if (c.tag instanceof EnemyController) {
-        console.debug('hit and enemy!!');
+        this.hitByEnemy();
       }
-      if (c.top == this.ridgeBody.bottom) {
+      if (equals(c.top, this.ridgeBody.bottom)) {
         this._touchingGround = true;
       }
 
@@ -251,6 +252,13 @@ export class PlayerController extends GameComponent {
   hitByDeath(other: Collision2D): void {
     this.entityState.die(() => {
       this.eng.sceneManager.resetScene();
+    });
+  }
+
+  hitByEnemy(): void {
+    this.entityState.hit(() => {
+      //TODO reduce health
+      this.entityState.idle();
     });
   }
 

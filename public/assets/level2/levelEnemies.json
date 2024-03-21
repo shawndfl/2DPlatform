@@ -10,12 +10,130 @@
     ],
     "player": {
         "pos": [50, 150],
-        "meta":  [["debug", "true"], 
+        "meta":  [["debug", "false"], 
              ["health", "90"]]
         
     },
     "entities":[
-       
+        {
+            "type":"enemy",
+            "pos": [1000, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "false"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [1700, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        
+        {
+            "type":"enemy",
+            "pos": [3700, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        }
+        ,
+        {
+            "type":"enemy",
+            "pos": [3800, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [3900, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [4000, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [4100, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [4020, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [4020, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [4020, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [4020, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [4020, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        },
+        {
+            "type":"enemy",
+            "pos": [4020, 150],
+            "meta": [
+                ["health", "100"],
+                ["sprite", "default"],
+                ["move", "true"]
+            ]
+        }
     ],
     "collision": [
         {

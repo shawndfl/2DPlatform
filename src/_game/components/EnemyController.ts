@@ -61,7 +61,9 @@ export class EnemyController extends GameComponent {
     }
 
     this.decision = new DecisionMaker(this.eng);
+
     this.decision.onDecide = this.runAction.bind(this);
+    this.decision.onValidate = this.decisionValidate.bind(this);
 
     // set up the sprite
     this.sprite = new SpriteInstanceController(this.id, this.eng.enemies.spriteCollection);
@@ -79,7 +81,7 @@ export class EnemyController extends GameComponent {
       CollisionType.enemy | CollisionType.playerBullet | CollisionType.default | CollisionType.player;
     this.ridgeBody.collisionType = CollisionType.enemy;
 
-    this.ridgeBody.showCollision = true;
+    //this.ridgeBody.showCollision = true;
 
     this.sprite.flipDirection = SpriteFlip.XFlip; // face the left
     this.sprite.xScale = 1.0;
@@ -145,7 +147,6 @@ export class EnemyController extends GameComponent {
       }
 
       if (c.tag instanceof EnemyController) {
-        console.debug('hit and enemy!!');
       }
       if (c.top == this.ridgeBody.bottom) {
         touchingGround = true;
@@ -166,6 +167,12 @@ export class EnemyController extends GameComponent {
     }
   }
 
+  decisionValidate(lastAction: DecisionAction, newAction: DecisionAction): DecisionAction {
+    if (lastAction == DecisionAction.MoveRight) {
+    }
+    return newAction;
+  }
+
   runAction(action: DecisionAction): void {
     if (this.entityState.stateType == EntityStateFlags.Disable || this.isActive == false) {
       return;
@@ -180,6 +187,12 @@ export class EnemyController extends GameComponent {
       case DecisionAction.Shoot:
         this.entityState.shoot(BulletType.EnemyBullet);
         break;
+      case DecisionAction.MoveLeft:
+        this.entityState.move(false);
+        break;
+      case DecisionAction.MoveRight:
+        this.entityState.move(true);
+        break;
     }
   }
 
@@ -187,6 +200,12 @@ export class EnemyController extends GameComponent {
     this.isActive = false;
 
     this.entityState.hit(() => {
+      this.dispose();
+    });
+  }
+
+  hitByDeath(other: Collision2D): void {
+    this.entityState.die(() => {
       this.dispose();
     });
   }

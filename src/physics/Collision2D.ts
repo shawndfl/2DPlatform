@@ -64,12 +64,7 @@ export class Collision2D extends Component {
   public set showCollision(value: boolean) {
     this._showCollision = value;
     if (this._showCollision) {
-      this.eng.annotationManager.buildRect(
-        this.id + '_collision',
-        this.bounds,
-        this._debugColor,
-        0.4
-      );
+      this.eng.annotationManager.buildRect(this.id + '_collision', this.bounds, this._debugColor, 0.4);
     } else {
       this.eng.annotationManager.removeRect(this.id + '_collision');
     }
@@ -90,12 +85,7 @@ export class Collision2D extends Component {
     return this._id;
   }
 
-  constructor(
-    eng: Engine,
-    id: string,
-    private _tag: Component,
-    bounds?: Readonly<rect>
-  ) {
+  constructor(eng: Engine, id: string, private _tag: Component, bounds?: Readonly<rect>) {
     super(eng);
     this._id = id;
     this._bounds = bounds ? bounds.copy() : new rect();
@@ -103,6 +93,11 @@ export class Collision2D extends Component {
 
   setId(id: string): void {
     this._id = id;
+  }
+
+  setSize(width: number, height: number): void {
+    this._bounds.width = width;
+    this._bounds.height = height;
   }
 
   set(left: number, width: number, top: number, height: number): void {

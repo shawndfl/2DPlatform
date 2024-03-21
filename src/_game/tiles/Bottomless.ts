@@ -4,6 +4,7 @@ import vec2 from '../../math/vec2';
 import vec4 from '../../math/vec4';
 import { Collision2D } from '../../physics/Collision2D';
 import { PlatformEngine } from '../PlatformEngine';
+import { EnemyController } from '../components/EnemyController';
 import { PlayerController } from '../components/PlayerController';
 
 import { ICollision } from '../data/ILevelData';
@@ -15,10 +16,7 @@ export interface IBottomlessOptions extends ICollisionBoxOptions {}
  * This is an elevator that can move up and down and side to side
  */
 export class Bottomless extends CollisionBox {
-  constructor(
-    eng: PlatformEngine,
-    public options: Readonly<IBottomlessOptions>
-  ) {
+  constructor(eng: PlatformEngine, public options: Readonly<IBottomlessOptions>) {
     super(eng, options);
   }
 
@@ -30,6 +28,11 @@ export class Bottomless extends CollisionBox {
       if (other.tag instanceof PlayerController) {
         const player = other.tag as PlayerController;
         player.hitByDeath(this);
+        break;
+      }
+      if (other.tag instanceof EnemyController) {
+        const enemy = other.tag as EnemyController;
+        enemy.hitByDeath(this);
         break;
       }
     }

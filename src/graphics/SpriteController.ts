@@ -60,9 +60,7 @@ export class SpriteController extends Component implements ISprite {
     if (data) {
       this.spriteLocation(data.loc);
     } else {
-      console.error(
-        'Cannot find sprite ' + name + ' in texture ' + this._spriteTexture.id
-      );
+      console.error('Cannot find sprite ' + name + ' in texture ' + this._spriteTexture.id);
     }
   }
 
@@ -98,8 +96,7 @@ export class SpriteController extends Component implements ISprite {
   }
   get width(): number {
     if (this._spriteTexture) {
-      const scale =
-        Math.abs(this.quad.maxTex.x - this.quad.minTex.x) * this._scale.x;
+      const scale = Math.abs(this.quad.maxTex.x - this.quad.minTex.x) * this._scale.x;
       return scale * this._spriteTexture.width;
     } else {
       return 0;
@@ -107,8 +104,7 @@ export class SpriteController extends Component implements ISprite {
   }
   get height(): number {
     if (this._spriteTexture) {
-      const scale =
-        Math.abs(this.quad.maxTex.y - this.quad.minTex.y) * this._scale.y;
+      const scale = Math.abs(this.quad.maxTex.y - this.quad.minTex.y) * this._scale.y;
       return scale * this._spriteTexture.height;
     } else {
       return 0;
@@ -198,11 +194,7 @@ export class SpriteController extends Component implements ISprite {
       const scaleHeight = Math.abs(this.quad.maxTex.y - this.quad.minTex.y);
       pixelHeight = scaleHeight * this._spriteTexture.height * 0.5;
     }
-    this._world.scaleComp(
-      this._scale.x * pixelWidth,
-      this._scale.y * pixelHeight,
-      1.0
-    );
+    this._world.scaleComp(this._scale.x * pixelWidth, this._scale.y * pixelHeight, 1.0);
     this._world.translate(this.quad.translation);
   }
 
@@ -256,12 +248,7 @@ export class SpriteController extends Component implements ISprite {
    * @param spriteH
    * @returns
    */
-  pixelsToUv(
-    loc: [number, number, number, number],
-    flip: SpriteFlip,
-    resultsMin: vec2,
-    resultsMax: vec2
-  ): void {
+  pixelsToUv(loc: [number, number, number, number], flip: SpriteFlip, resultsMin: vec2, resultsMax: vec2): void {
     const sheetW = this._spriteTexture.width;
     const sheetH = this._spriteTexture.height;
 

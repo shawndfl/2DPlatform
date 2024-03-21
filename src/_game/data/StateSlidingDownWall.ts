@@ -13,41 +13,23 @@ export class StateSlidingDownWall implements IEntityState {
     return EntityStateFlags.SlidingDownWall;
   }
 
-  disabled(): void {
-    throw new Error('Method not implemented.');
-  }
-  idle(): void {
-    throw new Error('Method not implemented.');
-  }
+  disabled(): void {}
+  idle(): void {}
 
-  landed(): void {
-    throw new Error('Method not implemented.');
-  }
-  stopJumping(): void {
-    throw new Error('Method not implemented.');
-  }
-  stopMoving(): void {
-    throw new Error('Method not implemented.');
-  }
-  slidingDown(right: boolean): void {
-    throw new Error('Method not implemented.');
-  }
-  move(right: boolean): void {
-    throw new Error('Method not implemented.');
-  }
-  jump(): void {
-    throw new Error('Method not implemented.');
-  }
-  shoot(bulletType: BulletType): void {
-    throw new Error('Method not implemented.');
-  }
-  teleport(up: boolean): void {
-    throw new Error('Method not implemented.');
-  }
+  landed(): void {}
+  stopJumping(): void {}
+  stopMoving(): void {}
+  slidingDown(right: boolean): void {}
+  move(right: boolean): void {}
+  jump(): void {}
+  shoot(bulletType: BulletType): void {}
+  teleport(up: boolean): void {}
   hit(animationComplete: () => void): void {
-    throw new Error('Method not implemented.');
+    this.controller.setState(EntityStateFlags.Hit);
+    this.actions.hit(animationComplete);
   }
   die(animationComplete: () => void): void {
-    throw new Error('Method not implemented.');
+    this.controller.setState(EntityStateFlags.Dead);
+    this.actions.die(animationComplete);
   }
 }
