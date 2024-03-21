@@ -10,7 +10,7 @@
     ],
     "player": {
         "pos": [50, 150],
-        "meta":  [["debug", "true"], 
+        "meta":  [["debug", "false"], 
              ["health", "90"]]
         
     },

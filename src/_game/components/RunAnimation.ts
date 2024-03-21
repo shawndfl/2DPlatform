@@ -8,6 +8,8 @@ export class RunAnimation extends AnimationComponent {
   private firstOne: boolean;
   private facingRight: boolean;
   private isShooting: boolean;
+  readonly shootingDelay: number = 200;
+  private shootingTimer: number = 200;
   private defaultHeight: number;
 
   public touchingFloor: boolean;
@@ -53,11 +55,11 @@ export class RunAnimation extends AnimationComponent {
       this.sprite.flipDirection = this.facingRight ? SpriteFlip.None : SpriteFlip.XFlip;
 
       if (this.touchingFloor) {
-        //if (this.isShooting) {
-        this.sprite.spriteImage('run.shoot.' + value);
-        //} else {
-        //this.sprite.spriteImage('run.' + value);
-        //}
+        if (this.isShooting) {
+          this.sprite.spriteImage('run.shoot.' + value);
+        } else {
+          this.sprite.spriteImage('run.' + value);
+        }
       } else {
         this.sprite.spriteImage('jump.5');
       }
@@ -72,8 +74,9 @@ export class RunAnimation extends AnimationComponent {
     return this;
   }
 
-  shooting(shooting: boolean): void {
-    this.isShooting = shooting;
+  shooting(): void {
+    this.isShooting = true;
+    this.shootingTimer = this.shootingDelay;
   }
 
   start(facingRight: boolean): RunAnimation {
@@ -104,6 +107,13 @@ export class RunAnimation extends AnimationComponent {
   update(dt: number): void {
     if (this.curve) {
       this.curve.update(dt);
+    }
+
+    if (this.isShooting) {
+      this.shootingTimer -= dt;
+      if (this.shootingTimer <= 0) {
+        this.isShooting = false;
+      }
     }
   }
 }

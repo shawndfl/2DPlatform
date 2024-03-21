@@ -86,6 +86,12 @@ export class EntityStateActions extends GameComponent {
     this.hitAnimation.initialize(this.sprite, this.options.dieDelayMs);
   }
 
+  /**
+   * Height can be 46 or
+   * @param height
+   */
+  adjustCollisionHeight(height: number): void {}
+
   resetPhysics(resetVelocity: boolean = false): void {
     this.ridgeBody.active = true;
     if (resetVelocity) {
@@ -179,11 +185,11 @@ export class EntityStateActions extends GameComponent {
     }
 
     if (bulletType != BulletType.None) {
-      this.runAnimation.shooting(true);
+      this.runAnimation.shooting();
       this.shooting = true;
       const startPos = new vec3(this.ridgeBody.left, this.ridgeBody.bottom, 0);
-      startPos.y += 45;
-      startPos.x += this.ridgeBody.width * 0.5;
+      startPos.y += 48;
+      startPos.x += this.ridgeBody.width * 0.5 + (this.facingRight ? 25 : -35);
       startPos.z = this.sprite.depth - 0.001;
 
       const speed = this.options.bulletSpeed; // m/second
@@ -193,8 +199,6 @@ export class EntityStateActions extends GameComponent {
         position: startPos,
         velocity,
       });
-    } else {
-      this.runAnimation.shooting(false);
     }
   }
 
@@ -249,6 +253,7 @@ export class EntityStateActions extends GameComponent {
 
     // reset physics
     this.resetPhysics(true);
+    this.ridgeBody.active = false;
 
     // reset other flags
     this.shooting = false;
