@@ -27,6 +27,7 @@ export interface ILevelData {
     image: string;
     images: [string];
     meta: [[string, string]];
+    repeat: boolean;
   }[];
   entities: {
     id: string;
@@ -57,6 +58,7 @@ export interface IImageTiles {
   pos: vec2;
   size: vec2;
   zIndex: number;
+  repeat: boolean;
 }
 
 export interface IEntity {
@@ -118,6 +120,7 @@ export class LevelData {
         pos,
         size,
         image: e.image,
+        repeat: e.repeat,
       });
     });
 

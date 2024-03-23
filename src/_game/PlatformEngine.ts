@@ -44,9 +44,7 @@ export class PlatformEngine extends Engine {
     await this.bullets.initialize();
 
     // load the first scene
-    await this.sceneManager.changeScene(
-      this.urlParams.get('level') ?? 'level2'
-    );
+    await this.sceneManager.changeScene(this.urlParams.get('level') ?? 'level2');
   }
 
   handleUserAction(state: InputState): boolean {
@@ -63,7 +61,7 @@ export class PlatformEngine extends Engine {
 
       this.physicsManager.update(dt);
 
-      this.backgroundManager.update(dt);
+      this.tileManager.update(dt);
       this.player.update(dt);
 
       this.bullets.update(dt);

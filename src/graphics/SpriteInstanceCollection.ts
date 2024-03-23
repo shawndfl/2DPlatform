@@ -69,9 +69,7 @@ export class SpriteInstanceCollection extends Component {
   public getLoc(id: string): [number, number, number, number] {
     const data = this._spriteData.tiles.get(id);
     if (!data) {
-      console.debug(
-        'cannot find sprite ' + id + ' in texture ' + this._spriteTexture.id
-      );
+      console.debug('cannot find sprite ' + id + ' in texture ' + this._spriteTexture.id);
       return [0, 0, 32, 32];
     }
     return data.loc;
@@ -96,6 +94,7 @@ export class SpriteInstanceCollection extends Component {
    * Initialize a texture
    */
   initialize(texture: Texture, spriteData: SpriteData): void {
+    this.clear();
     // save the sprite data
     this._spriteData = spriteData;
     this._spriteTexture = texture;
@@ -151,12 +150,7 @@ export class SpriteInstanceCollection extends Component {
     this.dirty = false;
   }
 
-  pixelsToUv(
-    loc: [number, number, number, number],
-    flip: SpriteFlip,
-    resultsMin: vec2,
-    resultsMax: vec2
-  ): void {
+  pixelsToUv(loc: [number, number, number, number], flip: SpriteFlip, resultsMin: vec2, resultsMax: vec2): void {
     const sheetW = this._spriteTexture.width;
     const sheetH = this._spriteTexture.height;
 
@@ -222,12 +216,6 @@ export class SpriteInstanceCollection extends Component {
     }
     const type = this.gl.UNSIGNED_SHORT;
 
-    this.gl.drawElementsInstanced(
-      this.gl.TRIANGLES,
-      this.buffer.indexCount,
-      type,
-      0,
-      this.buffer.instanceCount
-    );
+    this.gl.drawElementsInstanced(this.gl.TRIANGLES, this.buffer.indexCount, type, 0, this.buffer.instanceCount);
   }
 }

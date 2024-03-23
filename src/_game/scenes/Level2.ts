@@ -78,38 +78,20 @@ export class Level2 extends SceneComponent {
       }
     }
 
-    // get the tile texture
-    await this.tileTexture.loadImage(this.levelData.tileSheetUrl + '.png');
-    const spriteDataString = await this.eng.remote.loadFile(this.levelData.tileSheetUrl + '.json');
-    if (!spriteDataString) {
-      console.error('cannot find ' + this.levelData.tileSheetUrl + '.json');
-      return;
-    }
+    // load the tile texture
+    await this.eng.tileManager.loadTexture(this.levelData.tileSheetUrl);
 
-    const iSpriteData = JSON.parse(spriteDataString);
-    const spriteData = new SpriteData(iSpriteData);
-
-    // show the background image
-    const promises = [];
+    // create the tile images
     for (let i = 0; i < data.imageTiles.length; i++) {
       const imgData = data.imageTiles[i];
-
-      // create the background
-      const tile = new TileImageComponent(this.eng, imgData.id ?? this.eng.random.getUuid());
-
-      // load the image
-      promises.push(tile.initialize(this.tileTexture, spriteData, imgData));
-
-      this.eng.backgroundManager.addBackground(tile);
+      this.eng.tileManager.createTile(imgData);
     }
 
+    // create the entities
     for (let i = 0; i < data.entities.length; i++) {
       const entity = data.entities[i];
       const component = EntityFactory.create(this.eng, entity);
     }
-
-    // wait for all images to load
-    await Promise.all(promises);
   }
 
   private async getLevelData(): Promise<LevelData> {

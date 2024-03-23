@@ -18,11 +18,7 @@ export class Texture {
   /**
    * Enable this texture, activate the texture and set the uniform for the shader
    */
-  enable(
-    uniformIndex: number,
-    slot: number = 0,
-    activeTexture: GLenum = this.gl.TEXTURE0
-  ) {
+  enable(uniformIndex: number, slot: number = 0, activeTexture: GLenum = this.gl.TEXTURE0) {
     // Tell WebGL we want to affect texture unit
     this.gl.activeTexture(activeTexture);
 
@@ -36,6 +32,13 @@ export class Texture {
   async loadImage(imagePath: string): Promise<Texture> {
     return new Promise((resolve, reject) => {
       this.texturePath = imagePath;
+
+      // clean up first
+      if (this.glTexture) {
+        this.dispose();
+      }
+
+      // create the new texture
       this.glTexture = this.gl.createTexture();
       this.gl.bindTexture(this.gl.TEXTURE_2D, this.glTexture);
 
@@ -52,52 +55,19 @@ export class Texture {
       const srcFormat = this.gl.RGBA;
       const srcType = this.gl.UNSIGNED_BYTE;
       const pixel = new Uint8Array([0, 0, 255, 255]); // opaque blue
-      this.gl.texImage2D(
-        this.gl.TEXTURE_2D,
-        level,
-        internalFormat,
-        width,
-        height,
-        border,
-        srcFormat,
-        srcType,
-        pixel
-      );
+      this.gl.texImage2D(this.gl.TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, pixel);
 
       const image = new Image();
       image.onload = () => {
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.glTexture);
         this.width = image.width;
         this.height = image.height;
-        this.gl.texImage2D(
-          this.gl.TEXTURE_2D,
-          level,
-          internalFormat,
-          srcFormat,
-          srcType,
-          image
-        );
+        this.gl.texImage2D(this.gl.TEXTURE_2D, level, internalFormat, srcFormat, srcType, image);
 
-        this.gl.texParameteri(
-          this.gl.TEXTURE_2D,
-          this.gl.TEXTURE_WRAP_S,
-          this.gl.MIRRORED_REPEAT
-        );
-        this.gl.texParameteri(
-          this.gl.TEXTURE_2D,
-          this.gl.TEXTURE_WRAP_T,
-          this.gl.MIRRORED_REPEAT
-        );
-        this.gl.texParameteri(
-          this.gl.TEXTURE_2D,
-          this.gl.TEXTURE_MIN_FILTER,
-          this.gl.NEAREST
-        );
-        this.gl.texParameteri(
-          this.gl.TEXTURE_2D,
-          this.gl.TEXTURE_MAG_FILTER,
-          this.gl.NEAREST
-        );
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.MIRRORED_REPEAT);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.MIRRORED_REPEAT);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
 
         this.gl.generateMipmap(this.gl.TEXTURE_2D);
         return resolve(this);

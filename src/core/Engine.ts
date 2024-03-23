@@ -15,10 +15,11 @@ import { PhysicsManager } from '../systems/PhysicsManager';
 import { AnnotationManager } from '../systems/AnnotationManager';
 import { SpriteShader } from '../shaders/SpriteShader';
 import { SpriteInstanceShader } from '../shaders/SpriteInstanceShader';
-import { BackgroundManager } from '../systems/BackgroundManager';
+
 import { SceneManager } from '../systems/SceneManager';
 import { SceneComponent } from '../components/SceneComponent';
 import { ResourceLoader } from '../utilities/LoadRemote';
+import { TileManager } from '../systems/TileManager';
 
 /**
  * The engine for this game. There is one instance of this
@@ -32,7 +33,6 @@ export abstract class Engine {
   readonly spritePerspectiveShader: SpritePerspectiveShader;
   readonly spriteShader: SpriteShader;
   readonly spriteInstanceShader: SpriteInstanceShader;
-
   readonly soundManager: SoundManager;
   readonly canvasController: CanvasController;
   readonly viewManager: ViewManager;
@@ -46,7 +46,7 @@ export abstract class Engine {
   readonly particleManager: ParticleManager;
   readonly physicsManager: PhysicsManager;
   readonly annotationManager: AnnotationManager;
-  readonly backgroundManager: BackgroundManager;
+  readonly tileManager: TileManager;
   readonly sceneManager: SceneManager;
   readonly remote: ResourceLoader;
 
@@ -89,22 +89,16 @@ export abstract class Engine {
     this.textManager = new TextManager(this);
     this.fps = new FpsController(this);
     this.assetManager = this.createAssetManager();
-    this.spritePerspectiveShader = new SpritePerspectiveShader(
-      this.gl,
-      'spritePerspectiveShader'
-    );
+    this.spritePerspectiveShader = new SpritePerspectiveShader(this.gl, 'spritePerspectiveShader');
 
     this.spriteShader = new SpriteShader(this.gl, 'spriteShader');
-    this.spriteInstanceShader = new SpriteInstanceShader(
-      this.gl,
-      'spriteInstanceShader'
-    );
+    this.spriteInstanceShader = new SpriteInstanceShader(this.gl, 'spriteInstanceShader');
 
     this.sceneManager = this.createSceneManager();
     this.particleManager = new ParticleManager(this);
     this.physicsManager = new PhysicsManager(this);
     this.annotationManager = new AnnotationManager(this);
-    this.backgroundManager = new BackgroundManager(this);
+    this.tileManager = new TileManager(this);
   }
 
   createSceneManager(): SceneManager {
@@ -165,10 +159,7 @@ export abstract class Engine {
   }
 
   handleUserAction(state: InputState): boolean {
-    return (
-      this.dialogManager.handleUserAction(state) ||
-      this.sceneManager.scene.handleUserAction(state)
-    );
+    return this.dialogManager.handleUserAction(state) || this.sceneManager.scene.handleUserAction(state);
   }
 
   gameUpdate(dt: number) {
@@ -178,7 +169,7 @@ export abstract class Engine {
     this.dialogManager.update(dt);
     this.textManager.update(dt);
     this.annotationManager.update(dt);
-    this.backgroundManager.update(dt);
+    this.tileManager.update(dt);
   }
 
   update(dt: number): void {

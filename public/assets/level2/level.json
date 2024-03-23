@@ -19,6 +19,15 @@
             "type": "background",
             "zIndex": -1,
             "image": "sky" 
+        },
+        {
+            "id": "ground",
+            "pos": [10, 100],
+            "size":[1800, 100],
+            "type": "ground",
+            "zIndex": 0,
+            "image": "grass",
+            "repeat": true 
         }
     ],
     "collision": [
