@@ -1,13 +1,13 @@
-import { BackgroundComponent } from '../components/BackgroundComponet';
 import { Component } from '../components/Component';
+import { TileImageComponent } from '../components/TileImageComponet';
 
 /**
  * Manages different backgrounds and foregrounds in a level
  */
 export class BackgroundManager extends Component {
-  private backgrounds: BackgroundComponent[] = [];
+  private backgrounds: TileImageComponent[] = [];
 
-  addBackground(background: BackgroundComponent) {
+  addBackground(background: TileImageComponent) {
     this.backgrounds.push(background);
   }
 

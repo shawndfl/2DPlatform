@@ -17,10 +17,6 @@ export class SceneFactory extends GameComponent {
    * @returns
    */
   createScene(type: string): SceneComponent {
-    if (type.startsWith('level')) {
-      return new Level2(this.eng, type);
-    } else {
-      console.error('cannot create scene for type: ' + type);
-    }
+    return new Level2(this.eng, type);
   }
 }

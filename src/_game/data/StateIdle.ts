@@ -26,7 +26,10 @@ export class StateIdle implements IEntityState {
 
   landed(): void {}
   stopJumping(): void {}
-  stopMoving(): void {}
+  stopMoving(): void {
+    this.actions.setDefault();
+    this.actions.stopMoving();
+  }
   slidingDown(right: boolean): void {}
   move(right: boolean): void {
     this.controller.setState(EntityStateFlags.Running);

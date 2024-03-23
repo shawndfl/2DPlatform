@@ -52,7 +52,7 @@ export class EntityStateOptions {
   runAcceleration: number = 0.9;
   runMaxSpeed: number = 4;
   jumpSpeed: number = 3.5;
-  midAirJumps: number = 1;
+  midAirJumps: number = 2;
   midAirNudgeSpeed: number = 1;
   bulletSpeed: number = 5;
   dieDelayMs: number = 0;

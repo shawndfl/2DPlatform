@@ -18,7 +18,7 @@ export interface PlayerState {
 
 export class DecisionOptions {
   /** how quick can a decision be made */
-  decisionDelay: number = 500;
+  decisionDelay: number = 1500;
   /**
    * vector of bias for each decision
    * You can think of this as how many tickets
@@ -26,7 +26,7 @@ export class DecisionOptions {
    * 1 means one chance to get picked,
    * 50 means 50 changes of getting picked, etc.
    */
-  bias: number[] = [0, 5, 3, 10, 10];
+  bias: number[] = [5, 2, 1, 3, 3];
 }
 
 export class DecisionMaker extends GameComponent {

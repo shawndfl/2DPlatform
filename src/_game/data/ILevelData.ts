@@ -5,15 +5,27 @@ import vec2 from '../../math/vec2';
  * This is the raw level data from json
  */
 export interface ILevelData {
+  /** the url to the tile sheet without the extension.
+   * The level expects to find a .png and .json file with
+   * this name in it.
+   */
+  tileSheetUrl: string;
+  /**
+   * Size of the level in pixels
+   */
   size: [number, number];
   player: {
     pos: [number, number];
     meta: [[string, string]];
   };
-  backgrounds: {
+  images: {
     id: string;
     type: string;
+    pos: [number, number];
+    size: [number, number];
+    zIndex: number;
     image: string;
+    images: [string];
     meta: [[string, string]];
   }[];
   entities: {
@@ -35,11 +47,16 @@ export interface IPlayerOptions {
   meta: Map<string, string>;
 }
 
-export interface IBackgrounds {
+export interface IImageTiles {
   id: string;
   type: string;
+  /** image id into the tiles sheet */
   image: string;
+  images: string[];
   meta: Map<string, string>;
+  pos: vec2;
+  size: vec2;
+  zIndex: number;
 }
 
 export interface IEntity {
@@ -64,17 +81,19 @@ export const DefaultLevelHeight = 1020;
  */
 export class LevelData {
   size: vec2;
+  tileSheetUrl: string;
   player: IPlayerOptions;
   entities: IEntity[];
   collision: ICollision[];
-  backgrounds: IBackgrounds[];
+  imageTiles: IImageTiles[];
 
   constructor(data: ILevelData) {
     this.entities = [];
     this.collision = [];
-    this.backgrounds = [];
+    this.imageTiles = [];
 
     this.size = new vec2(data.size);
+    this.tileSheetUrl = data.tileSheetUrl;
     this.player = {
       meta: new Map<string, string>(data.player.meta),
       pos: new vec2(data.player.pos),
@@ -86,9 +105,20 @@ export class LevelData {
       this.entities.push({ id: e.id, pos, meta, type: e.type });
     });
 
-    data.backgrounds.forEach((e) => {
+    data.images?.forEach((e) => {
       const meta = new Map<string, string>(e.meta);
-      this.backgrounds.push({ id: e.id, image: e.image, meta, type: e.type });
+      const pos = new vec2(e.pos);
+      const size = new vec2(e.size);
+      this.imageTiles.push({
+        id: e.id,
+        meta,
+        type: e.type,
+        images: e.images,
+        zIndex: e.zIndex,
+        pos,
+        size,
+        image: e.image,
+      });
     });
 
     data.collision.forEach((e) => {
@@ -110,7 +140,7 @@ export class LevelData {
     };
     this.entities = [];
     this.collision = [];
-    this.backgrounds = [];
+    this.imageTiles = [];
   }
 
   serialize(): string {

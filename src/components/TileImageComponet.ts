@@ -1,5 +1,6 @@
+import { IImageTiles } from '../_game/data/ILevelData';
 import { Engine } from '../core/Engine';
-import { DefaultSpriteData } from '../graphics/ISpriteData';
+import { DefaultSpriteData, SpriteData } from '../graphics/ISpriteData';
 import { SpriteController2 } from '../graphics/SpriteController2';
 import { Texture } from '../graphics/Texture';
 import vec2 from '../math/vec2';
@@ -8,7 +9,7 @@ import { Component } from './Component';
 /**
  * This is a simple background image that scrolls behind the level
  */
-export class BackgroundComponent extends Component {
+export class TileImageComponent extends Component {
   texture: Texture;
   sprite: SpriteController2;
 
@@ -18,21 +19,22 @@ export class BackgroundComponent extends Component {
 
   constructor(eng: Engine, private _id: string) {
     super(eng);
-    this.texture = new Texture(this.id, eng.gl);
     this.sprite = new SpriteController2(this.eng);
   }
 
-  async initialize(image: string, levelSize: vec2): Promise<void> {
-    await this.texture.loadImage(image);
-    this.sprite.initialize(this.texture, DefaultSpriteData);
-    this.sprite.spriteImage('default');
-    const scaleX = levelSize.x / this.texture.width;
-    const scaleY = levelSize.y / this.texture.height;
+  async initialize(texture: Texture, spriteData: SpriteData, options: IImageTiles): Promise<void> {
+    this.texture = texture;
+
+    this.sprite.initialize(this.texture, spriteData);
+    this.sprite.spriteImage(options.image);
+    const scaleX = options.size.x / this.sprite.width;
+    const scaleY = options.size.y / this.sprite.height;
 
     this.sprite.depth = 0.8;
-
-    this.sprite.top = this.texture.height * scaleY * 0.5;
-    this.sprite.left = this.texture.width * scaleX * 0.5;
+    this.sprite.leftOffset = 1;
+    this.sprite.topOffset = -1;
+    this.sprite.left = options.pos.x;
+    this.sprite.top = options.pos.y;
     this.sprite.xScale = scaleX;
     this.sprite.yScale = scaleY;
   }

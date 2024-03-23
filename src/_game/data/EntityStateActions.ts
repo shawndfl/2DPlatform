@@ -203,9 +203,12 @@ export class EntityStateActions extends GameComponent {
   }
 
   jump(): void {
-    this.resetAnimations();
-    this.jumpAnimation.start();
-    this.ridgeBody.velocity.y = this.options.jumpSpeed;
+    if (this.midAirJump > 0) {
+      this.resetAnimations();
+      this.jumpAnimation.start();
+      this.ridgeBody.velocity.y = this.options.jumpSpeed;
+      this.midAirJump--;
+    }
   }
 
   shoot(bulletType: BulletType): void {

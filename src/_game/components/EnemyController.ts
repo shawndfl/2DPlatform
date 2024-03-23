@@ -1,5 +1,6 @@
 import { ISprite, SpriteFlip } from '../../graphics/ISprite';
 import { SpriteInstanceController } from '../../graphics/SpriteInstanceController';
+import { equals } from '../../math/constants';
 import rect from '../../math/rect';
 import vec2 from '../../math/vec2';
 import { Collision2D } from '../../physics/Collision2D';
@@ -148,7 +149,7 @@ export class EnemyController extends GameComponent {
 
       if (c.tag instanceof EnemyController) {
       }
-      if (c.top == this.ridgeBody.bottom) {
+      if (equals(c.top, this.ridgeBody.bottom)) {
         touchingGround = true;
       }
 
@@ -179,6 +180,8 @@ export class EnemyController extends GameComponent {
     }
     switch (action) {
       case DecisionAction.Idle:
+        this.entityState.stopMoving();
+        this.entityState.stopJumping();
         this.entityState.idle();
         break;
       case DecisionAction.Jump:

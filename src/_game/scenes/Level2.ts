@@ -6,11 +6,13 @@ import { LevelData } from '../data/ILevelData';
 import { ParticleTest } from '../samples/ParticleTest';
 import { Collision2D } from '../../physics/Collision2D';
 
-import { BackgroundComponent } from '../../components/BackgroundComponet';
 import { CollisionFactory } from '../tiles/CollisionFactory';
 import { InputHud } from '../hud/inputHud';
 import { UserAction } from '../../core/UserAction';
 import { EntityFactory } from '../tiles/EntityFactory';
+import { TileImageComponent } from '../../components/TileImageComponet';
+import { Texture } from '../../graphics/Texture';
+import { SpriteData } from '../../graphics/ISpriteData';
 
 export class Level2 extends SceneComponent {
   private particleTest: ParticleTest;
@@ -18,6 +20,7 @@ export class Level2 extends SceneComponent {
   private updatableCollisions: Collision2D[];
   private levelData: LevelData;
   private inputHud: InputHud;
+  private tileTexture: Texture;
 
   get eng(): PlatformEngine {
     return super.eng as PlatformEngine;
@@ -37,6 +40,7 @@ export class Level2 extends SceneComponent {
 
     this.particleTest = new ParticleTest(this.eng);
     this.inputHud = new InputHud(eng);
+    this.tileTexture = new Texture('levelTile', this.eng.gl);
   }
 
   async initialize(): Promise<void> {
@@ -74,21 +78,29 @@ export class Level2 extends SceneComponent {
       }
     }
 
+    // get the tile texture
+    await this.tileTexture.loadImage(this.levelData.tileSheetUrl + '.png');
+    const spriteDataString = await this.eng.remote.loadFile(this.levelData.tileSheetUrl + '.json');
+    if (!spriteDataString) {
+      console.error('cannot find ' + this.levelData.tileSheetUrl + '.json');
+      return;
+    }
+
+    const iSpriteData = JSON.parse(spriteDataString);
+    const spriteData = new SpriteData(iSpriteData);
+
     // show the background image
     const promises = [];
-    for (let i = 0; i < data.backgrounds.length; i++) {
-      const bgData = data.backgrounds[i];
+    for (let i = 0; i < data.imageTiles.length; i++) {
+      const imgData = data.imageTiles[i];
 
       // create the background
-      const bg = new BackgroundComponent(
-        this.eng,
-        bgData.id ?? this.eng.random.getUuid()
-      );
+      const tile = new TileImageComponent(this.eng, imgData.id ?? this.eng.random.getUuid());
 
       // load the image
-      promises.push(bg.initialize(bgData.image, data.size));
+      promises.push(tile.initialize(this.tileTexture, spriteData, imgData));
 
-      this.eng.backgroundManager.addBackground(bg);
+      this.eng.backgroundManager.addBackground(tile);
     }
 
     for (let i = 0; i < data.entities.length; i++) {
@@ -115,9 +127,7 @@ export class Level2 extends SceneComponent {
     }
     // load the remotely
     else {
-      const results = await this.eng.remote.loadFile(
-        'assets/' + this._type + '/level.json'
-      );
+      const results = await this.eng.remote.loadFile('assets/' + this._type + '/level.json');
       const dataJson = JSON.parse(results);
       data = new LevelData(dataJson);
     }
@@ -151,6 +161,7 @@ export class Level2 extends SceneComponent {
     this.eng.annotationManager.reset();
     this.eng.player.reset();
     this.eng.bullets.reset();
+    this.eng.enemies.reset();
     //this.eng.backgroundManager.dispose();
   }
 }

@@ -1,13 +1,7 @@
 
 {
     "size":[15360, 1080 ],
-    "spriteSheet": "level1Tiles",
-    "backgrounds": [
-        {
-            "type":"background0",
-            "image": "/assets/level2/background0.png"
-        }
-    ],
+    "tileSheetUrl": "assets/level2/tiles",
     "player": {
         "pos": [50, 150],
         "meta":  [["debug", "false"], 
@@ -16,6 +10,16 @@
     },
     "entities":[
        
+    ],
+    "images": [
+        {
+            "id": "sky",
+            "pos": [0, 1080],
+            "size":[15360, 1080],
+            "type": "background",
+            "zIndex": -1,
+            "image": "sky" 
+        }
     ],
     "collision": [
         {

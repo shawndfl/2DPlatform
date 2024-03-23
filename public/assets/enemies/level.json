@@ -5,7 +5,17 @@
     "backgrounds": [
         {
             "type":"background0",
-            "image": "/assets/level2/background0.png"
+            "image":"/assets/enemies/background0.png"
+        },
+        {
+            "type": "background1",
+            "meta":[
+                ["scroll", "auto"]
+            ],
+            "images":[
+                { "cloud.1": "/assets/enemies/background0.png"},
+                { "cloud.2": "/assets/enemies/background0.png"}
+            ]
         }
     ],
     "player": {
