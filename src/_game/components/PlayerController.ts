@@ -30,6 +30,7 @@ export class PlayerController extends GameComponent {
   private _collidingLeft: boolean;
   /** a new jump can start after the jump button is released */
   private _jumpReady: boolean;
+  private _recovery: boolean;
 
   // config options
   private readonly bulletSpeed = 3.0;
@@ -256,28 +257,29 @@ export class PlayerController extends GameComponent {
   }
 
   hitByEnemy(): void {
-    this.entityState.hit(() => {
-      //TODO reduce health
-      this.entityState.idle();
-    });
+    if (!this._recovery) {
+      this.entityState.hit(() => {
+        //TODO reduce health
+        this._recovery = true;
+        this.entityState.recovery(() => {
+          this._recovery = false;
+        });
+        this.entityState.idle();
+      });
+    }
   }
 
   hitByBullet(bullet: BulletController): void {
-    this.entityState.hit(() => {
-      //TODO reduce health
-      this.entityState.idle();
-    });
-
-    /*
-    if (!this.hitAnimation.isRunning) {
-      this.ridgeBody.active = false;
-      this.hitAnimation.start(this.facingDirection == Direction.Right);
-      this.hitAnimation.onDone = (curve: Curve) => {
-        this.eng.sceneManager.setNextScene('level.2.0');
-        console.debug('die');
-      };
+    if (!this._recovery) {
+      this.entityState.hit(() => {
+        //TODO reduce health
+        this._recovery = true;
+        this.entityState.recovery(() => {
+          this._recovery = false;
+        });
+        this.entityState.idle();
+      });
     }
-    */
   }
 
   update(dt: number): void {

@@ -1,297 +1,393 @@
-
 {
-    "size":[15360, 1080 ],
-    "spriteSheet": "level1Tiles",
-    "backgrounds": [
-        {
-            "type":"background0",
-            "image":"/assets/enemies/background0.png"
-        },
-        {
-            "type": "background1",
-            "meta":[
-                ["scroll", "auto"]
-            ],
-            "images":[
-                { "cloud.1": "/assets/enemies/background0.png"},
-                { "cloud.2": "/assets/enemies/background0.png"}
-            ]
-        }
-    ],
-    "player": {
-        "pos": [50, 150],
-        "meta":  [["debug", "false"], 
-             ["health", "90"]]
-        
-    },
-    "entities":[
-        {
-            "type":"enemy",
-            "pos": [1000, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "false"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [1700, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        
-        {
-            "type":"enemy",
-            "pos": [3700, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        }
-        ,
-        {
-            "type":"enemy",
-            "pos": [3800, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [3900, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [4000, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [4100, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [4020, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [4020, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [4020, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [4020, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [4020, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        },
-        {
-            "type":"enemy",
-            "pos": [4020, 150],
-            "meta": [
-                ["health", "100"],
-                ["sprite", "default"],
-                ["move", "true"]
-            ]
-        }
-    ],
-    "collision": [
-        {
-            "id": "bottomless",
-            "box": [0, 15360, 1, 1] ,
-            "type": "bottomless",
-            "meta":[["debug", "true"], ["color", "1,0,0,1"]]
-        },
-        {
-            "id": "ground1",
-            "box": [10, 1800, 100, 100] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-        {
-            "id": "elevator1",
-            "box": [1500, 200, 550, 10] ,
-            "type": "elevator",
-            "meta":[["debug", "true"], ["color", "1,0,0,1"], ["msTime", "3000"], ["offset", "-800,0"]]
-        },
-        {
-            "id": "elevator2",
-            "box": [500, 200, 150, 10] ,
-            "type": "elevator",
-            "meta":[["debug", "true"], ["color", "1,0,0,1"], ["msTime", "3000"], ["offset", "0,500"]]
-        },
-        {
-            "id": "step2",
-            "box": [700, 100, 250, 50] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-        {
-            "id": "step3",
-            "box": [800, 100, 350, 50] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-        {
-            "id": "step4",
-            "box": [900, 100, 450, 50] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-        {
-            "id": "ledge1",
-            "box": [900, 700, 750, 50] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-
-        {
-            "id": "slop1",
-            "box": [900, 500, 110, 10] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-        {
-            "id": "slop2",
-            "box": [950, 450, 120, 10] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-        {
-            "id": "slop3",
-            "box": [1000, 400, 130, 10] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-        {
-            "id": "slop4",
-            "box": [1050, 350, 140, 10] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-        {
-            "id": "topBack",
-            "box": [1400, 10, 140, 40] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-
-        {
-            "id": "ground2",
-            "box": [2000, 4000, 120, 100] ,
-            "type": "box",
-            "meta":[
-                ["debug", "true"]
-            ]
-        },
-        {
-            "id": "block1.2",
-            "box": [2500, 200, 200, 100] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        }
-        ,
-        {
-            "id": "block1.3",
-            "box": [2700, 200, 250, 50] ,
-            "type": "box",
-            "meta":[["debug", "true"],  ["color","0,0,1,1"]]
-        } ,
-        {
-            "id": "block1.4",
-            "box": [2900, 200, 420, 50] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        }
-        ,
-        {
-            "id": "block1.5",
-            "box": [3100, 200, 520, 50] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-        {
-            "id": "block1.6",
-            "box": [3200, 200, 620, 50] ,
-            "type": "box",
-            "meta":[["debug", "true"]]
-        },
-
-        {
-            "id": "ground3",
-            "box": [6000, 4000, 220, 100] ,
-            "type": "box",
-            "meta":[
-                ["debug", "true"]
-            ]
-        },
-        {
-            "id": "ground4",
-            "box": [10200, 4000, 220, 1] ,
-            "type": "box",
-            "meta":[
-                ["debug", "true"]
-            ]
-        },
-        {
-            "id": "ground5",
-            "box": [14400, 1000, 320, 100] ,
-            "type": "box",
-            "meta":[
-                ["debug", "true"]
-            ]
-        }
-
+  "size": [15360, 1080],
+  "tileSheetUrl": "assets/level2/tiles",
+  "player": {
+    "pos": [50, 150],
+    "meta": [
+      ["debug", "false"],
+      ["health", "90"]
     ]
+  },
+  "entities":[
+    {
+        "type":"enemy",
+        "pos": [1000, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "false"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [1700, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
     
+    {
+        "type":"enemy",
+        "pos": [3700, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    }
+    ,
+    {
+        "type":"enemy",
+        "pos": [3800, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [3900, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [4000, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [4100, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [4020, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [4020, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [4020, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [4020, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [4020, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    },
+    {
+        "type":"enemy",
+        "pos": [4020, 150],
+        "meta": [
+            ["health", "100"],
+            ["sprite", "default"],
+            ["move", "true"]
+        ]
+    }
+  ],
+  "images": [
+    {
+      "id": "sky",
+      "pos": [0, 1080],
+      "size": [15360, 1080],
+      "type": "background",
+      "zIndex": -1,
+      "image": "sky"
+    },
+    {
+      "pos": [10, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [74, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [138, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [208, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [266, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [330, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [394, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [458, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [522, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [586, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [650, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [714, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [778, 132],
+      "size": [64, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    },
+    {
+      "pos": [842, 132],
+      "size": [32, 64],
+      "type": "ground",
+      "zIndex": 0,
+      "image": "grass"
+    }
+  ],
+  "collision": [
+    {
+      "id": "bottomless",
+      "box": [0, 15360, 1, 1],
+      "type": "bottomless",
+      "meta": [
+        ["debug", "true"],
+        ["color", "1,0,0,1"]
+      ]
+    },
+    {
+      "id": "ground1",
+      "box": [10, 1800, 100, 100],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "elevator1",
+      "box": [1500, 200, 550, 10],
+      "type": "elevator",
+      "meta": [
+        ["debug", "true"],
+        ["color", "1,0,0,1"],
+        ["msTime", "3000"],
+        ["offset", "-800,0"]
+      ]
+    },
+    {
+      "id": "elevator2",
+      "box": [500, 200, 150, 10],
+      "type": "elevator",
+      "meta": [
+        ["debug", "true"],
+        ["color", "1,0,0,1"],
+        ["msTime", "3000"],
+        ["offset", "0,500"]
+      ]
+    },
+    {
+      "id": "step2",
+      "box": [700, 100, 250, 50],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "step3",
+      "box": [800, 100, 350, 50],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "step4",
+      "box": [900, 100, 450, 50],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "ledge1",
+      "box": [900, 700, 750, 50],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+
+    {
+      "id": "slop1",
+      "box": [900, 500, 110, 10],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "slop2",
+      "box": [950, 450, 120, 10],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "slop3",
+      "box": [1000, 400, 130, 10],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "slop4",
+      "box": [1050, 350, 140, 10],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "topBack",
+      "box": [1400, 10, 140, 40],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+
+    {
+      "id": "ground2",
+      "box": [2000, 4000, 120, 100],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "block1.2",
+      "box": [2500, 200, 200, 100],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "block1.3",
+      "box": [2700, 200, 250, 50],
+      "type": "box",
+      "meta": [
+        ["debug", "true"],
+        ["color", "0,0,1,1"]
+      ]
+    },
+    {
+      "id": "block1.4",
+      "box": [2900, 200, 420, 50],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "block1.5",
+      "box": [3100, 200, 520, 50],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "block1.6",
+      "box": [3200, 200, 620, 50],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+
+    {
+      "id": "ground3",
+      "box": [6000, 4000, 220, 100],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "ground4",
+      "box": [10200, 4000, 220, 1],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    },
+    {
+      "id": "ground5",
+      "box": [14400, 1000, 320, 100],
+      "type": "box",
+      "meta": [["debug", "true"]]
+    }
+  ]
 }

@@ -121,6 +121,13 @@ export class EntityStateController extends GameComponent {
   }
 
   /**
+   * After hit prevent a second hit for a while
+   */
+  recovery(animationComplete: () => void): void {
+    this.actions.recovery(animationComplete);
+  }
+
+  /**
    * The player stops moving by releasing the arrow keys or stops jumping
    * @returns
    */

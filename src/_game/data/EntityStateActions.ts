@@ -7,6 +7,7 @@ import { Direction } from '../components/Direction';
 import { GameComponent } from '../components/GameComponent';
 import { HitAnimation } from '../components/HitAnimation';
 import { JumpAnimation } from '../components/JumpAnimation';
+import { RecoveryAnimation } from '../components/RecoveryAnimation';
 import { RunAnimation } from '../components/RunAnimation';
 import { ShootAnimation } from '../components/ShootAnimation';
 import { TeleportAnimation } from '../components/TeleportAnimation';
@@ -19,6 +20,7 @@ export class EntityStateActions extends GameComponent {
   private shootAnimation: ShootAnimation;
   private jumpAnimation: JumpAnimation;
   private hitAnimation: HitAnimation;
+  private recoveryAnimation: RecoveryAnimation;
 
   /**
    * Sprite that we will be animating
@@ -55,6 +57,7 @@ export class EntityStateActions extends GameComponent {
     this.shootAnimation = new ShootAnimation(this.eng);
     this.jumpAnimation = new JumpAnimation(this.eng);
     this.hitAnimation = new HitAnimation(this.eng);
+    this.recoveryAnimation = new RecoveryAnimation(this.eng);
 
     this._facingDirection = Direction.Right;
     this.midAirJump = 0;
@@ -78,12 +81,14 @@ export class EntityStateActions extends GameComponent {
     this.shootAnimation = new ShootAnimation(this.eng);
     this.jumpAnimation = new JumpAnimation(this.eng);
     this.hitAnimation = new HitAnimation(this.eng);
+    this.recoveryAnimation = new RecoveryAnimation(this.eng);
 
     this.teleportAnimation.initialize(this.sprite);
     this.runAnimation.initialize(this.sprite);
     this.shootAnimation.initialize(this.sprite);
     this.jumpAnimation.initialize(this.sprite);
     this.hitAnimation.initialize(this.sprite, this.options.dieDelayMs);
+    this.recoveryAnimation.initialize(this.sprite);
   }
 
   /**
@@ -91,6 +96,13 @@ export class EntityStateActions extends GameComponent {
    * @param height
    */
   adjustCollisionHeight(height: number): void {}
+
+  /**
+   * After hit prevent a second hit for a while
+   */
+  recovery(animationComplete: () => void): void {
+    this.recoveryAnimation.start().onDone(animationComplete);
+  }
 
   resetPhysics(resetVelocity: boolean = false): void {
     this.ridgeBody.active = true;
@@ -296,6 +308,7 @@ export class EntityStateActions extends GameComponent {
       this.runAnimation.update(dt);
       this.shootAnimation.update(dt);
       this.hitAnimation.update(dt);
+      this.recoveryAnimation.update(dt);
 
       // move when running
       if (this.controller.stateType == EntityStateFlags.Running) {

@@ -41,8 +41,9 @@ export class TileManager extends Component {
 
   createTile(tile: IImageTiles): void {
     // create the background
-    const tileComponent = new TileImageComponent(this.eng, tile.id ?? this.eng.random.getUuid());
-    const sprite = new SpriteInstanceController(tile.id, this.spriteCollections);
+    const id = tile.id ?? this.eng.random.getUuid();
+    const tileComponent = new TileImageComponent(this.eng, id);
+    const sprite = new SpriteInstanceController(id, this.spriteCollections);
 
     tileComponent.initialize(sprite, tile);
   }

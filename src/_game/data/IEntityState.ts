@@ -1,8 +1,5 @@
 import { BulletType } from '../components/BulletType';
-import {
-  EntityStateController,
-  EntityStateFlags,
-} from './EntityStateController';
+import { EntityStateController, EntityStateFlags } from './EntityStateController';
 
 /**
  * This interface is used by the player or enemy controller
